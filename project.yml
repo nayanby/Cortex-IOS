@@ -17,6 +17,10 @@ targets:
       - path: Cortex
         excludes: [Resources]
       - path: Cortex/Resources
+        excludes: [Reader]
+        buildPhase: resources
+      - path: Cortex/Resources/Reader
+        type: folder
         buildPhase: resources
     settings:
       base:
@@ -33,6 +37,20 @@ targets:
           - averia_serif_libre_bold.ttf
           - averia_serif_libre_italic.ttf
           - averia_serif_libre_bold_italic.ttf
+  CortexTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CortexTests
+        excludes: [Fixtures]
+      - path: CortexTests/Fixtures
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - target: Cortex
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   Cortex:
     build:
@@ -42,3 +60,6 @@ schemes:
       config: Debug
     archive:
       config: Release
+    test:
+      targets:
+        - CortexTests

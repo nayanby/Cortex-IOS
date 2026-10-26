@@ -1,0 +1,24 @@
+{
+  "androidVersion": "1.0.22",
+  "sourceHTMLSHA256": "be90a5d8f07ad5f92ccda399bf4b8830e5a207c364c1ef7f118c63530e2181e8",
+  "rendererSHA256": "392680dd68afab8dd2d5bfbe307eaa5de1be4ebfeca2d25ebde7fc13c8e19a5a",
+  "scope": "DocxPrototype with XML helpers, formula patch, page styles, native overrides, typography and offline dependencies. No embedded app state.",
+  "fontFiles": [
+    "lato_regular.ttf",
+    "lato_bold.ttf",
+    "lato_italic.ttf",
+    "lato_bolditalic.ttf",
+    "averia_serif_libre_regular.ttf",
+    "averia_serif_libre_bold.ttf",
+    "averia_serif_libre_italic.ttf",
+    "averia_serif_libre_bold_italic.ttf",
+    "SourceSansPro-Bold.ttf",
+    "SourceSansPro-Italic.ttf",
+    "SourceSansPro-BoldItalic.ttf",
+    "noto_serif_regular.ttf",
+    "noto_serif_bold.ttf",
+    "noto_serif_regularitalic.ttf",
+    "noto_serif_bolditalic.ttf",
+    "SourceSansPro-Regular.ttf"
+  ]
+}

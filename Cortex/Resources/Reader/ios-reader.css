@@ -1,0 +1,10 @@
+/* Only the native-host layout changes; note formatting comes from Android. */
+html, body { margin: 0 !important; padding: 0 !important; height: auto !important;
+  overflow: visible !important; min-height: 100%; }
+body { display: block !important; }
+#paper { display: block !important; box-sizing: border-box; margin: 0 auto !important;
+  width: 100% !important; max-width: 680px !important; min-height: 100vh;
+  padding: 14px 16px 36px !important; box-shadow: none !important; border: 0 !important; }
+.doc-root { width: 100%; }
+img { max-width: 100%; height: auto; }
+@media print { #paper { max-width: none !important; padding: 0 !important; } }

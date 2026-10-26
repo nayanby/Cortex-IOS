@@ -21,6 +21,16 @@ jobs:
           -configuration Debug -sdk iphonesimulator
           -destination 'generic/platform=iOS Simulator'
           -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Run reader integration tests on iPhone simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin); print(next(x['udid'] for k,v in d['devices'].items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
+          xcodebuild -project Cortex.xcodeproj -scheme Cortex -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath build -resultBundlePath build/ReaderTests.xcresult CODE_SIGNING_ALLOWED=NO test
+      - name: Save test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cortex-ReaderTests
+          path: build/ReaderTests.xcresult
       - name: Save simulator app
         uses: actions/upload-artifact@v4
         with:

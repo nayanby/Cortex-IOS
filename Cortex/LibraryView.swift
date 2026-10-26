@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 enum CortexStyle {
     static let ink = Color(red: 41/255, green: 38/255, blue: 100/255)
@@ -13,6 +14,9 @@ struct LibraryView: View {
     @State private var catalog: LibraryCatalog?
     @State private var loadError: String?
     @State private var query = ""
+    @StateObject private var localDocuments = LocalDocuments()
+    @State private var importing = false
+    @State private var isImporting = false
 
     var body: some View {
         NavigationStack {
@@ -20,6 +24,26 @@ struct LibraryView: View {
                 if let catalog {
                     ScrollView {
                         LazyVStack(spacing: 12) {
+                            if !localDocuments.documents.isEmpty {
+                                HStack {
+                                    Text("My notes").font(CortexStyle.title())
+                                    Spacer()
+                                }
+                                ForEach(localDocuments.documents.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { document in
+                                    NavigationLink {
+                                        DocumentReader(document: document, fileURL: localDocuments.fileURL(for: document))
+                                    } label: {
+                                        LibraryCard(title: document.title, subtitle: "Imported Word document", symbol: "doc.text")
+                                    }
+                                    .buttonStyle(.plain)
+                                    .contextMenu {
+                                        Button("Delete imported note", role: .destructive) {
+                                            do { try localDocuments.remove(document) }
+                                            catch { localDocuments.errorMessage = error.localizedDescription }
+                                        }
+                                    }
+                                }
+                            }
                             if query.isEmpty {
                                 ForEach(catalog.subjects, id: \.self) { subject in
                                     NavigationLink {
@@ -56,6 +80,33 @@ struct LibraryView: View {
             .navigationTitle("DEEP DIVE")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $query, prompt: "Search notes and headings")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { importing = true } label: { Label("Import Word document", systemImage: "square.and.arrow.down") }
+                        .disabled(isImporting)
+                }
+            }
+            .fileImporter(isPresented: $importing,
+                          allowedContentTypes: [UTType(filenameExtension: "docx") ?? .data]) { result in
+                switch result {
+                case .success(let url):
+                    isImporting = true
+                    Task {
+                        defer { isImporting = false }
+                        do { try await localDocuments.importDocument(from: url) }
+                        catch { localDocuments.errorMessage = error.localizedDescription }
+                    }
+                case .failure(let error): localDocuments.errorMessage = error.localizedDescription
+                }
+            }
+            .overlay {
+                if isImporting { ProgressView("Importing note…").padding(24).background(.regularMaterial) }
+            }
+            .alert("Imported notes", isPresented: Binding(
+                get: { localDocuments.errorMessage != nil },
+                set: { if !$0 { localDocuments.errorMessage = nil } })) {
+                    Button("OK") { localDocuments.errorMessage = nil }
+                } message: { Text(localDocuments.errorMessage ?? "") }
             .task {
                 guard catalog == nil, loadError == nil else { return }
                 do { catalog = try LibraryCatalog.load() }
