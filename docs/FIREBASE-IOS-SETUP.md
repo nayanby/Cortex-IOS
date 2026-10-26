@@ -15,6 +15,8 @@ FirebaseCore 12.19.3 and application-delegate initialization are implemented. Th
 
 The configuration remains local. The unsigned GitHub build can compile and test the offline app without it. A cloud-built app will need the configuration supplied to its build environment before Firebase initialization can run there.
 
+Verification: [cloud build 40411806905](https://github.com/nayanby/Cortex-IOS/actions/runs/40411806905) passed compilation and simulator tests for commit `b3c6f9f`. The cloud run did not receive the live configuration; authenticated backend access has not been tested.
+
 ## Integration checks
 
 - Verify the plist's bundle ID and project ID before enabling the SDK.

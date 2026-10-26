@@ -13,6 +13,7 @@ Target: preserve the Android consumer app's screens, labels, typography, library
 - Bundled Android DOCX renderer, OMML formula patch, styles, typography helpers, JSZip and sixteen original font faces inside a native WKWebView host.
 - Reader heading navigation and persistent fractional scroll position.
 - Firebase Apple app registration completed after user approval; verified active via Firebase CLI. Actual iOS configuration retrieved locally and excluded from Git. FirebaseCore initialization and configuration validation are implemented; authentication and catalog access remain pending.
+- [Firebase setup build](https://github.com/nayanby/Cortex-IOS/actions/runs/40411806905) compiled commit `b3c6f9f` successfully and passed the reader and Firebase configuration-validation simulator tests. This cloud run omits the local live plist, so it verifies SDK integration and offline behavior rather than live backend access.
 - Simulator integration tests for real WebKit rendering, escaping, tables, formulas, font loading, reading position and local document persistence/deletion.
 - Unsigned simulator build workflow using a hosted macOS runner. [Build #6](https://github.com/nayanby/Cortex-IOS/actions/runs/40408756211) compiled commit `de16dc4`, passed both reader integration tests and uploaded the simulator app on 27 October 2026 (India time). Test products use the documented iOS 18.4 deployment-target workaround for the runner's iOS 18.5 WebKit runtime issue. The ordinary app build still targets iOS 17; that OS version has not been runtime tested.
 
