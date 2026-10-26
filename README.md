@@ -16,6 +16,8 @@ The reader bundles JSZip, the extracted `DocxPrototype`, the Android formula pat
 
 `CortexTests/ReaderTests.swift` exercises actual WKWebView rendering with a synthetic DOCX containing a heading, literal script-like text, a table and a formula. It also checks imported-byte persistence and deletion. The cloud workflow runs these tests on an iPhone simulator.
 
+The Xcode 16.4 / iOS 18.5 simulator on the hosted runner has [a WebKit runtime startup issue](https://bugs.webkit.org/show_bug.cgi?id=293831). Following Apple's workaround, only the separate simulator test products use an iOS 18.4 deployment target. The normal app build still targets iOS 17; this test run does not establish iOS 17 runtime compatibility.
+
 ## Build without owning a Mac
 
 1. Place this project in a GitHub repository.

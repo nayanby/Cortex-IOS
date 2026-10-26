@@ -9,6 +9,7 @@ permissions:
 jobs:
   build:
     runs-on: macos-15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Install project generator
@@ -22,9 +23,14 @@ jobs:
           -destination 'generic/platform=iOS Simulator'
           -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
       - name: Run reader integration tests on iPhone simulator
+        timeout-minutes: 10
         run: |
           DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin); print(next(x['udid'] for k,v in d['devices'].items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
-          xcodebuild -project Cortex.xcodeproj -scheme Cortex -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath build -resultBundlePath build/ReaderTests.xcresult CODE_SIGNING_ALLOWED=NO test
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          # Apple's workaround for Xcode 16.4 + iOS 18.5 simulator WebKit startup:
+          # https://bugs.webkit.org/show_bug.cgi?id=293831
+          # Only test products use 18.4; the normal app above still builds for iOS 17.
+          xcodebuild -project Cortex.xcodeproj -scheme Cortex -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -parallel-testing-enabled NO -derivedDataPath test-build -resultBundlePath build/ReaderTests.xcresult IPHONEOS_DEPLOYMENT_TARGET=18.4 CODE_SIGNING_ALLOWED=NO test
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -32,6 +38,7 @@ jobs:
           name: Cortex-ReaderTests
           path: build/ReaderTests.xcresult
       - name: Save simulator app
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Cortex-iOS-Simulator

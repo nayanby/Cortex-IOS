@@ -2,6 +2,7 @@ Generated/
 *.xcodeproj/
 DerivedData/
 build/
+test-build/
 .DS_Store
 *.mobileprovision
 *.p12
