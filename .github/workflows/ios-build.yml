@@ -24,12 +24,16 @@ jobs:
           java-version: '21'
       - name: Generate Xcode project
         run: xcodegen generate
+      - uses: actions/cache@v4
+        with:
+          path: .spm-cache
+          key: ios-spm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('project.yml') }}
       - name: Build for simulator without signing
         run: >-
           xcodebuild -project Cortex.xcodeproj -scheme Cortex
           -configuration Debug -sdk iphonesimulator
           -destination 'generic/platform=iOS Simulator'
-          -clonedSourcePackagesDirPath .spm-cache -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+          -clonedSourcePackagesDirPath .spm-cache -derivedDataPath build ONLY_ACTIVE_ARCH=YES ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
       - name: Run account, download and reader integration tests
         timeout-minutes: 20
         run: |

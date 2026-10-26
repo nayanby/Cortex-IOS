@@ -7,6 +7,7 @@ import FirebaseAppCheck
 @testable import Cortex
 
 final class FirebaseConsumerIntegrationTests: XCTestCase {
+    @MainActor
     func testAccountTrialCatalogDownloadAndKeychainAgainstDemoEmulators() async throws {
         guard ProcessInfo.processInfo.environment["CORTEX_TEST_EMULATORS"] == "1" else {
             XCTFail("The account/download integration test must run through the demo emulator workflow.")

@@ -12,12 +12,12 @@ Target: preserve the Android consumer app's screens, labels, typography, library
 - Personal DOCX import with durable local storage, removal, sharing, and a 32 MB input limit.
 - Bundled Android DOCX renderer, OMML formula patch, styles, typography helpers, JSZip and sixteen original font faces inside a native WKWebView host.
 - Reader heading navigation and persistent fractional scroll position.
-- Firebase Apple app registration completed after user approval; verified active via Firebase CLI. Actual iOS configuration retrieved locally and excluded from Git. FirebaseCore initialization and configuration validation are implemented; authentication and catalog access remain pending.
+- Firebase Apple app registration completed after user approval; verified active via Firebase CLI. Actual iOS configuration retrieved locally and excluded from Git. Google sign-in, profile access, trial policy and shared catalog/download code are implemented; integration validation is in progress.
 - [Firebase setup build](https://github.com/nayanby/Cortex-IOS/actions/runs/40411806905) compiled commit `b3c6f9f` successfully and passed the reader and Firebase configuration-validation simulator tests. This cloud run omits the local live plist, so it verifies SDK integration and offline behavior rather than live backend access.
 - Simulator integration tests for real WebKit rendering, escaping, tables, formulas, font loading, reading position and local document persistence/deletion.
 - Unsigned simulator build workflow using a hosted macOS runner. [Build #6](https://github.com/nayanby/Cortex-IOS/actions/runs/40408756211) compiled commit `de16dc4`, passed both reader integration tests and uploaded the simulator app on 27 October 2026 (India time). Test products use the documented iOS 18.4 deployment-target workaround for the runner's iOS 18.5 WebKit runtime issue. The ordinary app build still targets iOS 17; that OS version has not been runtime tested.
 
-Current UI starts at Deep Dive. It does not yet reproduce the Android home screen, authentication gate, drawer, or bottom navigation. The SF Symbols in the initial library are temporary; the Android illustrations need asset conversion. Neither functional nor pixel parity is claimed.
+Configured builds start at the Google authentication gate, then open Deep Dive. Builds without Firebase configuration offer an offline preview in Debug. The Android home screen, drawer and bottom navigation remain to be ported. The SF Symbols in the initial library are temporary; the Android illustrations need asset conversion. Neither functional nor pixel parity is claimed.
 
 ## Remaining implementation and acceptance criteria
 
@@ -54,7 +54,7 @@ Use equivalent test accounts on Android and iOS. Compare each screen at equivale
 
 ## External setup still needed
 
-- GitHub remote to run the prepared macOS workflow.
+- GitHub remote and hosted macOS workflow are configured and running.
 - iOS app `Cortex Consumer iOS` is registered and its configuration is present locally. Cloud builds still need that config supplied privately to initialize Firebase; the current workflow deliberately supports offline builds without it.
 - Apple Developer membership, identifiers, signing and App Store Connect before TestFlight.
 - A real or hosted Apple device environment for visual and interaction testing.

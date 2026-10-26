@@ -11,7 +11,7 @@ On 27 October 2026, after explicit user approval, `Cortex Consumer iOS` was regi
 3. Download its `GoogleService-Info.plist`.
 4. Keep it locally for integration. It is currently ignored by Git. Do not upload a service-account private key, Android signing key, account password, or Apple signing credential in its place.
 
-FirebaseCore 12.19.3 and application-delegate initialization are implemented. The app validates the project ID, bundle ID, sender ID, Apple app ID and presence of the client API key before configuring the SDK. This does not establish an authenticated connection or grant consumer access. Google sign-in, App Check, account/device policy and catalog downloads still need implementation. No production backend rules or user data were changed.
+Firebase 12.19.3 initialization, Google sign-in, App Check provider selection, account profiles and shared DOCX downloads are implemented. The app validates the project ID, bundle ID, sender ID, Apple app ID and presence of the client API key before configuring the SDK. Live Google OAuth and production App Check still require verification. No production backend rules or user data were changed.
 
 The configuration remains local. The unsigned GitHub build can compile and test the offline app without it. A cloud-built app will need the configuration supplied to its build environment before Firebase initialization can run there.
 
@@ -20,10 +20,11 @@ Verification: [cloud build 40411806905](https://github.com/nayanby/Cortex-IOS/ac
 ## Integration checks
 
 - Verify the plist's bundle ID and project ID before enabling the SDK.
-- Configure the same Email/Password and Google auth providers as Android.
+- Verify Google sign-in, matching the visible Android 1.0.23 sign-in screen.
 - Implement profile and entitlement checks separately from Firebase Authentication; Firebase sign-in must not grant access on its own.
 - Register the Apple App Check provider and use debug tokens only in authorized development builds. Do not relax production backend rules to make simulator requests pass.
 - Preserve existing note, snapshot, flashcard and quiz paths and serialized schemas.
-- Use a dedicated test account to check trial start, registration limits, concurrent sessions, revoked access, offline behavior and cross-platform data round trips.
+- The Android 1.0.23 contract disables device/session restrictions. Preserve its 60-day trial without restarting an existing trial; expired/free accounts may still read notes.
+- Run the demo emulator suite for concurrent trial initialization, profile isolation, Keychain storage, catalog downloads and cache behavior. Use a dedicated authorized account for live Google sign-in and cross-platform data round trips.
 
 Official references: [Firebase Apple setup](https://firebase.google.com/docs/ios/setup), [download Apple app configuration](https://support.google.com/firebase/answer/7015592).
