@@ -41,6 +41,16 @@ jobs:
           -configuration Debug -sdk iphonesimulator
           -destination 'generic/platform=iOS Simulator'
           -clonedSourcePackagesDirPath .spm-cache -derivedDataPath build ONLY_ACTIVE_ARCH=YES ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
+      - name: Prepare browser simulator build with Keychain access
+        run: |
+          codesign --force --sign - --entitlements test-backend/Simulator.entitlements build/Build/Products/Debug-iphonesimulator/Cortex.app
+          ditto -c -k --keepParent build/Build/Products/Debug-iphonesimulator/Cortex.app build/Cortex-Appetize.zip
+      - name: Save browser test package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cortex-Appetize
+          path: build/Cortex-Appetize.zip
+          if-no-files-found: error
       - name: Run account, download and reader integration tests
         timeout-minutes: 20
         run: |
