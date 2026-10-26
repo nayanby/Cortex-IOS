@@ -24,10 +24,17 @@ jobs:
           java-version: '21'
       - name: Generate Xcode project
         run: xcodegen generate
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: dependencies
         with:
-          path: .spm-cache
-          key: ios-spm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('project.yml') }}
+          path: |
+            .spm-cache
+            build/Build/Intermediates.noindex
+            build/ModuleCache.noindex
+            test-build/Build/Intermediates.noindex
+            test-build/ModuleCache.noindex
+          key: ios-compile-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('project.yml') }}-${{ github.sha }}
+          restore-keys: ios-compile-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('project.yml') }}-
       - name: Build for simulator without signing
         run: >-
           xcodebuild -project Cortex.xcodeproj -scheme Cortex
@@ -46,6 +53,16 @@ jobs:
           path: |
             *-debug.log
             test-backend/*-debug.log
+      - uses: actions/cache/save@v4
+        if: always() && !cancelled() && steps.dependencies.outputs.cache-hit != 'true'
+        with:
+          path: |
+            .spm-cache
+            build/Build/Intermediates.noindex
+            build/ModuleCache.noindex
+            test-build/Build/Intermediates.noindex
+            test-build/ModuleCache.noindex
+          key: ${{ steps.dependencies.outputs.cache-primary-key }}
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4

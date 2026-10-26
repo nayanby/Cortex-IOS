@@ -8,4 +8,6 @@ export SIMCTL_CHILD_CORTEX_TEST_EMULATORS=1
 xcodebuild -project Cortex.xcodeproj -scheme Cortex -configuration Debug \
   -destination "platform=iOS Simulator,id=$DEVICE_ID" -parallel-testing-enabled NO \
   -clonedSourcePackagesDirPath .spm-cache -derivedDataPath test-build \
-  -resultBundlePath build/ReaderTests.xcresult IPHONEOS_DEPLOYMENT_TARGET=18.4 CODE_SIGNING_ALLOWED=NO test
+  -resultBundlePath build/ReaderTests.xcresult IPHONEOS_DEPLOYMENT_TARGET=18.4 \
+  CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- \
+  CODE_SIGN_ENTITLEMENTS=test-backend/Simulator.entitlements test
