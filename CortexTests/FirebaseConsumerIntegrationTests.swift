@@ -28,6 +28,11 @@ final class FirebaseConsumerIntegrationTests: XCTestCase {
         auth.useEmulator(withHost: "127.0.0.1", port: 9099)
         let database = Firestore.firestore(app: app)
         database.useEmulator(withHost: "127.0.0.1", port: 8080)
+        // The demo emulator speaks plaintext gRPC. Explicitly disable TLS on
+        // this named test instance; production Firestore keeps its defaults.
+        let emulatorSettings = database.settings
+        emulatorSettings.isSSLEnabled = false
+        database.settings = emulatorSettings
         let storage = Storage.storage(app: app)
         storage.useEmulator(withHost: "127.0.0.1", port: 9199)
 
