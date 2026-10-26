@@ -26,8 +26,8 @@ targets:
       - path: Cortex/Resources/Reader
         type: folder
         buildPhase: resources
-      - path: Config/GoogleService-Info.plist
-        optional: true
+      - path: Config
+        excludes: [README.md, '*.xcconfig']
         buildPhase: resources
     dependencies:
       - package: Firebase
