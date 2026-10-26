@@ -17,7 +17,7 @@ Target: preserve the Android consumer app's screens, labels, typography, library
 - Simulator integration tests for real WebKit rendering, escaping, tables, formulas, font loading, reading position and local document persistence/deletion.
 - Unsigned simulator build workflow using a hosted macOS runner. [Build #6](https://github.com/nayanby/Cortex-IOS/actions/runs/40408756211) compiled commit `de16dc4`, passed both reader integration tests and uploaded the simulator app on 27 October 2026 (India time). Test products use the documented iOS 18.4 deployment-target workaround for the runner's iOS 18.5 WebKit runtime issue. The ordinary app build still targets iOS 17; that OS version has not been runtime tested.
 
-Configured builds start at the Google authentication gate, then open Deep Dive. Builds without Firebase configuration offer an offline preview in Debug. The Android home screen, drawer and bottom navigation remain to be ported. The SF Symbols in the initial library are temporary; the Android illustrations need asset conversion. Neither functional nor pixel parity is claimed.
+Configured builds start at the Google authentication gate, then open Home. Debug builds without Firebase configuration open an offline Home preview directly. The Android home layout, header, drawer, floating bottom navigation, menu gradients and original artwork now have an initial native port; subject illustrations and chapter cards use the original assets and dimensions. Study, PDF and notebook actions still identify themselves as unfinished. Recent-reading data and full reader chrome remain incomplete. Neither functional nor pixel parity is claimed.
 
 ## Remaining implementation and acceptance criteria
 
@@ -25,7 +25,7 @@ Configured builds start at the Google authentication gate, then open Deep Dive. 
 | --- | --- | --- |
 | Authentication | `data/auth/AccessRepository.kt`, `screen_gate.xml` | Google gate, restoration, sign-out, Keychain profile cache and atomic 60-day trial implemented; cloud validation pending. Current Android hides email/password controls and disables device/session restrictions. Live OAuth acceptance testing remains |
 | Firebase registration | `FirebaseSetup.kt` | Apple app registered, local plist retrieved, Auth/Firestore/Storage/App Check SDKs and generated Google callback scheme wired. Remaining: private cloud-build config, production App Check registration and live account testing |
-| Home and navigation | `screen_home.xml`, `activity_main.xml`, menu resources | Match continue-reading, due work, Deep Dive, Snapshots, PDFs, notebooks, drawer, search and bottom tabs |
+| Home and navigation | `screen_home.xml`, `activity_main.xml`, menu resources | Initial home, drawer, custom header/search and bottom pill ported with original artwork; visual acceptance and functional study/PDF/notebook screens remain |
 | Library sync | `FirebaseLibraryClient.kt`, `CatalogStore.kt`, `SyncRepository.kt` | Shared catalog refresh, Android path deduplication, Storage lazy download, progress, cancellation and 24-hour/ETag cache implemented; simulator/emulator validation pending |
 | Reader | generated `index.html`, `web/ManifestProvider.kt`, `web/ApiPathHandler.kt`, `assets/bridge.js` | Core DOCX rendering, formulas, fonts, headings and scroll restoration ported; shared download now routes into the same reader. Remaining: Android toolbar controls, poster scope, export quotas/formatting, and visual parity checks |
 | Reader/native bridge | `assets/bridge.js`, `MainActivity.kt` | Replace synchronous `AndroidBridge` calls with explicit asynchronous WebKit messages and JavaScript state caching; audit every bridge method and reject untrusted navigation |
@@ -58,3 +58,9 @@ Use equivalent test accounts on Android and iOS. Compare each screen at equivale
 - iOS app `Cortex Consumer iOS` is registered and its configuration is present locally. Cloud builds still need that config supplied privately to initialize Firebase; the current workflow deliberately supports offline builds without it.
 - Apple Developer membership, identifiers, signing and App Store Connect before TestFlight.
 - A real or hosted Apple device environment for visual and interaction testing.
+
+## Windows browser preview
+
+The user's Appetize account has a CORTEX simulator app. The initial offline build was uploaded and launched on an iPhone 14 Pro with iOS 26.0 from Windows. It is an incomplete port, not a completed copy. Appetize's iOS media-upload control does not support DOCX, so that control cannot populate the Files picker for personal imports.
+
+`scripts/package-appetize.py` wraps the downloaded simulator artifact with its required `Cortex.app/` root and executable permissions. With `--notes-dir`, it can include explicitly supplied local DOCX files and a Debug-only `preview-library.json` mapping. Such files stay in ignored build output and outside Git. `PreviewLibrary` never fetches server content or grants anonymous Firebase access. The normal shared-note reader still requires an authenticated profile. The user explicitly approved private configuration transfer to GitHub/Appetize; `FIREBASE_IOS_CONFIG_PLIST` was saved as an encrypted GitHub Actions secret on 27 October 2026 (India time). The next build will include that client configuration; live sign-in and backend acceptance remain unverified.
