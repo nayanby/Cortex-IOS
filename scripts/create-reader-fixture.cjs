@@ -10,6 +10,7 @@ const JSZip = require('../Cortex/Resources/Reader/jszip.min.js');
     <w:p><w:r><w:t xml:space="preserve">Safe text: &lt;script&gt;window.injected=true&lt;/script&gt; &amp; apostrophe's</w:t></w:r></w:p>
     <w:tbl><w:tr><w:tc><w:p><w:r><w:t>Table header</w:t></w:r></w:p></w:tc></w:tr><w:tr><w:tc><w:p><w:r><w:t>Table value</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
     <w:p><m:oMath><m:r><m:t>eGFR = 90</m:t></m:r></m:oMath></w:p>
+    ${Array.from({length:80}, (_,i)=>`<w:p><w:r><w:t>Reading position check paragraph ${i + 1}. Text that gives the reader enough height to restore its position.</w:t></w:r></w:p>`).join('')}
     </w:body></w:document>`);
   const dir = path.resolve(__dirname, '../CortexTests/Fixtures');
   fs.mkdirSync(dir, {recursive:true});

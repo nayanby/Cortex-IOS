@@ -6,7 +6,11 @@ import WebKit
 final class ReaderTests: XCTestCase {
     func testWordRenderingWithTableFormulaAndEscapedText() async throws {
         let fixture = try XCTUnwrap(Bundle(for: ReaderTests.self).url(forResource: "reader-check", withExtension: "docx", subdirectory: "Fixtures"))
-        let controller = ReaderController(fileURL: fixture, documentID: UUID())
+        let documentID = UUID()
+        let progressKey = "reading.\(documentID.uuidString)"
+        UserDefaults.standard.set(0.35, forKey: progressKey)
+        defer { UserDefaults.standard.removeObject(forKey: progressKey) }
+        let controller = ReaderController(fileURL: fixture, documentID: documentID)
         // A visible host gives WebKit a normal drawing and layout lifecycle.
         let host = UIViewController()
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
@@ -33,9 +37,13 @@ final class ReaderTests: XCTestCase {
         XCTAssertEqual(tableCount, 1)
         let fontReady = try await controller.webView.evaluateJavaScript("document.fonts.check('16px \"Averia Serif Libre\"')") as? Bool
         XCTAssertEqual(fontReady, true)
+        let restored = try await controller.webView.evaluateJavaScript("window.cortexReadingProgress()") as? Double
+        XCTAssertEqual(try XCTUnwrap(restored), 0.35, accuracy: 0.02)
         let jumped = try await controller.webView.callAsyncJavaScript("return window.cortexJumpToHeading(index);",
             arguments: ["index": 0], in: nil, contentWorld: .page) as? Bool
         XCTAssertEqual(jumped, true)
+        try await Task.sleep(nanoseconds: 500_000_000)
+        XCTAssertLessThan(UserDefaults.standard.double(forKey: progressKey), 0.02)
     }
 
     func testImportPersistsAndDeletesOriginalBytes() async throws {

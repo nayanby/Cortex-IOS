@@ -4,9 +4,17 @@ Native iPhone/iPad port of the existing Cortex Consumer Android app. The goal is
 
 ## Current state
 
-Initial source only; not yet a complete or verified iOS app. Catalog browsing, chapter lists, heading search, and outlines are implemented against the actual bundled Android catalog (14 subjects, 126 chapters, 2,603 headings). The original Averia fonts and blue/ink palette are reused. There is no account, document, trial, or backend access in this initial build. The library metadata is visible offline; the document bodies are not bundled.
+The port includes catalog browsing, chapter lists, heading search, and outlines against the actual bundled Android catalog (14 subjects, 126 chapters, 2,603 headings). It also supports importing personal DOCX files, offline reading with the Android rendering engine, heading navigation, saved reading position, sharing the original Word file, and deleting imported notes. The original fonts and palette are reused. It is not yet a complete copy: Firebase accounts, trial enforcement, shared document downloads, annotations, and study tools are still pending. The library metadata is bundled; the shared document bodies are not.
 
 The Swift code compiled successfully on a hosted macOS runner in [build #1](https://github.com/nayanby/Cortex-IOS/actions/runs/40406193244), producing a simulator app artifact. The app has not been launched or visually tested. See [port status](docs/PORT-STATUS.md) for the remaining work.
+
+## Personal Word documents
+
+Use the import icon at the upper right of Deep Dive to choose a `.docx` in Files. Imported notes appear under **My notes** and remain available after relaunch. Open a note to read it; the outline button jumps to headings and Share exports the original DOCX. Long-press an imported note to delete its local copy. Imports currently have a 32 MB limit. These documents stay in the app's local storage and are not uploaded to Firebase.
+
+The reader bundles JSZip, the extracted `DocxPrototype`, the Android formula patch, Android styles, and the original fonts. It does not include the exported author's embedded study state or provider keys. The native bridge passes document bytes as WebKit arguments, blocks external page navigation, and uses a restrictive content security policy. It is not yet connected to catalog downloads.
+
+`CortexTests/ReaderTests.swift` exercises actual WKWebView rendering with a synthetic DOCX containing a heading, literal script-like text, a table and a formula. It also checks imported-byte persistence and deletion. The cloud workflow runs these tests on an iPhone simulator.
 
 ## Build without owning a Mac
 
