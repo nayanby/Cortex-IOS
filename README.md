@@ -18,6 +18,10 @@ The reader bundles JSZip, the extracted `DocxPrototype`, the Android formula pat
 
 The Xcode 16.4 / iOS 18.5 simulator on the hosted runner has [a WebKit runtime startup issue](https://bugs.webkit.org/show_bug.cgi?id=293831). Following Apple's workaround, only the separate simulator test products use an iOS 18.4 deployment target. The normal app build still targets iOS 17; this test run does not establish iOS 17 runtime compatibility.
 
+## Firebase setup
+
+`Cortex Consumer iOS` is registered in the existing `cortex-v1b` project. FirebaseCore initializes through the application delegate when a validated `Config/GoogleService-Info.plist` is included. The actual config is available locally and excluded from Git; cloud builds currently run without it. FirebaseCore is pinned to 12.19.3 for the runner's Swift 6.1 toolchain. No authentication, entitlement policy or cloud library access is enabled yet. See [Firebase setup status](docs/FIREBASE-IOS-SETUP.md).
+
 ## Build without owning a Mac
 
 1. Place this project in a GitHub repository.

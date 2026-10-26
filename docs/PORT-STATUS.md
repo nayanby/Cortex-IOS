@@ -12,6 +12,7 @@ Target: preserve the Android consumer app's screens, labels, typography, library
 - Personal DOCX import with durable local storage, removal, sharing, and a 32 MB input limit.
 - Bundled Android DOCX renderer, OMML formula patch, styles, typography helpers, JSZip and sixteen original font faces inside a native WKWebView host.
 - Reader heading navigation and persistent fractional scroll position.
+- Firebase Apple app registration completed after user approval; verified active via Firebase CLI. Actual iOS configuration retrieved locally and excluded from Git. FirebaseCore initialization and configuration validation are implemented; authentication and catalog access remain pending.
 - Simulator integration tests for real WebKit rendering, escaping, tables, formulas, font loading, reading position and local document persistence/deletion.
 - Unsigned simulator build workflow using a hosted macOS runner. [Build #6](https://github.com/nayanby/Cortex-IOS/actions/runs/40408756211) compiled commit `de16dc4`, passed both reader integration tests and uploaded the simulator app on 27 October 2026 (India time). Test products use the documented iOS 18.4 deployment-target workaround for the runner's iOS 18.5 WebKit runtime issue. The ordinary app build still targets iOS 17; that OS version has not been runtime tested.
 
@@ -22,7 +23,7 @@ Current UI starts at Deep Dive. It does not yet reproduce the Android home scree
 | Area | Android reference | Required iOS behavior |
 | --- | --- | --- |
 | Authentication | `data/auth/AccessRepository.kt`, `screen_gate.xml` | Email/password, Google sign-in, profile registration/recovery, trial, device registration and live session policy; compare schema and transactions before enabling writes |
-| Firebase registration | `FirebaseSetup.kt` | Register an Apple app in the same Firebase project; supply an iOS plist, App Check configuration and URL schemes; never reuse Android app credentials as iOS configuration |
+| Firebase registration | `FirebaseSetup.kt` | Apple app registered, local plist retrieved, FirebaseCore initialization added. Remaining: cloud-build configuration, App Check, sign-in URL schemes, authentication and entitlement integration |
 | Home and navigation | `screen_home.xml`, `activity_main.xml`, menu resources | Match continue-reading, due work, Deep Dive, Snapshots, PDFs, notebooks, drawer, search and bottom tabs |
 | Library sync | `FirebaseLibraryClient.kt`, `CatalogStore.kt`, `SyncRepository.kt` | Use `library/catalog/notes` and Storage `files/...`; lazy download, cache, progress, refresh, cancellation and offline recovery |
 | Reader | generated `index.html`, `web/ManifestProvider.kt`, `web/ApiPathHandler.kt`, `assets/bridge.js` | Core DOCX rendering, formulas, offline fonts, headings and scroll restoration ported for imported notes. Remaining: catalog download integration, Android toolbar controls, poster scope, export formatting, and visual parity checks |
@@ -53,7 +54,6 @@ Use equivalent test accounts on Android and iOS. Compare each screen at equivale
 ## External setup still needed
 
 - GitHub remote to run the prepared macOS workflow.
-- iOS Firebase app registration/configuration for the existing backend.
-- Console inspection on 27 October confirmed that `cortex-v1b` has two Android apps and one web app, with no Apple app. An Apple registration for `com.cortex.notes`, nickname `Cortex Consumer iOS`, is prepared in the console but has not been submitted.
+- iOS app `Cortex Consumer iOS` is registered and its configuration is present locally. Cloud builds still need that config supplied privately to initialize Firebase; the current workflow deliberately supports offline builds without it.
 - Apple Developer membership, identifiers, signing and App Store Connect before TestFlight.
 - A real or hosted Apple device environment for visual and interaction testing.

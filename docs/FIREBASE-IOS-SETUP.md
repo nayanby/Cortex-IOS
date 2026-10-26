@@ -2,7 +2,7 @@
 
 The existing Android configuration identifies project `cortex-v1b` and Storage bucket `cortex-v1b.firebasestorage.app`. The iOS target's bundle ID is `com.cortex.notes`. Reuse the existing project so the consumer catalog and accounts refer to the same backend.
 
-Console inspection on 27 October 2026 confirmed there are two Android registrations and one web registration, with no Apple app. The Apple form is prepared with bundle ID `com.cortex.notes` and nickname `Cortex Consumer iOS`; registration awaits action-time confirmation before submitting.
+On 27 October 2026, after explicit user approval, `Cortex Consumer iOS` was registered with bundle ID `com.cortex.notes`. The Firebase CLI independently verified its active Apple app ID: `1:302875225635:ios:feae2129a9dc52c49c0b96`. Its actual configuration was retrieved to the Git-ignored `Config/GoogleService-Info.plist` using the existing local Firebase CLI login.
 
 ## Configuration needed
 
@@ -11,7 +11,9 @@ Console inspection on 27 October 2026 confirmed there are two Android registrati
 3. Download its `GoogleService-Info.plist`.
 4. Keep it locally for integration. It is currently ignored by Git. Do not upload a service-account private key, Android signing key, account password, or Apple signing credential in its place.
 
-Registration alone does not connect the current build. The Firebase Apple SDK, initialization, Google sign-in URL handling, App Check and account/device policy still need implementation. The current app makes no Firebase requests.
+FirebaseCore 12.19.3 and application-delegate initialization are implemented. The app validates the project ID, bundle ID, sender ID, Apple app ID and presence of the client API key before configuring the SDK. This does not establish an authenticated connection or grant consumer access. Google sign-in, App Check, account/device policy and catalog downloads still need implementation. No production backend rules or user data were changed.
+
+The configuration remains local. The unsigned GitHub build can compile and test the offline app without it. A cloud-built app will need the configuration supplied to its build environment before Firebase initialization can run there.
 
 ## Integration checks
 
