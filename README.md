@@ -6,7 +6,7 @@ Native iPhone/iPad port of the existing Cortex Consumer Android app. The goal is
 
 Initial source only; not yet a complete or verified iOS app. Catalog browsing, chapter lists, heading search, and outlines are implemented against the actual bundled Android catalog (14 subjects, 126 chapters, 2,603 headings). The original Averia fonts and blue/ink palette are reused. There is no account, document, trial, or backend access in this initial build. The library metadata is visible offline; the document bodies are not bundled.
 
-The Swift code has not been compiled or run: this workstation is Windows and has no Xcode. Visual parity is not verified. See [port status](docs/PORT-STATUS.md) for the remaining work.
+The Swift code compiled successfully on a hosted macOS runner in [build #1](https://github.com/nayanby/Cortex-IOS/actions/runs/40406193244), producing a simulator app artifact. The app has not been launched or visually tested. See [port status](docs/PORT-STATUS.md) for the remaining work.
 
 ## Build without owning a Mac
 

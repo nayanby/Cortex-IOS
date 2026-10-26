@@ -2,14 +2,14 @@
 
 Target: preserve the Android consumer app's screens, labels, typography, library contents, study behavior, saved data, and access policy. Initial platform target: iOS/iPadOS 17 and later. The deployment target can change after device requirements are known.
 
-## Implemented, awaiting compilation and visual checks
+## Implemented, awaiting runtime and visual checks
 
 - SwiftUI app entry point and declarative XcodeGen project.
 - Actual bundled catalog with stable IDs, storage paths, subject names, chapter ordering, headings, and study-tool availability flags.
 - Subject → chapter → outline navigation.
 - Search across chapter titles, subjects, and headings; empty and catalog failure states.
 - Original Averia Serif Libre fonts, brand colors, blue card gradient, and original Deep Dive label.
-- Unsigned simulator build workflow using a hosted macOS runner. Not yet executed.
+- Unsigned simulator build workflow using a hosted macOS runner. [Build #1](https://github.com/nayanby/Cortex-IOS/actions/runs/40406193244) compiled commit `18e9b90` successfully and uploaded the simulator app on 27 October 2026 (India time). No launch or interaction testing has been performed.
 
 Current UI starts at Deep Dive. It does not yet reproduce the Android home screen, authentication gate, drawer, or bottom navigation. The SF Symbols in the initial library are temporary; the Android illustrations need asset conversion. Neither functional nor pixel parity is claimed.
 
