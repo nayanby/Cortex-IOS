@@ -6,7 +6,7 @@ Native iPhone/iPad port of the existing Cortex Consumer Android app. The goal is
 
 The port includes catalog browsing, chapter lists, heading search, and outlines against the actual bundled Android catalog (14 subjects, 126 chapters, 2,603 headings). It also supports importing personal DOCX files, offline reading with the Android rendering engine, heading navigation, saved reading position, sharing the original Word file, and deleting imported notes. The original fonts and palette are reused. It is not yet a complete copy: Firebase accounts, trial enforcement, shared document downloads, annotations, and study tools are still pending. The library metadata is bundled; the shared document bodies are not.
 
-The Swift code compiled successfully on a hosted macOS runner in [build #1](https://github.com/nayanby/Cortex-IOS/actions/runs/40406193244), producing a simulator app artifact. The app has not been launched or visually tested. See [port status](docs/PORT-STATUS.md) for the remaining work.
+The app compiled and both reader integration tests passed on a hosted iPhone simulator in [build #6](https://github.com/nayanby/Cortex-IOS/actions/runs/40408756211), testing commit `de16dc4`. Checks cover Word tables/formulas, escaped text, font loading, heading navigation, scroll restoration, native progress persistence and imported-document storage/deletion. Visual parity and real-device behavior remain unverified. See [port status](docs/PORT-STATUS.md) for the remaining work.
 
 ## Personal Word documents
 

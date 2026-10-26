@@ -2,7 +2,7 @@
 
 Target: preserve the Android consumer app's screens, labels, typography, library contents, study behavior, saved data, and access policy. Initial platform target: iOS/iPadOS 17 and later. The deployment target can change after device requirements are known.
 
-## Implemented, awaiting runtime and visual checks
+## Implemented, with initial reader runtime checks passing
 
 - SwiftUI app entry point and declarative XcodeGen project.
 - Actual bundled catalog with stable IDs, storage paths, subject names, chapter ordering, headings, and study-tool availability flags.
@@ -13,7 +13,7 @@ Target: preserve the Android consumer app's screens, labels, typography, library
 - Bundled Android DOCX renderer, OMML formula patch, styles, typography helpers, JSZip and sixteen original font faces inside a native WKWebView host.
 - Reader heading navigation and persistent fractional scroll position.
 - Simulator integration tests for real WebKit rendering, escaping, tables, formulas, font loading, reading position and local document persistence/deletion.
-- Unsigned simulator build workflow using a hosted macOS runner. [Build #1](https://github.com/nayanby/Cortex-IOS/actions/runs/40406193244) compiled commit `18e9b90` successfully and uploaded the simulator app on 27 October 2026 (India time). No launch or interaction testing has been performed.
+- Unsigned simulator build workflow using a hosted macOS runner. [Build #6](https://github.com/nayanby/Cortex-IOS/actions/runs/40408756211) compiled commit `de16dc4`, passed both reader integration tests and uploaded the simulator app on 27 October 2026 (India time). Test products use the documented iOS 18.4 deployment-target workaround for the runner's iOS 18.5 WebKit runtime issue. The ordinary app build still targets iOS 17; that OS version has not been runtime tested.
 
 Current UI starts at Deep Dive. It does not yet reproduce the Android home screen, authentication gate, drawer, or bottom navigation. The SF Symbols in the initial library are temporary; the Android illustrations need asset conversion. Neither functional nor pixel parity is claimed.
 
@@ -54,5 +54,6 @@ Use equivalent test accounts on Android and iOS. Compare each screen at equivale
 
 - GitHub remote to run the prepared macOS workflow.
 - iOS Firebase app registration/configuration for the existing backend.
+- Console inspection on 27 October confirmed that `cortex-v1b` has two Android apps and one web app, with no Apple app. An Apple registration for `com.cortex.notes`, nickname `Cortex Consumer iOS`, is prepared in the console but has not been submitted.
 - Apple Developer membership, identifiers, signing and App Store Connect before TestFlight.
 - A real or hosted Apple device environment for visual and interaction testing.
