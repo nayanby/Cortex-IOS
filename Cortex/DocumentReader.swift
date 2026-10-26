@@ -25,7 +25,9 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
         webView = WKWebView(frame: .zero, configuration: configuration)
         super.init()
         webView.navigationDelegate = self
-        configuration.userContentController.add(self, name: "readingProgress")
+        // WKWebView copies its configuration. Register on the actual controller,
+        // rather than lazily creating one on the original configuration copy.
+        webView.configuration.userContentController.add(self, name: "readingProgress")
         webView.isOpaque = false
         webView.backgroundColor = .white
         webView.scrollView.backgroundColor = .white
