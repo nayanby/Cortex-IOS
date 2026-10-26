@@ -14,6 +14,9 @@ struct SharedNoteView: View {
             if let profile = session.profile, let localURL {
                 DocumentReader(document: LocalDocument(id: SharedDocumentCache.identifier(for: profile.uid + "/" + note.path),
                     title: note.displayName, importedAt: .distantPast), fileURL: localURL, allowsSharing: false)
+            } else if session.profile == nil, let preview = PreviewLibrary.file(for: note) {
+                DocumentReader(document: LocalDocument(id: SharedDocumentCache.identifier(for: "preview/" + note.path),
+                    title: note.displayName, importedAt: .distantPast), fileURL: preview, allowsSharing: false)
             } else if session.profile == nil {
                 ChapterOutline(note: note)
             } else if let errorMessage {

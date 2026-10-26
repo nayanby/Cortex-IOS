@@ -6,26 +6,19 @@ struct CortexRootView: View {
     @StateObject private var library = LibraryStore()
     @Environment(\.scenePhase) private var scenePhase
     @State private var started = false
-    @State private var offlinePreview = false
 
     var body: some View {
         Group {
             if !started { ProgressView("Opening Cortex…") }
             else if !session.configurationAvailable {
                 #if DEBUG
-                if offlinePreview { LibraryView() }
-                else {
-                    VStack(spacing: 24) {
-                        ContentUnavailableView("Cortex", systemImage: "book.closed", description: Text("Sign-in is unavailable in this build."))
-                        Button("Open offline library") { offlinePreview = true }.buttonStyle(.borderedProminent)
-                    }
-                }
+                ConsumerHomeView()
                 #else
                 ContentUnavailableView("Cortex isn't ready on this build", systemImage: "book.closed",
                                        description: Text("Please install an updated build."))
                 #endif
             } else if let profile = session.profile {
-                LibraryView(accountID: profile.uid).id(profile.uid)
+                ConsumerHomeView().id(profile.uid)
                     .task(id: profile) { await library.refresh(profile: profile) }
             } else if session.isRestoring { ProgressView("Restoring your account…") }
             else { ConsumerSignInView() }

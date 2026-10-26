@@ -5,6 +5,7 @@ enum CortexStyle {
     static let ink = Color(red: 41/255, green: 38/255, blue: 100/255)
     static let muted = Color(red: 102/255, green: 115/255, blue: 149/255)
     static let background = Color(red: 252/255, green: 252/255, blue: 254/255)
+    static let line = Color(hex: 0xDDE1EF)
     static let blue = [Color(red: 234/255, green: 243/255, blue: 252/255),
                        Color(red: 207/255, green: 225/255, blue: 245/255)]
     static func title(_ size: CGFloat = 18) -> Font { .custom("AveriaSerifLibre-Bold", size: size) }
@@ -18,6 +19,8 @@ struct LibraryView: View {
     @State private var importing = false
     @State private var isImporting = false
     @State private var showingAccount = false
+    @State private var searching = false
+    @Environment(\.dismiss) private var dismiss
 
     init(accountID: String? = nil) {
         let directory = accountID.map { id in
@@ -33,7 +36,7 @@ struct LibraryView: View {
             Group {
                 if let catalog = library.catalog {
                     ScrollView {
-                        LazyVStack(spacing: 12) {
+                        LazyVStack(spacing: 8) {
                             if !localDocuments.documents.isEmpty {
                                 HStack {
                                     Text("My notes").font(CortexStyle.title())
@@ -41,7 +44,7 @@ struct LibraryView: View {
                                 }
                                 ForEach(localDocuments.documents.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { document in
                                     NavigationLink {
-                                        DocumentReader(document: document, fileURL: localDocuments.fileURL(for: document))
+                                        DocumentReader(document: document, fileURL: localDocuments.fileURL(for: document)).toolbar(.visible, for: .navigationBar)
                                     } label: {
                                         LibraryCard(title: document.title, subtitle: "Imported Word document", symbol: "doc.text")
                                     }
@@ -71,13 +74,13 @@ struct LibraryView: View {
                                     ContentUnavailableView.search(text: query)
                                 }
                                 ForEach(matches) { note in
-                                    NavigationLink { SharedNoteView(note: note) } label: {
+                                    NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
                                         LibraryCard(title: note.displayName, subtitle: note.subject,
                                                     symbol: "doc.text")
                                     }.buttonStyle(.plain)
                                 }
                             }
-                        }.padding(16)
+                        }.padding(.horizontal, 14).padding(.top, 12)
                     }
                 } else if let loadError = library.errorMessage {
                     ContentUnavailableView("Library unavailable", systemImage: "exclamationmark.triangle",
@@ -87,9 +90,21 @@ struct LibraryView: View {
                 }
             }
             .background(CortexStyle.background)
-            .navigationTitle("DEEP DIVE")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $query, prompt: "Search notes and headings")
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                VStack(spacing: 0) {
+                    CortexHeader(title: "Deep dive", leading: { dismiss() }, search: { searching.toggle() })
+                    if searching { TextField("Search notes and headings", text: $query).textFieldStyle(.roundedBorder).padding(12) }
+                }.background(.white)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                HStack {
+                    Button { importing = true } label: { Label("Import Word document", systemImage: "square.and.arrow.down") }
+                        .disabled(isImporting).font(.system(size: 13))
+                    Spacer()
+                    Button("Home") { dismiss() }.font(CortexStyle.title(14))
+                }.padding(14).background(.white)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if session.profile != nil {
@@ -137,20 +152,34 @@ struct LibraryCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: symbol).font(.system(size: 28)).frame(width: 48, height: 48)
-                .accessibilityHidden(true)
+            if symbol == "books.vertical" {
+                Image(Self.subjectArtwork(title)).resizable().scaledToFit().frame(width: 48, height: 48).accessibilityHidden(true)
+            } else { CortexArtwork(name: "book", size: 48) }
             VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(CortexStyle.title()).multilineTextAlignment(.leading)
-                Text(subtitle).font(.system(size: 13)).foregroundStyle(CortexStyle.muted)
+                Text(title).font(CortexStyle.title(16)).multilineTextAlignment(.leading)
+                Text(subtitle).font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
             }
             Spacer(minLength: 0)
-            Image(systemName: "chevron.right").font(.system(size: 14)).accessibilityHidden(true)
         }
         .foregroundStyle(CortexStyle.ink)
         .padding(12).frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
-        .background(LinearGradient(colors: CortexStyle.blue, startPoint: .top, endPoint: .bottom),
+        .background(LinearGradient(colors: [Color(hex: 0xF4F7FD), Color(hex: 0xE7EDF9)], startPoint: .topLeading, endPoint: .bottomTrailing),
                     in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(hex: 0xD9E2F2), lineWidth: 1))
         .contentShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private static func subjectArtwork(_ title: String) -> String {
+        let name = title.lowercased()
+        let mappings: [(String, [String])] = [
+            ("heart", ["cardio", "heart"]), ("lungs", ["pulmon", "respir", "lung"]),
+            ("neurology", ["neurolog"]), ("psychiatry", ["psychiatr", "mental"]),
+            ("kidney", ["nephro", "renal", "kidney"]), ("rheumatology", ["rheumat", "orthop", "joint"]),
+            ("infectious", ["infect", "microbiol"]), ("hematology", ["hemat", "haemat", "blood"]),
+            ("thyroid", ["thyroid", "endocrin"]), ("liver", ["liver", "hepat"]),
+            ("gi", ["gastro", "intestinal", "digest"]), ("clinical", ["clinical", "exam", "medicine"])
+        ]
+        return "deepdive_icon_" + (mappings.first { row in row.1.contains { name.contains($0) } }?.0 ?? "notebook")
     }
 }
 
@@ -158,23 +187,35 @@ struct ChapterList: View {
     let catalog: LibraryCatalog
     let subject: String
     @State private var query = ""
+    @State private var searching = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 8) {
                 let notes = catalog.notes(in: subject, matching: query)
                 if notes.isEmpty { ContentUnavailableView.search(text: query) }
                 ForEach(notes) { note in
-                    NavigationLink { SharedNoteView(note: note) } label: {
-                        LibraryCard(title: note.displayName,
-                                    subtitle: "\((note.headings ?? []).count) headings", symbol: "doc.text")
+                    NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("CHAPTER \((catalog.notes(in: subject).firstIndex(where: { $0.id == note.id }) ?? 0) + 1)")
+                                .font(.system(size: 11, weight: .semibold)).tracking(1).foregroundStyle(CortexStyle.muted)
+                            Text(note.displayName).font(CortexStyle.title(16)).foregroundStyle(CortexStyle.ink)
+                        }.padding(10).frame(maxWidth: .infinity, alignment: .leading)
+                            .background(LinearGradient(colors: [Color(hex: 0xF4F7FD), Color(hex: 0xE7EDF9)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 16))
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(hex: 0xD9E2F2), lineWidth: 1))
                     }.buttonStyle(.plain)
                 }
             }.padding(16)
         }
         .background(CortexStyle.background)
-        .navigationTitle(subject).navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $query, prompt: "Search chapters and headings")
+        .toolbar(.hidden, for: .navigationBar)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            VStack(spacing: 0) {
+                CortexHeader(title: subject, leading: { dismiss() }, search: { searching.toggle() })
+                if searching { TextField("Search chapters and headings", text: $query).textFieldStyle(.roundedBorder).padding(12) }
+            }.background(.white)
+        }
     }
 }
 

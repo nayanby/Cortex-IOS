@@ -10,4 +10,4 @@ xcodebuild -project Cortex.xcodeproj -scheme Cortex -configuration Debug \
   -clonedSourcePackagesDirPath .spm-cache -derivedDataPath test-build \
   -resultBundlePath build/ReaderTests.xcresult IPHONEOS_DEPLOYMENT_TARGET=18.4 \
   CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- \
-  CODE_SIGN_ENTITLEMENTS=test-backend/Simulator.entitlements test
+  CODE_SIGN_ENTITLEMENTS="$PWD/test-backend/Simulator.entitlements" test
