@@ -118,12 +118,14 @@ struct ReaderWebView: UIViewRepresentable {
 struct DocumentReader: View {
     let document: LocalDocument
     let fileURL: URL
+    let allowsSharing: Bool
     @StateObject private var controller: ReaderController
     @State private var showingOutline = false
 
-    init(document: LocalDocument, fileURL: URL) {
+    init(document: LocalDocument, fileURL: URL, allowsSharing: Bool = true) {
         self.document = document
         self.fileURL = fileURL
+        self.allowsSharing = allowsSharing
         _controller = StateObject(wrappedValue: ReaderController(fileURL: fileURL, documentID: document.id))
     }
 
@@ -141,7 +143,9 @@ struct DocumentReader: View {
         .navigationTitle(document.title).navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: fileURL) { Label("Share Word document", systemImage: "square.and.arrow.up") }
+                if allowsSharing {
+                    ShareLink(item: fileURL) { Label("Share Word document", systemImage: "square.and.arrow.up") }
+                }
                 Button { showingOutline = true } label: { Label("Outline", systemImage: "list.bullet") }
                     .disabled(controller.headings.isEmpty)
             }

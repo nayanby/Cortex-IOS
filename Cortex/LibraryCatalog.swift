@@ -1,6 +1,6 @@
 import Foundation
 
-struct LibraryCatalog: Decodable {
+struct LibraryCatalog: Codable, Sendable {
     let notes: [LibraryNote]
 
     static func load() throws -> Self {
@@ -22,7 +22,7 @@ struct LibraryCatalog: Decodable {
     }
 }
 
-struct LibraryNote: Decodable, Identifiable {
+struct LibraryNote: Codable, Identifiable, Hashable, Sendable {
     let id: String
     let path: String
     let subject: String
@@ -32,6 +32,7 @@ struct LibraryNote: Decodable, Identifiable {
     let storagePath: String
     let sortOrder: Int
     let headings: [LibraryHeading]?
+    var eTag: String? = nil
 
     func matches(_ query: String) -> Bool {
         let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -41,7 +42,7 @@ struct LibraryNote: Decodable, Identifiable {
     }
 }
 
-struct LibraryHeading: Decodable {
+struct LibraryHeading: Codable, Hashable, Sendable {
     let level: Int
     let text: String
     let flash: Bool?

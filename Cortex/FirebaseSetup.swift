@@ -1,4 +1,6 @@
 import FirebaseCore
+import FirebaseAppCheck
+import DeviceCheck
 import UIKit
 
 enum FirebaseConfigurationError: Error, Equatable {
@@ -12,6 +14,13 @@ enum FirebaseConfigurationError: Error, Equatable {
 enum FirebaseSetup {
     static let projectID = "cortex-v1b"
     static let bundleID = "com.cortex.notes"
+
+    static func googleCallbackScheme(bundle: Bundle = .main) -> String? {
+        guard let url = bundle.url(forResource: "GoogleService-Info", withExtension: "plist"),
+              let data = try? Data(contentsOf: url),
+              let fields = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return nil }
+        return fields["REVERSED_CLIENT_ID"] as? String
+    }
 
     // Validate before invoking the SDK: an accidental Android or other-project
     // configuration must never initialize the consumer app against that backend.
@@ -38,6 +47,11 @@ enum FirebaseSetup {
 
     @MainActor
     static func configure(bundle: Bundle = .main) -> Status {
+        #if DEBUG
+        // Scheme-driven emulator tests create their own named demo app. Never
+        // initialize the production app from a private CI config during tests.
+        if ProcessInfo.processInfo.environment["CORTEX_TEST_EMULATORS"] == "1" { return .missingConfiguration }
+        #endif
         if FirebaseApp.app() != nil { return .configured }
         guard let file = bundle.url(forResource: "GoogleService-Info", withExtension: "plist") else {
             // The offline reader also runs in unsigned CI builds without live config.
@@ -47,9 +61,21 @@ enum FirebaseSetup {
             try validate(Data(contentsOf: file))
             guard let options = FirebaseOptions(contentsOfFile: file.path),
                   options.bundleID == Bundle.main.bundleIdentifier else { return .rejectedConfiguration }
+            #if DEBUG && targetEnvironment(simulator)
+            AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+            #else
+            AppCheck.setAppCheckProviderFactory(CortexAttestationFactory())
+            #endif
             FirebaseApp.configure(options: options)
             return .configured
         } catch { return .rejectedConfiguration }
+    }
+}
+
+private final class CortexAttestationFactory: NSObject, AppCheckProviderFactory {
+    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+        if DCAppAttestService.shared.isSupported { return AppAttestProvider(app: app) }
+        return DeviceCheckProvider(app: app)
     }
 }
 

@@ -1,0 +1,10 @@
+// Emulator-only rules; never deploy these to cortex-v1b.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{email} {
+      allow read, write: if request.auth != null && request.auth.token.email == email;
+    }
+    match /library/{document=**} { allow read: if request.auth != null; allow write: if false; }
+  }
+}

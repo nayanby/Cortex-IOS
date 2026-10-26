@@ -11,17 +11,27 @@ enum CortexStyle {
 }
 
 struct LibraryView: View {
-    @State private var catalog: LibraryCatalog?
-    @State private var loadError: String?
+    @EnvironmentObject private var library: LibraryStore
+    @EnvironmentObject private var session: AccountSession
     @State private var query = ""
-    @StateObject private var localDocuments = LocalDocuments()
+    @StateObject private var localDocuments: LocalDocuments
     @State private var importing = false
     @State private var isImporting = false
+    @State private var showingAccount = false
+
+    init(accountID: String? = nil) {
+        let directory = accountID.map { id in
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("AccountNotes", isDirectory: true)
+                .appendingPathComponent(SharedDocumentCache.identifier(for: id).uuidString, isDirectory: true)
+        }
+        _localDocuments = StateObject(wrappedValue: LocalDocuments(directory: directory))
+    }
 
     var body: some View {
         NavigationStack {
             Group {
-                if let catalog {
+                if let catalog = library.catalog {
                     ScrollView {
                         LazyVStack(spacing: 12) {
                             if !localDocuments.documents.isEmpty {
@@ -61,7 +71,7 @@ struct LibraryView: View {
                                     ContentUnavailableView.search(text: query)
                                 }
                                 ForEach(matches) { note in
-                                    NavigationLink { ChapterOutline(note: note) } label: {
+                                    NavigationLink { SharedNoteView(note: note) } label: {
                                         LibraryCard(title: note.displayName, subtitle: note.subject,
                                                     symbol: "doc.text")
                                     }.buttonStyle(.plain)
@@ -69,7 +79,7 @@ struct LibraryView: View {
                             }
                         }.padding(16)
                     }
-                } else if let loadError {
+                } else if let loadError = library.errorMessage {
                     ContentUnavailableView("Library unavailable", systemImage: "exclamationmark.triangle",
                                            description: Text(loadError))
                 } else {
@@ -81,10 +91,19 @@ struct LibraryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $query, prompt: "Search notes and headings")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if session.profile != nil {
+                        Button { showingAccount = true } label: { Label("Account", systemImage: "person.crop.circle") }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { importing = true } label: { Label("Import Word document", systemImage: "square.and.arrow.down") }
                         .disabled(isImporting)
                 }
+            }
+            .sheet(isPresented: $showingAccount) { ConsumerAccountView() }
+            .refreshable {
+                if let profile = session.profile { await library.refresh(profile: profile) }
             }
             .fileImporter(isPresented: $importing,
                           allowedContentTypes: [UTType(filenameExtension: "docx") ?? .data]) { result in
@@ -107,11 +126,6 @@ struct LibraryView: View {
                 set: { if !$0 { localDocuments.errorMessage = nil } })) {
                     Button("OK") { localDocuments.errorMessage = nil }
                 } message: { Text(localDocuments.errorMessage ?? "") }
-            .task {
-                guard catalog == nil, loadError == nil else { return }
-                do { catalog = try LibraryCatalog.load() }
-                catch { loadError = "The bundled catalog could not be read. \(error.localizedDescription)" }
-            }
         }.tint(CortexStyle.ink)
     }
 }
@@ -151,7 +165,7 @@ struct ChapterList: View {
                 let notes = catalog.notes(in: subject, matching: query)
                 if notes.isEmpty { ContentUnavailableView.search(text: query) }
                 ForEach(notes) { note in
-                    NavigationLink { ChapterOutline(note: note) } label: {
+                    NavigationLink { SharedNoteView(note: note) } label: {
                         LibraryCard(title: note.displayName,
                                     subtitle: "\((note.headings ?? []).count) headings", symbol: "doc.text")
                     }.buttonStyle(.plain)
@@ -170,7 +184,7 @@ struct ChapterOutline: View {
     var body: some View {
         List {
             Section {
-                Text("The catalog is available offline. Reading this document will become available after the iOS sign-in and document download services are connected.")
+                Text("Sign in to read this note. The catalog and outline are available in this offline preview.")
                     .font(.callout).foregroundStyle(CortexStyle.muted)
             }
             Section("Outline") {

@@ -9,11 +9,19 @@ permissions:
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Install project generator
         run: brew install xcodegen
+      - name: Prepare optional private Firebase configuration
+        env:
+          CORTEX_FIREBASE_PLIST: ${{ secrets.FIREBASE_IOS_CONFIG_PLIST }}
+        run: python3 scripts/prepare-firebase.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Generate Xcode project
         run: xcodegen generate
       - name: Build for simulator without signing
@@ -21,16 +29,19 @@ jobs:
           xcodebuild -project Cortex.xcodeproj -scheme Cortex
           -configuration Debug -sdk iphonesimulator
           -destination 'generic/platform=iOS Simulator'
-          -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
-      - name: Run reader integration tests on iPhone simulator
-        timeout-minutes: 10
+          -clonedSourcePackagesDirPath .spm-cache -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Run account, download and reader integration tests
+        timeout-minutes: 20
         run: |
-          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin); print(next(x['udid'] for k,v in d['devices'].items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
-          xcrun simctl bootstatus "$DEVICE_ID" -b
-          # Apple's workaround for Xcode 16.4 + iOS 18.5 simulator WebKit startup:
-          # https://bugs.webkit.org/show_bug.cgi?id=293831
-          # Only test products use 18.4; the normal app above still builds for iOS 17.
-          xcodebuild -project Cortex.xcodeproj -scheme Cortex -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -parallel-testing-enabled NO -derivedDataPath test-build -resultBundlePath build/ReaderTests.xcresult IPHONEOS_DEPLOYMENT_TARGET=18.4 CODE_SIGNING_ALLOWED=NO test
+          npx --yes firebase-tools@15.34.1 emulators:exec --project demo-cortex-ios --config test-backend/firebase.json --only auth,firestore,storage 'bash scripts/run-ios-emulator-tests.sh'
+      - name: Save emulator diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cortex-EmulatorLogs
+          path: |
+            *-debug.log
+            test-backend/*-debug.log
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4

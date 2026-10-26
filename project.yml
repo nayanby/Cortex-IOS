@@ -13,6 +13,9 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 12.19.3
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 9.2.0
 targets:
   Cortex:
     type: application
@@ -32,6 +35,19 @@ targets:
     dependencies:
       - package: Firebase
         product: FirebaseCore
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseStorage
+      - package: Firebase
+        product: FirebaseAppCheck
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    configFiles:
+      Debug: Config/Firebase.generated.xcconfig
+      Release: Config/Firebase.generated.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.cortex.notes
@@ -43,6 +59,8 @@ targets:
       path: Generated/Info.plist
       properties:
         FirebaseAppDelegateProxyEnabled: false
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: ['$(CORTEX_GOOGLE_URL_SCHEME)']
         UIAppFonts:
           - averia_serif_libre_regular.ttf
           - averia_serif_libre_bold.ttf
@@ -72,5 +90,7 @@ schemes:
     archive:
       config: Release
     test:
+      environmentVariables:
+        CORTEX_TEST_EMULATORS: '1'
       targets:
         - CortexTests

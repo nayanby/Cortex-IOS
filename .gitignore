@@ -11,3 +11,10 @@ Config/Local.xcconfig
 firebase-debug.log
 firebase-debug.*.log
 .firebase/
+Config/Firebase.generated.xcconfig
+.spm-cache/
+node_modules/
+ui-debug.log
+*-debug.log
+__pycache__/
+*.pyc
