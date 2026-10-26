@@ -26,7 +26,7 @@ struct CortexRootView: View {
                 #endif
             } else if let profile = session.profile {
                 LibraryView(accountID: profile.uid).id(profile.uid)
-                    .task(id: profile.uid) { await library.refresh(profile: profile) }
+                    .task(id: profile) { await library.refresh(profile: profile) }
             } else if session.isRestoring { ProgressView("Restoring your account…") }
             else { ConsumerSignInView() }
         }

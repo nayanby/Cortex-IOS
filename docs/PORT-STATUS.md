@@ -23,11 +23,11 @@ Current UI starts at Deep Dive. It does not yet reproduce the Android home scree
 
 | Area | Android reference | Required iOS behavior |
 | --- | --- | --- |
-| Authentication | `data/auth/AccessRepository.kt`, `screen_gate.xml` | Email/password, Google sign-in, profile registration/recovery, trial, device registration and live session policy; compare schema and transactions before enabling writes |
-| Firebase registration | `FirebaseSetup.kt` | Apple app registered, local plist retrieved, FirebaseCore initialization added. Remaining: cloud-build configuration, App Check, sign-in URL schemes, authentication and entitlement integration |
+| Authentication | `data/auth/AccessRepository.kt`, `screen_gate.xml` | Google gate, restoration, sign-out, Keychain profile cache and atomic 60-day trial implemented; cloud validation pending. Current Android hides email/password controls and disables device/session restrictions. Live OAuth acceptance testing remains |
+| Firebase registration | `FirebaseSetup.kt` | Apple app registered, local plist retrieved, Auth/Firestore/Storage/App Check SDKs and generated Google callback scheme wired. Remaining: private cloud-build config, production App Check registration and live account testing |
 | Home and navigation | `screen_home.xml`, `activity_main.xml`, menu resources | Match continue-reading, due work, Deep Dive, Snapshots, PDFs, notebooks, drawer, search and bottom tabs |
-| Library sync | `FirebaseLibraryClient.kt`, `CatalogStore.kt`, `SyncRepository.kt` | Use `library/catalog/notes` and Storage `files/...`; lazy download, cache, progress, refresh, cancellation and offline recovery |
-| Reader | generated `index.html`, `web/ManifestProvider.kt`, `web/ApiPathHandler.kt`, `assets/bridge.js` | Core DOCX rendering, formulas, offline fonts, headings and scroll restoration ported for imported notes. Remaining: catalog download integration, Android toolbar controls, poster scope, export formatting, and visual parity checks |
+| Library sync | `FirebaseLibraryClient.kt`, `CatalogStore.kt`, `SyncRepository.kt` | Shared catalog refresh, Android path deduplication, Storage lazy download, progress, cancellation and 24-hour/ETag cache implemented; simulator/emulator validation pending |
+| Reader | generated `index.html`, `web/ManifestProvider.kt`, `web/ApiPathHandler.kt`, `assets/bridge.js` | Core DOCX rendering, formulas, fonts, headings and scroll restoration ported; shared download now routes into the same reader. Remaining: Android toolbar controls, poster scope, export quotas/formatting, and visual parity checks |
 | Reader/native bridge | `assets/bridge.js`, `MainActivity.kt` | Replace synchronous `AndroidBridge` calls with explicit asynchronous WebKit messages and JavaScript state caching; audit every bridge method and reject untrusted navigation |
 | Ink and annotations | `ui/InkCanvas.kt`, `ui/InkStore.kt` | Pen/highlighter, eraser, undo/redo, zoom coordinates, storage and sharing; check Apple Pencil behavior on iPad |
 | Snapshots | `web/PosterStore.kt`, `ui/PosterHtml.kt` | Shared/personal snapshots, scope keys, outline association, printing and export |
@@ -45,7 +45,7 @@ Current UI starts at Deep Dive. It does not yet reproduce the Android home scree
 - The consumer library uses Firestore and Firebase Storage. OneDrive master upload code remains in the Android source but is not the consumer's primary content path.
 - Notes are indexed in `library/catalog/notes/{id}`; shared snapshots in `library/catalog/snapshots/{id}`.
 - Android profile records use `users/{email}`. The iOS port must preserve normalization and entitlement rules. Firebase sign-in alone does not establish consumer access.
-- Android describes a 60-day trial, two registered phones and one live session for non-beta accounts. Exact transaction behavior remains to be ported and tested; beta shortcuts must not become an iOS access bypass.
+- Current Android `AccessRepository.kt` has `DEVICE_RESTRICTIONS_ENABLED = false`: no device-cap or live-session fields should be written by iOS. A first eligible sign-in starts a 60-day trial atomically. Signed-in free accounts retain note reading; full/trial/beta access gates metadata refresh and study tools. The actual visible Android gate is Google-only. Older comments and hidden strings describing two phones or a 40-day trial are stale.
 - Library listing uses case-insensitive path deduplication and natural chapter ordering. The initial bundled catalog has unique stable IDs and paths.
 
 ## Verification required before calling this a copy

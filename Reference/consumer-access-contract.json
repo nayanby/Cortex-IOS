@@ -1,0 +1,11 @@
+{
+  "androidVersion": "1.0.23",
+  "accessSourcePath": "src/main/java/com/clinicalnotes/library/data/auth/AccessRepository.kt",
+  "accessSourceSHA256": "8210a372bb6486660c3f90112aa665aa71cc295b0d8d253d308ce741d8b674e1",
+  "deviceRestrictionsEnabled": false,
+  "trialDays": 60,
+  "profileCollection": "users/{normalized-email}",
+  "visibleSignIn": "Google",
+  "readingPolicy": "Authenticated profiles may read notes; full/trial/beta gates catalog refresh and study tools",
+  "downloadCacheHours": 24
+}
