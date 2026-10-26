@@ -51,6 +51,25 @@ jobs:
           name: Cortex-Appetize
           path: build/Cortex-Appetize.zip
           if-no-files-found: error
+      - name: Build unsigned app for iPad and iPhone
+        run: >-
+          xcodebuild -project Cortex.xcodeproj -scheme Cortex
+          -configuration Debug -sdk iphoneos
+          -destination 'generic/platform=iOS'
+          -clonedSourcePackagesDirPath .spm-cache -derivedDataPath device-build
+          CODE_SIGNING_ALLOWED=NO build
+      - name: Package device IPA for local signing on Windows
+        run: |
+          mkdir -p device-package/Payload
+          ditto device-build/Build/Products/Debug-iphoneos/Cortex.app device-package/Payload/Cortex.app
+          cd device-package
+          zip -qry Cortex-iPad-Unsigned.ipa Payload
+      - name: Save device IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cortex-iPad-Unsigned
+          path: device-package/Cortex-iPad-Unsigned.ipa
+          if-no-files-found: error
       - name: Run account, download and reader integration tests
         timeout-minutes: 20
         run: |

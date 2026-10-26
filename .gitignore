@@ -3,6 +3,9 @@ Generated/
 DerivedData/
 build/
 test-build/
+device-build/
+device-package/
+*.ipa
 .DS_Store
 *.mobileprovision
 *.p12
