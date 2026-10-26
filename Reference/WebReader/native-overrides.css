@@ -1,0 +1,717 @@
+/* Offline reader fonts. */
+@font-face { font-family: 'Lato'; src: url('/assets/fonts/lato_regular.ttf'); font-weight: 400; }
+@font-face { font-family: 'Lato'; src: url('/assets/fonts/lato_bold.ttf'); font-weight: 700; }
+@font-face { font-family: 'Lato'; src: url('/assets/fonts/lato_italic.ttf'); font-weight: 400; font-style: italic; }
+@font-face { font-family: 'Lato'; src: url('/assets/fonts/lato_bolditalic.ttf'); font-weight: 700; font-style: italic; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('/assets/fonts/averia_serif_libre_regular.ttf'); font-weight: 400; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('/assets/fonts/averia_serif_libre_bold.ttf'); font-weight: 700; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('/assets/fonts/averia_serif_libre_italic.ttf'); font-weight: 400; font-style: italic; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('/assets/fonts/averia_serif_libre_bold_italic.ttf'); font-weight: 700; font-style: italic; }
+/* Chat-style margins belong to the paper, not two nested layout containers. */
+html.cnl-chat-reading .reader-main,
+html.cnl-chat-reading .reader-screen { padding: 0 !important; }
+@font-face { font-family: "Source Sans Pro"; src: url("/assets/fonts/SourceSansPro-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Source Sans Pro"; src: url("/assets/fonts/SourceSansPro-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Source Sans Pro"; src: url("/assets/fonts/SourceSansPro-BoldItalic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+@font-face { font-family: "Noto Serif"; src: url("/assets/fonts/noto_serif_regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Noto Serif"; src: url("/assets/fonts/noto_serif_bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Noto Serif"; src: url("/assets/fonts/noto_serif_regularitalic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Noto Serif"; src: url("/assets/fonts/noto_serif_bolditalic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+@font-face { font-family: "Source Sans Pro"; src: url("/assets/fonts/SourceSansPro-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+/*
+ * Android appends this to the end of <head> once the page has parsed, which is
+ * what lets it win: the page styles itself with !important, and between two
+ * !important rules of equal specificity the later one holds.
+ *
+ * The activity is native Android now: a toolbar, native folder lists and four
+ * bottom tabs. The page keeps only what it alone can do - render a document in
+ * the reader, and host its own modals for Create with AI, flashcard review and
+ * AI settings - so everything else of its chrome is switched off here.
+ */
+
+/* The activity's MaterialToolbar is the only top bar. */
+.app-header {
+  display: none !important;
+}
+
+/* Consumer keeps its account-specific export and AI settings restrictions. */
+#saveCurrentFormattedBtn,
+#saveFormattedBtn,
+#aiSettingsBtn,
+#aiSettingsScreen {
+  display: none !important;
+}
+
+/* The native Folders tab replaces both screens. They stay in the DOM because
+   the page renders into them and the modals read state from them, but they are
+   only ever a backdrop now. The modals themselves are top-level elements, so
+   hiding the screens does not touch them. */
+#homeScreen,
+#subjectScreen {
+  display: none !important;
+}
+
+/* The page's own @media(max-width:900px) block forces
+   `.reader-screen{display:block !important}`, and an author !important outranks
+   both the `hidden` attribute and the inline `display:none` that setAppView()
+   writes. On a phone every screen therefore stacked. The id+attribute selector
+   beats that class-level rule whatever the order. */
+#homeScreen[hidden],
+#subjectScreen[hidden],
+#readerScreen[hidden] {
+  display: none !important;
+}
+
+/* Offsets that assumed the 72px page header still occupied the top. */
+.reader-sidebar {
+  top: 0 !important;
+  height: 100vh !important;
+}
+.reader-screen {
+  min-height: 100vh !important;
+}
+
+/* The outline is a native panel beside the WebView now, so the page's own
+   contents sidebar never draws: hidden outright, with its grid column
+   collapsed, whatever open or closed class the page writes. */
+.reader-sidebar {
+  display: none !important;
+}
+.reader-main {
+  grid-column: 1;
+  grid-row: 1;
+}
+.reader-screen {
+  grid-template-columns: minmax(0, 1fr) 0 !important;
+}
+
+/* Keep the document page opaque so the under-text highlighter layer cannot
+   tint the paper. Paragraphs stay transparent to retain section/head styling. */
+#paper,
+body.view-reader .reader-screen,
+html,
+body,
+.doc-root {
+  background: #FFFFFF !important;
+  background-color: #FFFFFF !important;
+}
+
+/* Keep first-level bullets flush and second-level bullets 10px in. */
+/* Match the snapshot's font rendering; imported Word character spacing and
+   mobile text autosizing should not widen the reader's glyphs or word gaps. */
+html, body, #paper {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+#paper#paper .doc-root,
+#paper#paper .doc-root * {
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  font-stretch: normal !important;
+}
+
+.doc-root .doc-list {
+  column-gap: var(--list-marker-gap) !important;
+}
+/* Word's 18px marker column adds invisible space after the small bullet.
+   Fit the column to the actual marker so the visible edge-to-text gap is 6pt. */
+.doc-root .doc-list:has(> .list-marker.is-bullet) {
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+}
+.doc-root .doc-list > .list-marker.is-bullet {
+  width: max-content !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.doc-root .doc-list:has(> .list-marker.is-bullet) > .list-content {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  text-indent: 0 !important;
+}
+.doc-root .doc-list[data-list-level="0"] {
+  padding-left: 0 !important;
+}
+
+/* Keep regular paragraphs and bullet text on the same size ladder. */
+:root {
+  --reader-body-size: 16.333333px;
+}
+.doc-root .doc-p:not(.h1):not(.h2):not(.h3):not(.h4):not(.boldside1):not(.boldside2) {
+  font-size: var(--reader-body-size) !important;
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
+/* Bullet text size and font. */
+.doc-root .doc-list,
+.doc-root .doc-list * {
+  font-size: var(--reader-body-size) !important;
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
+/* Tables use the same supplied Sans body face. */
+.doc-root table,
+.doc-root table * {
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
+/* Table cells: prevent word breaking so narrow columns keep first words intact. */
+.doc-root td,
+.doc-root th {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* Heading bars keep their fill after the paper was made transparent for ink.
+   .doc-p { background: transparent } would otherwise leave H1 as white text
+   on a white page. */
+#paper#paper .doc-p.h1,
+#paper#paper .word-h1 {
+  font-family: "Averia Serif Libre", serif !important;
+  font-size: 23px !important;
+  line-height: 1.125 !important;
+  text-transform: capitalize !important;
+  background: #6F3D5D !important;
+  background-color: #6F3D5D !important;
+  color: #FFFFFF !important;
+  border-left: 3pt solid #6F3D5D !important;
+  border-radius: 6px !important;
+}
+.doc-root .doc-block.h1 {
+  margin-left: -6px !important;
+}
+#paper#paper .doc-p.h1 *,
+#paper#paper .word-h1 * {
+  color: #FFFFFF !important;
+  background: transparent !important;
+  font-size: inherit !important;
+}
+#paper#paper .doc-p.h2,
+#paper#paper .word-h2 {
+  font-family: "Averia Serif Libre", serif !important;
+  font-size: 20px !important;
+  line-height: 1.125 !important;
+  background: #E7E1E4 !important;
+  background-color: #E7E1E4 !important;
+  color: #6F3D5D !important;
+  border-left: 3pt solid #E7E1E4 !important;
+  border-radius: 6px !important;
+}
+.doc-root .doc-block.h2 {
+  margin-left: -6px !important;
+}
+#paper#paper .doc-p.h2 *,
+#paper#paper .word-h2 * {
+  color: #6F3D5D !important;
+  background: transparent !important;
+  font-size: inherit !important;
+}
+
+/* BoldSide 2 and 3 use text-sized highlights rather than full-width bands. */
+.doc-root .doc-p.boldside2,
+.doc-root .word-boldside2,
+.doc-root .doc-p.boldside3,
+.doc-root .word-boldside3 {
+  display: inline-block !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  padding-right: 6px !important;
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
+  border-radius: 6px !important;
+}
+#paper#paper .doc-p.boldside2,
+#paper#paper .word-boldside2 {
+  font-family: "Source Sans Pro", sans-serif !important;
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  line-height: 1.125 !important;
+  text-transform: uppercase !important;
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+#paper#paper .doc-p.boldside2 *,
+#paper#paper .word-boldside2 * {
+  font-family: "Source Sans Pro", sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  font-size: inherit !important;
+}
+#paper#paper .doc-p.boldside3,
+#paper#paper .word-boldside3 {
+  font-family: "Source Sans Pro", sans-serif !important;
+  font-size: var(--reader-body-size) !important;
+  color: #233D6B !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+#paper#paper .doc-p.boldside3 *,
+#paper#paper .word-boldside3 * {
+  font-family: "Source Sans Pro", sans-serif !important;
+  color: #233D6B !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  font-size: inherit !important;
+}
+.doc-root .doc-block.boldside1,
+.doc-root .doc-block.boldside2,
+.doc-root .doc-block.boldside3 {
+  margin-left: -6px !important;
+}
+.doc-root .doc-block.boldside2,
+.doc-root .doc-block.boldside3 {
+  padding-top: 3px !important;
+  padding-bottom: 0.25px !important;
+}
+/* Between bs2 and bs3 (either order): 1.5px only */
+.doc-root .doc-block.boldside2:has(+ .doc-block.boldside3) {
+  padding-bottom: 1.5px !important;
+}
+.doc-root .doc-block.boldside3:has(+ .doc-block.boldside2) {
+  padding-bottom: 1.5px !important;
+}
+.doc-root .doc-block.boldside2 + .doc-block.boldside3 {
+  padding-top: 0px !important;
+}
+.doc-root .doc-block.boldside3 + .doc-block.boldside2 {
+  padding-top: 0px !important;
+}
+.doc-root .doc-p.boldside3,
+.doc-root .word-boldside3 {
+  padding-bottom: 0 !important;
+}
+.doc-root .doc-block.boldside3 {
+  padding-bottom: 0.75px !important;
+}
+
+/* H3 — pale blue bar matching the Windows viewer */
+#paper#paper .doc-p.h3,
+#paper#paper .word-h3 {
+  font-family: "Averia Serif Libre", serif !important;
+  font-size: 21px !important;
+  line-height: 1.125 !important;
+  background: #E8EFF8 !important;
+  background-color: #E8EFF8 !important;
+  color: #294C7B !important;
+  border-left: 2.25pt solid #E8EFF8 !important;
+  border-radius: 6px !important;
+}
+.doc-root .doc-block.h3 {
+  margin-left: -6px !important;
+}
+#paper#paper .doc-p.h3 *,
+#paper#paper .word-h3 * {
+  color: #294C7B !important;
+  background: transparent !important;
+  font-size: inherit !important;
+}
+
+#paper#paper .doc-p.h4,
+#paper#paper .word-h4 {
+  font-family: "Averia Serif Libre", serif !important;
+  font-size: 20px !important;
+  line-height: 1.125 !important;
+  text-transform: uppercase !important;
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+}
+#paper#paper .doc-p.h4 *,
+#paper#paper .word-h4 * {
+  font-size: inherit !important;
+  line-height: inherit !important;
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Word equations use real script elements and are centered when they occupy a
+   paragraph by themselves. */
+.doc-root .doc-formula-paragraph {
+  text-align: center !important;
+}
+.doc-root .doc-formula sup,
+.doc-root .doc-formula sub {
+  font-size: 0.75em !important;
+  line-height: 0 !important;
+}
+
+/* One wrapper per Heading 1 used to hide every other section. The reader now
+   keeps the whole note visible, so hidden sections must never stay blank. */
+.doc-root .cnl-h1-section.cnl-section-hidden,
+.doc-root .cnl-section-hidden,
+.cnl-section-hidden {
+  display: revert !important;
+}
+
+/* Inside a table a heading keeps the cell's own type. */
+.doc-root td .doc-p.h2,
+.doc-root td .doc-p.h3,
+.doc-root th .doc-p.h2,
+.doc-root th .doc-p.h3 {
+  font-size: 14px !important;
+}
+
+/* First-level bold side headings, drawn as snapshot sections. All section
+   headings use the same blue regardless of their position in the note. */
+.doc-root .cnl-bs-section {
+  margin: 0.5em 0 0.3em -6px !important;
+  border-radius: 14px;
+  overflow: visible;
+  position: relative;
+  background: transparent !important;
+  border: 1px solid #DDE1EF !important;
+}
+.doc-root .cnl-bs-section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 1.2em;
+  background: #FFFFFF;
+  border-radius: 0 0 14px 14px;
+  z-index: 0;
+}
+.doc-root .cnl-bs-section > * {
+  position: relative;
+  z-index: 1;
+}
+.doc-root .cnl-bs-section[data-tone="1"] {
+  background: transparent !important;
+}
+
+/* Tables outside a bold-side section get their own box instead of bleeding to
+   the page edge; tables inside sections remain in their existing box. */
+.doc-root .cnl-table-box {
+  box-sizing: border-box;
+  margin: 0.5em 0 0.7em !important;
+  padding: 2px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #F1F5FB !important;
+}
+.doc-root .cnl-table-box[data-tone="1"] {
+  background: #F1F5FB !important;
+}
+.doc-root .cnl-section-table-box {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: 2px;
+  overflow: hidden;
+}
+
+/* Scroll wide tables inside the page without squeezing their columns. */
+#paper#paper .doc-root :is(.cnl-table-box,.cnl-section-table-box) {
+  width: 100%;
+  max-width: min(100%, 18cm);
+  min-width: 0;
+  overflow-x: auto !important;
+  overscroll-behavior-x: contain;
+}
+
+/* The section head sits on the section's pale-blue wash. bridge.js writes its
+   air inline, over Word's. */
+.doc-root .cnl-bs-section > .doc-block.boldside1 {
+  --before: 0px;
+  --after: 0px;
+  padding-left: 12px !important;
+  padding-right: 8px !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  margin-top: -0.55em !important;
+}
+.doc-root .cnl-bs-section > .doc-block.boldside1 > .doc-p.boldside1,
+.doc-root .cnl-bs-section > .doc-block.boldside1 > .doc-p.boldside1 * {
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+.doc-root .cnl-bs-section > .doc-block.boldside1 > .doc-p.boldside1 {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+#paper#paper .doc-block.boldside1 {
+  font-family: "Averia Serif Libre", serif !important;
+  font-size: 20px !important;
+  line-height: 1.125 !important;
+  padding-top: 6px !important;
+  background: #f5f0f6 !important;
+  background-color: #f5f0f6 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #DDE1EF !important;
+}
+#paper#paper .doc-p.boldside1,
+#paper#paper .word-boldside1 {
+  font-family: "Averia Serif Libre", serif !important;
+  font-size: 20px !important;
+  line-height: 1.125 !important;
+  text-transform: uppercase !important;
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+}
+#paper#paper .doc-block.boldside1 *,
+#paper#paper .doc-p.boldside1 *,
+#paper#paper .word-boldside1 * {
+  font-size: inherit !important;
+  color: #6F3D5D !important;
+}
+
+.doc-root .cnl-bs-section > .doc-block.h4 {
+  --before: 0px;
+  --after: 0px;
+  padding: 6px 8px 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #DDE1EF !important;
+  background: #f5f0f6 !important;
+  background-color: #f5f0f6 !important;
+}
+.doc-root .cnl-bs-section > .doc-block.h4 > .doc-p.h4 {
+  padding: 0 !important;
+}
+.doc-root .cnl-bs-section > .doc-block.h4 > .doc-p.h4,
+.doc-root .cnl-bs-section > .doc-block.h4 > .doc-p.h4 * {
+  color: #6F3D5D !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Everything the band covers, inset from the box's edges. */
+.doc-root .cnl-bs-section > .doc-block:not(.boldside1):not(.h4) {
+  padding-left: 12px !important;
+  padding-right: 5px !important;
+}
+
+/* Reader chrome around the sheet stays transparent with the paper. */
+
+/* Plum is Word's Emphasis character style, which the user's own documents use
+   as well, so the bold belongs to the notes the AI wrote alone: the open
+   wrapper in page-exports-ai.js marks the sheet while it holds one. */
+#paper.cnl-ai-note [data-word-character-style="Emphasis"],
+#paper.cnl-ai-note [data-word-character-style="emphasis"] {
+  font-weight: 700 !important;
+}
+
+/* Body text and bullets: no default air before/after — only the 1.3 line box.
+   Headings / bold-sides keep the page's own --before/--after.
+   List extras: 0.025em after L1 only when the next bullet is not L2;
+   0.5em after L2 when the next block is L1 or a numbered list. */
+:root {
+  --body-gap: 0px;
+  --list-marker-gap: 6pt;
+}
+.doc-root .doc-block:not(.h1):not(.h2):not(.h3):not(.h4):not(.boldside1):not(.boldside2):not(.boldside3) {
+  --before: 0px;
+  --after: 0px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+/* Level-1: small gap after, unless the next block is Level-2. */
+.doc-root .doc-block:has(> .doc-list[data-list-level="0"]):not(:has(+ .doc-block:has(> .doc-list[data-list-level="1"]))),
+.doc-root .doc-block:has(> .doc-p.doc-list[data-list-level="0"]):not(:has(+ .doc-block:has(> .doc-p.doc-list[data-list-level="1"]))) {
+  padding-bottom: 0.025em !important;
+}
+/* Level-2 → Level-1 */
+.doc-root .doc-block:has(> .doc-list[data-list-level="1"]):has(+ .doc-block:has(> .doc-list[data-list-level="0"])),
+.doc-root .doc-block:has(> .doc-p.doc-list[data-list-level="1"]):has(+ .doc-block:has(> .doc-p.doc-list[data-list-level="0"])) {
+  padding-bottom: 0.5em !important;
+}
+/* Level-2 → numbered list */
+.doc-root .doc-block:has(> .doc-list[data-list-level="1"]):has(+ .doc-block:has(> .doc-list .list-marker.is-number)),
+.doc-root .doc-block:has(> .doc-p.doc-list[data-list-level="1"]):has(+ .doc-block:has(> .doc-list .list-marker.is-number)),
+.doc-root .doc-block:has(> .doc-list[data-list-level="1"]):has(+ .doc-block:has(> .doc-p.doc-list .list-marker.is-number)),
+.doc-root .doc-block:has(> .doc-p.doc-list[data-list-level="1"]):has(+ .doc-block:has(> .doc-p.doc-list .list-marker.is-number)) {
+  padding-bottom: 0.5em !important;
+}
+
+/* Center bullet markers on the text line; keep them 0.5pt smaller than before. */
+.doc-root .doc-list .list-marker.is-bullet {
+  align-items: center !important;
+  height: var(--cnl-list-first-line-height, 1lh) !important;
+  line-height: inherit !important;
+  padding-top: 0 !important;
+}
+.doc-root .doc-list .list-marker.is-bullet::before {
+  transform: translateY(var(--cnl-marker-midline-offset, 0px));
+}
+.doc-root .doc-list .list-marker.is-number {
+  align-items: flex-start !important;
+  padding-top: 0.25em !important;
+}
+/* Numbered markers run 1pt under the bullet text (12pt). Descendants are
+   included so bridge.js's Aa pass measures 11pt here and keeps the 1pt gap
+   at every size rung. */
+.doc-root .doc-list .list-marker.is-number,
+.doc-root .doc-list .list-marker.is-number * {
+  font-size: 11pt !important;
+}
+.doc-root .doc-list[data-list-level="0"] .list-marker.is-bullet::before {
+  width: calc(0.35em - 0.5pt) !important;
+  height: calc(0.35em - 0.5pt) !important;
+  flex: 0 0 calc(0.35em - 0.5pt) !important;
+  box-sizing: border-box !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  border: none !important;
+}
+/* L2 sits 10px in from L1 and uses a slightly larger hollow marker. */
+.doc-root .doc-list[data-list-level="1"] {
+  padding-left: 10px !important;
+}
+/* Equal nesting steps: L1 0px, L2 10px, L3 20px. */
+.doc-root .doc-list[data-list-level="2"] {
+  padding-left: 20px !important;
+}
+.doc-root .doc-list[data-list-level="1"] .list-marker.is-bullet::before {
+  content: "" !important;
+  width: calc(0.4em - 0.5pt) !important;
+  height: calc(0.4em - 0.5pt) !important;
+  flex: 0 0 calc(0.4em - 0.5pt) !important;
+  box-sizing: border-box !important;
+  border: 1.2px solid currentColor !important;
+  background: transparent !important;
+  border-radius: 50% !important;
+}
+.doc-root .cnl-image-only .list-marker,
+.doc-root li.cnl-image-only::before {
+  display: none !important;
+  content: none !important;
+}
+
+.doc-root .cnl-glyph-calibri {
+  font-family: Calibri, Carlito, "Segoe UI Symbol", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+}
+
+/* Viewer defaults requested in pixels; heading margins remain unchanged. */
+.doc-root .doc-p:not(.h1):not(.h2):not(.h3):not(.h4):not(.boldside1):not(.boldside2):not(.boldside3),
+.doc-root .doc-list, .doc-root .doc-list * { line-height: 1.5 !important; }
+#paper#paper .doc-p.h4, #paper#paper .word-h4,
+#paper#paper .doc-block.boldside1, #paper#paper .doc-p.boldside1, #paper#paper .word-boldside1,
+#paper#paper .doc-p.boldside2, #paper#paper .word-boldside2,
+#paper#paper .doc-p.boldside3, #paper#paper .word-boldside3 { line-height: 1.125 !important; }
+#paper#paper .doc-p.boldside3, #paper#paper .word-boldside3 { font-size: 18px !important; }
+#paper#paper .doc-root table, #paper#paper .doc-root table *,
+#paper#paper .doc-root table .doc-p, #paper#paper .doc-root table .doc-p * { font-size: 15px !important; }
+#paper#paper .doc-root .doc-p:not(.h1):not(.h2):not(.h3):not(.h4):not(.boldside1):not(.boldside2):not(.boldside3)
+  :is(span,strong,b,i,em):not(.cnl-glyph-calibri):not(.doc-formula):not(.doc-formula *) {
+  font-size: inherit !important;
+}
+/* Shared heading air; BS2/BS3 have a fixed 14px inset above their text. */
+#paper#paper .doc-root .doc-block:is(.h1,.h2,.h3,.h4,.boldside1,.boldside2,.boldside3) {
+  margin-top: 10px !important;
+  margin-bottom: 8px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+#paper#paper .doc-root .doc-p:is(.h1,.h2,.h3,.h4,.boldside1,.boldside2,.boldside3) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1.125 !important;
+}
+#paper#paper .doc-root .doc-block:is(.h1,.h2,.h3,.h4,.boldside1,.boldside2,.boldside3)
+  + .doc-block:is(.h1,.h2,.h3,.h4,.boldside1) {
+  margin-top: 0 !important;
+}
+#paper#paper .doc-root .doc-block:is(.boldside2,.boldside3) {
+  margin-top: 0 !important;
+  padding-top: 14px !important;
+}
+#paper#paper .doc-root .doc-block:has(+ .doc-block:is(.boldside2,.boldside3)) {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+/* Inset text evenly inside the three shaded heading bars. */
+#paper#paper .doc-root :is(.doc-p.h1,.doc-p.h2,.doc-p.h3,.word-h1,.word-h2,.word-h3) {
+  padding: 6px !important;
+}
+/* Bold-side headings share BS3's text inset, including boxed sections. */
+#paper#paper .doc-root .doc-block:is(.boldside1,.boldside2,.boldside3) {
+  padding-left: 0 !important;
+}
+#paper#paper .doc-root .cnl-bs-section > .doc-block:is(.boldside1,.boldside2,.boldside3) {
+  padding-left: 12px !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3,.word-boldside1,.word-boldside2,.word-boldside3) {
+  padding-left: 0 !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside2,.doc-p.boldside3,.word-boldside2,.word-boldside3) {
+  padding-left: 2px !important;
+}
+/* Word's automatic heading markers already occupy a separate column. */
+#paper#paper .doc-root .doc-p.doc-list:is(.h4,.boldside1,.boldside2,.boldside3):has(> .list-marker) {
+  display: grid !important;
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  width: auto !important;
+  text-indent: 0 !important;
+}
+#paper#paper .doc-root .doc-p.doc-list:is(.h4,.boldside1,.boldside2,.boldside3) > .list-marker {
+  width: max-content !important;
+  min-width: 0 !important;
+  padding-top: 0 !important;
+  line-height: inherit !important;
+}
+/* Numbered heading prefixes stay inline; wrapped lines use the fixed 4px inset. */
+#paper#paper .doc-root .doc-p.doc-list:is(.h4,.boldside1,.boldside2,.boldside3):has(> .list-marker.is-number) {
+  display: block !important;
+}
+#paper#paper .doc-root .doc-p.doc-list:is(.h4,.boldside1,.boldside2,.boldside3) > .list-marker.is-number {
+  display: inline !important;
+  height: auto !important;
+  margin-right: var(--list-marker-gap) !important;
+}
+#paper#paper .doc-root .doc-p.doc-list:is(.h4,.boldside1,.boldside2,.boldside3):has(> .list-marker.is-number) > .list-content {
+  display: inline !important;
+}
+
+/* Supplied Noto Serif for all BS heading levels and their Word runs. */
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3,.word-boldside1,.word-boldside2,.word-boldside3),
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3,.word-boldside1,.word-boldside2,.word-boldside3) * {
+  font-family: "Noto Serif", serif !important;
+}
+
+/* Imported Word runs must not change the width or size within a BS level. */
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3,.word-boldside1,.word-boldside2,.word-boldside3),
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3,.word-boldside1,.word-boldside2,.word-boldside3) * {
+  font-weight: 700 !important;
+  font-style: normal !important;
+  font-variation-settings: normal !important;
+  font-feature-settings: normal !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3) * {
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+#paper#paper .doc-root :is(.doc-block.boldside1,.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3,.word-boldside1,.word-boldside2,.word-boldside3) {
+  font-size: 18px !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3) * {
+  font-size: inherit !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside2,.doc-p.boldside3,.word-boldside2,.word-boldside3) {
+  font-size: 16px !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside2,.doc-p.boldside3) * {
+  font-size: inherit !important;
+}
+#paper#paper .doc-root :is(.doc-block.boldside1,.doc-p.boldside1,.word-boldside1) {
+  font-size: 18px !important;
+}
+#paper#paper .doc-root :is(.doc-p.boldside1,.doc-p.boldside2,.doc-p.boldside3) * {
+  font-size: inherit !important;
+}
+

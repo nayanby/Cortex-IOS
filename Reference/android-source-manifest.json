@@ -1,0 +1,1647 @@
+[
+  {
+    "path": "src/main/AndroidManifest.xml",
+    "bytes": 3427,
+    "sha256": "e2d053674fb3a2afd41bd00bd14a7c4c1f517e26de3bbd17bc583697056e69a2"
+  },
+  {
+    "path": "src/main/assets/bridge.js",
+    "bytes": 64228,
+    "sha256": "1d479572716b89cae10593cc892eaf31f17725a4ad798b15c9e43f64d694ef40"
+  },
+  {
+    "path": "src/main/assets/chat-reading.js",
+    "bytes": 10577,
+    "sha256": "a761f8d3c17e7a5c4f610cd4b5860b5fa49394d827d4cb71ffd6d86f0eb4efd7"
+  },
+  {
+    "path": "src/main/assets/jszip.min.js",
+    "bytes": 97642,
+    "sha256": "f12f367798e35ee2d9993dba6167fc61ddb52fb89880f5a99fbb606335188410"
+  },
+  {
+    "path": "src/main/assets/native-overrides.css",
+    "bytes": 27613,
+    "sha256": "09eefa9f612459e162d36dab3a21cde1576d7d1d1bfdb8d01ecd76092b25cb49"
+  },
+  {
+    "path": "src/main/assets/poster-print.js",
+    "bytes": 11924,
+    "sha256": "469683bc945f2795337979fc81b5b884c61ceb1f3e7386a26215c5cf11b1b72a"
+  },
+  {
+    "path": "src/main/assets/viewer-typography.js",
+    "bytes": 5765,
+    "sha256": "a0a11329775af2b215af4d94cb9ca663c7030a224c74899055b7ee09e11cb1cc"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/AppCheckDebugSecretRegistrar.kt",
+    "bytes": 929,
+    "sha256": "7a2001b0ebfa466f19f684110287d653dd7dee3e184ef2669a58b0d306ecded0"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ComingSoonNotes.kt",
+    "bytes": 202,
+    "sha256": "0f30266b836a8dff4c106413cb9cb85fda1cbe6bd4e7a7eec8628b700a2a6fed"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/Edition.kt",
+    "bytes": 634,
+    "sha256": "5fb139d4fdd49387b628b7c82dbd021734569c1e4002c7aabf40d06289f1849c"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/FirebaseAuthStorage.kt",
+    "bytes": 3126,
+    "sha256": "b7b0110b5aca81f1360b2422138d7cc0f9fa720f884feca7557e31cce160bf0b"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/FirebaseSetup.kt",
+    "bytes": 3942,
+    "sha256": "7b0b9938c31d866ccad1128692e7e2b3a767b3f0d352ebca763ee8e9251bc9b7"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/MainActivity.kt",
+    "bytes": 318607,
+    "sha256": "0d8c280462a9e29e51887af3d2e89ad0af1a80922d2a9af14173730e6744ddf1"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/NotesApplication.kt",
+    "bytes": 650,
+    "sha256": "70c1e406105511b01c7d89548fed6957bacd16f6d458161fe17a0e955d260f8e"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/StudyAnalytics.kt",
+    "bytes": 995,
+    "sha256": "aa65830070b41e516cb100c079d4b9976f8c80a84571b40dd0b2e003fbedcb36"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/ai/AudiobookPlayer.kt",
+    "bytes": 24719,
+    "sha256": "0c719bbba4cbb1a143416117e7f417e92f9ec3912cb2e3d14b780b1962408894"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/ai/CloudTts.kt",
+    "bytes": 11547,
+    "sha256": "a9affac3b132c320ad0418b8d1348f1a43e5ea0336b676498ad7e0e966b8511c"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/ai/FirebaseStudyAi.kt",
+    "bytes": 3770,
+    "sha256": "57fa4c8878ed9db5e5fa01a9fd85766a4a42fe00d56c0c7ad25b0204cec2a44f"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/auth/AccessRepository.kt",
+    "bytes": 24922,
+    "sha256": "8210a372bb6486660c3f90112aa665aa71cc295b0d8d253d308ce741d8b674e1"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/auth/AuthFailurePolicy.kt",
+    "bytes": 562,
+    "sha256": "1e545044877cfa0c71fd435c9f92a2ebc36756e70b99e10d12d4c063c7c66545"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/auth/DeviceNames.kt",
+    "bytes": 438,
+    "sha256": "846830f97db40f4180cc704d8bd5fafef6a86aa297fb8477dcf0d05e91e35d50"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/auth/TasksWait.kt",
+    "bytes": 308,
+    "sha256": "0f2b0d6abb0087aa6d8df49c6cc3b1c9e4b45d42f27295fa90bb1421c32b0dde"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/db/AppDatabase.kt",
+    "bytes": 3044,
+    "sha256": "fe3286f9a175b74ad95788bf741b03a4e85627fcd944c07320ee5f0f9322d6a4"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/db/Daos.kt",
+    "bytes": 7825,
+    "sha256": "2d25061fbdb667a5878fb999e6c4d8d7bc97ba33a5f53e665aca2f3730768c44"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/db/Entities.kt",
+    "bytes": 6931,
+    "sha256": "c9d05bbf1421e32ccec439e88c62472672ed2b80225dc2204a878cc2919cc059"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/AiCreatedRecents.kt",
+    "bytes": 1865,
+    "sha256": "5745c2b54607d30919c634a6a39acd10fc6df6f9f4841c5075ebde8bcc42b363"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/LibraryOverrides.kt",
+    "bytes": 9941,
+    "sha256": "e4af857a64ab6dfed002ee1531bea27302e4ced6b55c0c2ccb941b957554ffae"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/ListenPrefs.kt",
+    "bytes": 973,
+    "sha256": "1a163aa7917ead35ca346266d627a81b8f057d9f7a64e19534f304fd266c8a6c"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/PaperListPrefs.kt",
+    "bytes": 2380,
+    "sha256": "3d9f4987388df51205af74e42cdbfa9be134f46439a3c679b1febc12c4f469c9"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/PdfQuota.kt",
+    "bytes": 1319,
+    "sha256": "1d4377798bed888147f0d529cb4f491e811c648b8078c9a3023a57ea9f06e23a"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/ReadingRecents.kt",
+    "bytes": 3540,
+    "sha256": "9040b8e91e6df2f36580f76c09f3f404f550bf43a08cd9ec41999cf16ed45cb1"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/SecretStore.kt",
+    "bytes": 8069,
+    "sha256": "cc91fc0d4c7305fa095dea79b09feca8d156056c1ab3e08227f9fa9a714e921d"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/SnapshotRecents.kt",
+    "bytes": 3400,
+    "sha256": "aafd457336bb67072bf0fd093070c4a72d02e661f8ecf85c090497121b8cc1c4"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/prefs/StylusPrefs.kt",
+    "bytes": 785,
+    "sha256": "a110a5def9dda7e286677405e5c60fa82be9d7b5dbba86ba5d4fff53da2a61f1"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/CatalogStore.kt",
+    "bytes": 4557,
+    "sha256": "4f96d8d09c896b35c8b0cd4c452203fd30635d9294fb95c94e0ee3db66565b0f"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/FeedbackRepository.kt",
+    "bytes": 6054,
+    "sha256": "50ff68d191281baceaee6339d164dcb5120dd72d3e6a88c81e6b1f6c4425297d"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/FirebaseLibraryClient.kt",
+    "bytes": 13191,
+    "sha256": "dab381bfb44756d5b8d56d32edc85acb3a849d5bd2beb50d00a55a4210f41dd3"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/FirebaseUserDataStore.kt",
+    "bytes": 10663,
+    "sha256": "06b5beaa658faa81ab1f8a33f86d00999e6e5576b0d2eaeabe1a396d4846efb2"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/LibraryWarmup.kt",
+    "bytes": 852,
+    "sha256": "474e169f8847c81fdff247a783572ad722a40a74942bd5a678402b21d42d8c03"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/OneDriveShareClient.kt",
+    "bytes": 17149,
+    "sha256": "97e70c22d812252fbd4d95cd436ecd551cf686dc6414fd6ef839aef17657a754"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/SyncRepository.kt",
+    "bytes": 20552,
+    "sha256": "a1a983cd31e5f314f8a99c241fc78ab53ff1ef14fdadb52f66cab80975e4d7ff"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/SyncWorker.kt",
+    "bytes": 2582,
+    "sha256": "f005bd7f53cea20c6fdeaa14d28b69643e73d11319a6523a2120fe46f74b1d5c"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/UsageRepository.kt",
+    "bytes": 7887,
+    "sha256": "9d132ef93d0568eaba9ec13f776bd05b50cb2b04aa86e69be2b9becbafbd2f68"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/data/sync/UserNotes.kt",
+    "bytes": 5196,
+    "sha256": "3573b474b9cf7fafdfde3537e82cb3c8e30a7496491417f57e00809ac712a48b"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/di/AppContainer.kt",
+    "bytes": 6376,
+    "sha256": "edfe6fb731c4d109fa44b9de16b85aeaefdaaddbedbc093463665317f1103bba"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/AiScreens.kt",
+    "bytes": 13091,
+    "sha256": "2f1cab56de2b84702c3922fb1ca9c71c60f102f0a30d4d84bb86d9aff635c87d"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/ExpandedTouchTargets.kt",
+    "bytes": 3400,
+    "sha256": "e84517c80a0f0a850b989e89a37ea9f7a225c5b89e023fd4d25975f8cd1efc32"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/FeedbackSheet.kt",
+    "bytes": 5056,
+    "sha256": "77c5b025b897ba8d41b5ba230c65f235f06e1d2aa2e83f186d4644d06ee52cb0"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/FlashcardPanel.kt",
+    "bytes": 30790,
+    "sha256": "f663ddd01c13e87090bb5e79c963d4407cb1c4404e9526ae70132a8592edd729"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/GuideOverlay.kt",
+    "bytes": 30082,
+    "sha256": "70fef15da06e19cc89b17cb1b2fe0d5558215a600daf7e6062181cd037f0feba"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/H1SnapshotJob.kt",
+    "bytes": 16247,
+    "sha256": "c3bb7d99526837804325e506f487f2567cb10bf262c136a3c4eb6cc9e98b45f0"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/HeadingChip.kt",
+    "bytes": 3080,
+    "sha256": "8a20e1072bbf94a895e771da4f622b2bee65d917c6ff4b38b19e64a0907da371"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/HelpDialogs.kt",
+    "bytes": 1241,
+    "sha256": "6869c63340bad7e7e8a7ea922f51889898fe48534d674444be5e7d242e185333"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/InkCanvas.kt",
+    "bytes": 37951,
+    "sha256": "7de4743ac45d33eaec22739eafa588e077e8a6eaa3bafc94773dd75fc21df5d1"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/InkStore.kt",
+    "bytes": 3371,
+    "sha256": "e23b677a749cc3b65a2369030538979199afcdca707bea3b00d47c63a1158a04"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/LibraryEditor.kt",
+    "bytes": 11949,
+    "sha256": "472997167495f8c7fc1dafdf009e065a95e21cb6dc974ebaaab499de2ffd0f4d"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/LibrarySearchWindow.kt",
+    "bytes": 22245,
+    "sha256": "caa4174293b7997e84b02b79f3d84b0db6957c247675cdbfe83e1f94e1592e14"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/LibrarySyncDialogs.kt",
+    "bytes": 12978,
+    "sha256": "2a748d0f52fb82201cec72ad26a5bc7ea9f8a22e8b11ee2fa48b688fbfd202e6"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/NativeScreens.kt",
+    "bytes": 49296,
+    "sha256": "7aee9200529d228c0fcc13accff95bb52a4e58ef6bfa0b696763bc49296dac3f"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/NotebookImageLayer.kt",
+    "bytes": 15018,
+    "sha256": "7b71f797c4c412e0fb3cf04dfc550a7eee9a27549f52b32d692090526fef979c"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/NotebookImageStore.kt",
+    "bytes": 14369,
+    "sha256": "f2186cbf7fb8f9b36a80445163fd9fe4c8e5c167f78dc562f82dd60ee94d6a21"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/NotebookPdf.kt",
+    "bytes": 6661,
+    "sha256": "c8967c0bcb61b532d6249a01f4bb5799bf418a47345313ba1947d11be78129e8"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/NotePdf.kt",
+    "bytes": 8007,
+    "sha256": "8460abc637f6456b68e873907261e8cab25d3563c8bbeb416a83acedfca2d148"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/OutlineDialogs.kt",
+    "bytes": 1228,
+    "sha256": "d5d51d86012304008599c49710db97b40f3c5a8f6e39d40e7e1e18848bae3514"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/OutlineRowSizing.kt",
+    "bytes": 1253,
+    "sha256": "3da611733ffb2fd3309aa2e33560bead490fb387bd572bef181314885ea1269f"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/PageChrome.kt",
+    "bytes": 35441,
+    "sha256": "0b5d1def93f0b4d62c6e4e6e36f3b0825a0bd1d365f3acad22962e2b7889e994"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/PaperScreens.kt",
+    "bytes": 84365,
+    "sha256": "bd3540c7f10460f192c81fc02f57441fb348698f73f632326f41c4250a567c7b"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/PaperStore.kt",
+    "bytes": 26443,
+    "sha256": "0864b2196462cb83e14fe5b1d768687435c89a471a202024e6967cea87be0e34"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/PdfEngine.kt",
+    "bytes": 6580,
+    "sha256": "fe1d02d973b69024c0e281a0f5b3718cff7228272a86065fb8d96cfb00eae9cc"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/PenMenu.kt",
+    "bytes": 19462,
+    "sha256": "ddb6a3ee219a48670db28644efb179bf6a5fd1dd172c813db698321b58dd6ecd"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/Performance.kt",
+    "bytes": 5498,
+    "sha256": "f215e83a045cddba32bb0209978e5c0976a9ca0a2c93c478f666cacc420c9bc8"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/PosterHtml.kt",
+    "bytes": 24285,
+    "sha256": "a5c62f56521f68f30b907ffae13ac7cb4d5ad2291df97b122487037adf41ac5c"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/QbankNavIcon.kt",
+    "bytes": 1240,
+    "sha256": "05f8ff06bc230b6eb584eb774a20d49816d7039952a133de43f468ec914172e4"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/ReaderFaces.kt",
+    "bytes": 3989,
+    "sha256": "7b11523ed286ad11fedd65429025115b3a9de4513810ba457ac4840987233869"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/RuledPaperView.kt",
+    "bytes": 2084,
+    "sha256": "775515690fb758b1360968c655b2bcbb9b434b3546ac6162680713bc6d52c4aa"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/SlideController.kt",
+    "bytes": 11525,
+    "sha256": "01764aaacda98a5136cd1e10563ed68cb9f20d79e139dad3732f922ed8c9c89b"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/SlideHtml.kt",
+    "bytes": 26132,
+    "sha256": "b19f33f9c90bdb837cfdd22b06ca7ee98d9c16c08f05c4e81984ce6860da22fc"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/StorageDialogs.kt",
+    "bytes": 17612,
+    "sha256": "d9e5ff47be3d6612936a058e9a8d94c7541c5ac277013226db558b9406f1d044"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/StudyTools.kt",
+    "bytes": 62942,
+    "sha256": "9816d3fc51e46260255ec2b8401f38fc935038cc1380e94b3e44c9d49fb8a04f"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/TextInputDialog.kt",
+    "bytes": 1581,
+    "sha256": "657e1f77875b6eef10ab9922c78cb95e68e1a2505a4716483d6735f854fedfd4"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/TickPicker.kt",
+    "bytes": 7719,
+    "sha256": "0e40207d60ac6f7f9a56d2715868d4a9b68b6f12f84d992fb12a6a5c62e476e4"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/Typefaces.kt",
+    "bytes": 8021,
+    "sha256": "62f01a2645c1fa12eda236884f6ba48724031ae03c900a0e9ac713d8f87147a4"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/TypeSettings.kt",
+    "bytes": 15016,
+    "sha256": "cd6d09a8b2b1b31085e85ddd37c531f7b3662f7994ef229de7e4e5b82525f206"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/UiFeedback.kt",
+    "bytes": 841,
+    "sha256": "011a82c8f50d07a7868837980c3474790a7f202df50395a89249a1a95c31cf99"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/ViewerToolbarFade.kt",
+    "bytes": 2088,
+    "sha256": "6b32f2168615a9782cd001cc3741032cbc93f4ea5bdbf608a2b89b0b7676d0be"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/ui/ZoomScrollView.kt",
+    "bytes": 20780,
+    "sha256": "7e9cf2ebb0c523ee577607ddf3ce6e8a101d185a733a4e7f4fbbe5cf7f7223ec"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/ApiPathHandler.kt",
+    "bytes": 2743,
+    "sha256": "b2282619580c45a3ad5fed16a2ffdc01e03d9a3a679a074094b302fb07ebe16b"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/DurableCortex.kt",
+    "bytes": 3265,
+    "sha256": "5be40c3b6961ea5e09af4438aac58d47818702daab809a7093a38dba7e1cbbe1"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/HeadingIndex.kt",
+    "bytes": 31190,
+    "sha256": "99b588ce608d13012a37e76393f51b8dff5ee147e6e22af1a96abebb7a9d07fa"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/LibraryPack.kt",
+    "bytes": 3256,
+    "sha256": "508cbdb67d5c90bc10a4897296e9c8eb45711ff25b2150d83b581de417dbf067"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/ManifestProvider.kt",
+    "bytes": 3280,
+    "sha256": "0d9aa54fdf97e88793016dc062750d8f7326f744a43f0b3a838d542a2b07b9bd"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/NoteFileStore.kt",
+    "bytes": 3466,
+    "sha256": "f697be90ead8dcb5c3bbc37eb1341c4c4d15847bcea16ce677fc4c145872ae1d"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/PosterStore.kt",
+    "bytes": 17768,
+    "sha256": "37997978504958d9a52d096df56a234bccefe96052b608e7efdbcd65ac1321b8"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/QuizBankRevisionPlan.kt",
+    "bytes": 1153,
+    "sha256": "8a62e54008e410d9534d2c5fd463ee5e0b5143b928dccaf3af5985fe69aa97fb"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/SearchMatching.kt",
+    "bytes": 1485,
+    "sha256": "6b3ede3d51c7ed5689f271eef37eb70b2540eddc10f2b1ef7181c10231108638"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/ShippedLibrary.kt",
+    "bytes": 6311,
+    "sha256": "200de73cab37dfd3f3504cc31cce8d6f0f2234bad098facb1f6e6be1ab4faa32"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/SnapshotDiskStore.kt",
+    "bytes": 5499,
+    "sha256": "55d74cf942eac5c0392031194cb76a4f07a84bf92a754b27cfbad5b881413d84"
+  },
+  {
+    "path": "src/main/java/com/clinicalnotes/library/web/StudyPacks.kt",
+    "bytes": 8659,
+    "sha256": "d9ec7bed7a8e96cfa1f77610ff4eb6af2816665196aa07585308ac811016dba2"
+  },
+  {
+    "path": "src/main/res/anim/panel_enter.xml",
+    "bytes": 424,
+    "sha256": "ab09d24641081f17add842db287a8c8b3ed2543e0a2ead073730c0731f9992fa"
+  },
+  {
+    "path": "src/main/res/anim/panel_exit.xml",
+    "bytes": 363,
+    "sha256": "5c8448e3ba22d5f2a1f888477615db8304ace151ae2d4b9a51e1a27ec6abf2c4"
+  },
+  {
+    "path": "src/main/res/anim/search_window_enter.xml",
+    "bytes": 342,
+    "sha256": "89f624b1fa9d8ac3c31b8c746e98cf82aa8e1e3e67486d2b6f4cd22c15e55776"
+  },
+  {
+    "path": "src/main/res/anim/search_window_exit.xml",
+    "bytes": 175,
+    "sha256": "67d11930f16cde4fe58a07fd51f9caa5533fe28bad4ea2bd5395d968861c3e44"
+  },
+  {
+    "path": "src/main/res/animator/press_feedback.xml",
+    "bytes": 865,
+    "sha256": "9be67fe040ed24e7bf0f920f870c2815c2a432e410195c893103030e27064bd4"
+  },
+  {
+    "path": "src/main/res/color/bottom_nav_color.xml",
+    "bytes": 248,
+    "sha256": "4a160b8f72797b3c5dd770781ed98056ef4586ca9823fdbd905017d99468a703"
+  },
+  {
+    "path": "src/main/res/drawable/bg_bottom_navigation_fade.xml",
+    "bytes": 336,
+    "sha256": "395cecb04b7c8ea255d048af1810c33ead8fae3cc9bb45d128cdc9c7624a459c"
+  },
+  {
+    "path": "src/main/res/drawable/bg_bottom_navigation_pill.xml",
+    "bytes": 301,
+    "sha256": "7771571aef97b6315ab8906952fdce32a8b7b5b8eca4f6754ca4075b072beea7"
+  },
+  {
+    "path": "src/main/res/drawable/bg_bottom_navigation_rose_pill.xml",
+    "bytes": 301,
+    "sha256": "7771571aef97b6315ab8906952fdce32a8b7b5b8eca4f6754ca4075b072beea7"
+  },
+  {
+    "path": "src/main/res/drawable/bg_callout.xml",
+    "bytes": 327,
+    "sha256": "4e1ff6e5ca79fce98641bfea8206434c914800369c3d4054e9d9c8c016470b7e"
+  },
+  {
+    "path": "src/main/res/drawable/bg_deep_tile.xml",
+    "bytes": 353,
+    "sha256": "ed5fdeb8cc8139a162eae3ac2d48acfc498107c63abdad7d956ab5197e568a4e"
+  },
+  {
+    "path": "src/main/res/drawable/bg_dot_blue.xml",
+    "bytes": 197,
+    "sha256": "c8141e3edcb77c97d9eaea03726c030edb384a23b2f53ea5c6db60b0a8c1c373"
+  },
+  {
+    "path": "src/main/res/drawable/bg_dot_plum.xml",
+    "bytes": 199,
+    "sha256": "172d444142ff41d9dd2fb69bcc646e7de74790494dbca925491fb0cec4533199"
+  },
+  {
+    "path": "src/main/res/drawable/bg_download_pill.xml",
+    "bytes": 499,
+    "sha256": "88a7f4d424ec8254dd34749ea6c2d39f85f4d95be81f65c3ab5edb7fc56dee99"
+  },
+  {
+    "path": "src/main/res/drawable/bg_feedback_bubble_app.xml",
+    "bytes": 382,
+    "sha256": "780eb020251c0cc6e49a9c0b35f049c48e4b9d44061fa79f2f994ac532158dc6"
+  },
+  {
+    "path": "src/main/res/drawable/bg_feedback_bubble_user.xml",
+    "bytes": 369,
+    "sha256": "56306d2a34ba6284c04c3e2b2170dceb6b90e2bff4b4629ecb0a443dfd439bfd"
+  },
+  {
+    "path": "src/main/res/drawable/bg_feedback_composer.xml",
+    "bytes": 324,
+    "sha256": "07c59b8b7010d9b0924e53eaeeb0378e14ac15d54bf75befc3d19643d68b9d9b"
+  },
+  {
+    "path": "src/main/res/drawable/bg_feedback_send.xml",
+    "bytes": 188,
+    "sha256": "e60974ee9bf6dce99a4be28125722e76d313b31765aa3dc37e0696c0cd7ffbbc"
+  },
+  {
+    "path": "src/main/res/drawable/bg_feedback_tint.xml",
+    "bytes": 1207,
+    "sha256": "c711c7033ccda3ed78c4bcb818182eed5c5f57a6930c0d870ee3639415e02847"
+  },
+  {
+    "path": "src/main/res/drawable/bg_field.xml",
+    "bytes": 411,
+    "sha256": "223c0ad1c90e3b021d7fc58ad251d3dc1ccf8b155c086a1ebee29cfee51d5acc"
+  },
+  {
+    "path": "src/main/res/drawable/bg_heading_h1.xml",
+    "bytes": 610,
+    "sha256": "332078741781f7db9edf81f11ed38e41f47dbeae53bbf841c91418ed4edb8c87"
+  },
+  {
+    "path": "src/main/res/drawable/bg_heading_h3.xml",
+    "bytes": 588,
+    "sha256": "3ef113b71ac31df00de8ea4d13c40c5c6eb28f1694c737278646ea9e2e1250ef"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_deep.xml",
+    "bytes": 460,
+    "sha256": "f2ff1c89b6cd26d6f11d776aa8760d053cc27689ef26d82d60aa559a1a55d035"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_mine.xml",
+    "bytes": 418,
+    "sha256": "3ec369c2cfe6aaaaf0952cc69559897f874980eea02954e5b019b7d1fcbf34c3"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_notebook.xml",
+    "bytes": 343,
+    "sha256": "067f579ec6021f23c26476c43d2a99bb003eca19764151757dc7a56640900cb7"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_pdf.xml",
+    "bytes": 333,
+    "sha256": "2e3c3ac886b8c61e1031cd228438a990a651d9e597bc4ff82d5616e90fa0f34e"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_quiz.xml",
+    "bytes": 343,
+    "sha256": "1269b053959327ecb9eb6da8bea706e8dd70c85d18de4fce48c3ff5e93ed09aa"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_rapid.xml",
+    "bytes": 452,
+    "sha256": "a79932ce7e8693ac63eb5b121c624042dacd1672108eb146a901478535f4df5d"
+  },
+  {
+    "path": "src/main/res/drawable/bg_home_trash.xml",
+    "bytes": 237,
+    "sha256": "0e09f07603dfff5ebb28a4f2e3b9c0d0c6eac5b85490dd5338240d29e0566173"
+  },
+  {
+    "path": "src/main/res/drawable/bg_ink_pill.xml",
+    "bytes": 324,
+    "sha256": "484c0edf3b1bcc9708656d30bec39a41535bd23fdd1e0a21773c8968564ed0b4"
+  },
+  {
+    "path": "src/main/res/drawable/bg_listen_chip.xml",
+    "bytes": 245,
+    "sha256": "c68d1fbfb353dc548a18a8949e53ee3ed73966d21e5fbe35bd6b3155bfd21a05"
+  },
+  {
+    "path": "src/main/res/drawable/bg_nav_blue_badge.xml",
+    "bytes": 754,
+    "sha256": "e2cf80b550d67997482429fb826ee22da6e225fa593a728de86fe0b7283b44da"
+  },
+  {
+    "path": "src/main/res/drawable/bg_nav_rose_badge.xml",
+    "bytes": 755,
+    "sha256": "0a4f408cdd9d0d7077ebcc028b1e2c492a1d4b9a4dac0cb3fc2a6fca3f934b00"
+  },
+  {
+    "path": "src/main/res/drawable/bg_navigation_toolbar_outline.xml",
+    "bytes": 311,
+    "sha256": "95d73a30da9b43e96739c929d55a3f09ddb9890a89d0b1785b7c8bff33ff4b98"
+  },
+  {
+    "path": "src/main/res/drawable/bg_outline_expand.xml",
+    "bytes": 526,
+    "sha256": "08cec353a1c83263498d6f3695b9b5bafc7e9e14a8cea06549147581d41bfd9d"
+  },
+  {
+    "path": "src/main/res/drawable/bg_outline_panel.xml",
+    "bytes": 297,
+    "sha256": "42579c7f7b3d9c9f6d646b32f004156eafbb1a6fff690865fe23dd640f43b60d"
+  },
+  {
+    "path": "src/main/res/drawable/bg_outline_pill.xml",
+    "bytes": 465,
+    "sha256": "1524910c46f61cd5a71d4de024f27df288c068a51c7678e655b8c07a60b8317c"
+  },
+  {
+    "path": "src/main/res/drawable/bg_page_pill.xml",
+    "bytes": 409,
+    "sha256": "0c07f19d3c8bef7ec59ca3b70bdaf1997ca0707ccc8368b7fbca3e85fee4dd96"
+  },
+  {
+    "path": "src/main/res/drawable/bg_paper_bottom_fade.xml",
+    "bytes": 363,
+    "sha256": "112e860da4ced521c00b0821a8f6fe2ed9b5507995a7ece25d29a4285e65f79b"
+  },
+  {
+    "path": "src/main/res/drawable/bg_paper_top_fade.xml",
+    "bytes": 389,
+    "sha256": "1260bac924a64722200bb0e55b0ff45762f48df519d8004a576d5ce8df0ec69a"
+  },
+  {
+    "path": "src/main/res/drawable/bg_pen_pill_button.xml",
+    "bytes": 421,
+    "sha256": "c1f15a056284b66c83b9b39e86ecc5b22ec77cda2647ab895059142ecbb1f5dc"
+  },
+  {
+    "path": "src/main/res/drawable/bg_poster_head_blue.xml",
+    "bytes": 294,
+    "sha256": "6484af2b715404517bd47c5fddd3dcaa492002c7defa1d0be0e5586ea9cddd84"
+  },
+  {
+    "path": "src/main/res/drawable/bg_poster_head_plum.xml",
+    "bytes": 296,
+    "sha256": "1bbb5e89efdd7c40b6ec3d5920107e090921b93feec26cfe886343e43d0f1ec2"
+  },
+  {
+    "path": "src/main/res/drawable/bg_poster_section_even.xml",
+    "bytes": 237,
+    "sha256": "4c1a2aba5a50ef8ec8ae732036e5ab023246ef7095398167c4ffa65a55dfa450"
+  },
+  {
+    "path": "src/main/res/drawable/bg_poster_section_odd.xml",
+    "bytes": 236,
+    "sha256": "e3b8ac48c0076432e3552d98d9e8b9b7bce99293b654675bb688fbcc98df6b19"
+  },
+  {
+    "path": "src/main/res/drawable/bg_poster_sheet.xml",
+    "bytes": 237,
+    "sha256": "a24161476f4e2f34bf723d4d6e52ff22fa5b76472b3478f34239e1de2f5266fe"
+  },
+  {
+    "path": "src/main/res/drawable/bg_poster_title.xml",
+    "bytes": 400,
+    "sha256": "19d56232326850ea8465e1d04b43d5b69449fbafa0bb97f41110a0b4c0556230"
+  },
+  {
+    "path": "src/main/res/drawable/bg_reader_toolbar_pill.xml",
+    "bytes": 306,
+    "sha256": "9e67746b9f72a740b9d1cdc9d10d7f876320607eb358039745cac3652bba685d"
+  },
+  {
+    "path": "src/main/res/drawable/bg_reference_footer.xml",
+    "bytes": 496,
+    "sha256": "359d07cb54e0ed6996e4c4b122ae702fe79c17498ed62903cb4bb888ac06f811"
+  },
+  {
+    "path": "src/main/res/drawable/bg_reference_header.xml",
+    "bytes": 509,
+    "sha256": "dc4b80299914b8823b713569acd6da5e8262821976f155ef3fc8e497550796cc"
+  },
+  {
+    "path": "src/main/res/drawable/bg_slides_pill.xml",
+    "bytes": 403,
+    "sha256": "633d6703233edeb6f7458b1fcef0fd7a2623a742de58c520abfe8492cb0558bb"
+  },
+  {
+    "path": "src/main/res/drawable/bg_snapshot_pill.xml",
+    "bytes": 450,
+    "sha256": "b898974894b28143fb6e5ad250c66cede5c8ff8abb5c297909c50889b4c5c612"
+  },
+  {
+    "path": "src/main/res/drawable/bg_snapshot_tile.xml",
+    "bytes": 353,
+    "sha256": "e7c6cfe14031c64842031b2768e6e6eb8b72446f6a2def77587f95be68f9fe76"
+  },
+  {
+    "path": "src/main/res/drawable/bg_subject_tile.xml",
+    "bytes": 403,
+    "sha256": "a95cc53bca20bcf37ef19a887be0042551416b2bac6569445b0d80a2b1a23a31"
+  },
+  {
+    "path": "src/main/res/drawable/bg_subtool.xml",
+    "bytes": 400,
+    "sha256": "2988a46eb07a0001df8c263c62bc2e9b6e6bde82fbd8c15f41d1b448d438d978"
+  },
+  {
+    "path": "src/main/res/drawable/bg_toolbar_button.xml",
+    "bytes": 891,
+    "sha256": "fe88336a34840c183f08393c1197bab33bfefc86d5cbd292e7920ab64117e8a9"
+  },
+  {
+    "path": "src/main/res/drawable/bg_toolbar_menu_button.xml",
+    "bytes": 182,
+    "sha256": "6b9597273a14248a376d188187d7a902e9d3ad50225a7b059fe65effcf82c968"
+  },
+  {
+    "path": "src/main/res/drawable/ic_add.xml",
+    "bytes": 397,
+    "sha256": "2795089c5c8beb2bc49ab947bb7cd130557ab50184254072275091c2f5a407ca"
+  },
+  {
+    "path": "src/main/res/drawable/ic_arrow_back.xml",
+    "bytes": 432,
+    "sha256": "ec3a48c03e4f80da7a3a28805a4f5b2c3ccf75673ae1053564932ca39df89a6e"
+  },
+  {
+    "path": "src/main/res/drawable/ic_auto_awesome.xml",
+    "bytes": 365,
+    "sha256": "7934b878707f5045a26c109545d739f2145d14759ddd0eec4862420b082ba0b6"
+  },
+  {
+    "path": "src/main/res/drawable/ic_bar_chart.xml",
+    "bytes": 374,
+    "sha256": "7e55733fc2dec58b6c03332071ff17c8b59d1e462e3e4cc1d1a0a5fd81c9d732"
+  },
+  {
+    "path": "src/main/res/drawable/ic_bolt.xml",
+    "bytes": 372,
+    "sha256": "d0c2a0cf93ab9c3d8bd73698a83e278f31b9f04e6a8a8d217a35a4223b54e5a8"
+  },
+  {
+    "path": "src/main/res/drawable/ic_book.xml",
+    "bytes": 367,
+    "sha256": "14f17c8407046f4ee533df3e6d13aab2eb56f79e501770bb2d4291900483eb4a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_chat.xml",
+    "bytes": 367,
+    "sha256": "7e918ed5d975baa6bddd59a6509e39f637f7ebc0fa702c6dccb2672a6f2b71a9"
+  },
+  {
+    "path": "src/main/res/drawable/ic_chevron_left.xml",
+    "bytes": 419,
+    "sha256": "617f437ffe1e25025d2565c7a6839d6997e42dc1a9ab5f3e560314739e541955"
+  },
+  {
+    "path": "src/main/res/drawable/ic_chevron_right.xml",
+    "bytes": 421,
+    "sha256": "61b81dd71515a3b6980f2ee628783c673096c2b9859390a44fbe3d589e439640"
+  },
+  {
+    "path": "src/main/res/drawable/ic_close.xml",
+    "bytes": 468,
+    "sha256": "17fd6349b0824780de9ec2106edd15c7a7d622ba5adbbebc6c3946afb74b8a90"
+  },
+  {
+    "path": "src/main/res/drawable/ic_cursor.xml",
+    "bytes": 420,
+    "sha256": "09cf756adb4a51c6d2e2ad7e230d7a3539785e68f6b3911d55c07a29c2c7787d"
+  },
+  {
+    "path": "src/main/res/drawable/ic_done.xml",
+    "bytes": 412,
+    "sha256": "a7bb38b7a6515f5860e984f08ff241e93c649dcc5037b644e7ba3d482db105ab"
+  },
+  {
+    "path": "src/main/res/drawable/ic_download.xml",
+    "bytes": 410,
+    "sha256": "224f542ef76915843cc9aed231f784f14ac65c59f4fc7cd3e8e03ca498fbb5ba"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drag.xml",
+    "bytes": 663,
+    "sha256": "bbebbdacd5d79d98d119b54c68162d9eb8f9b21848f3da832d5fc4c16aa2279d"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_arrow_back.xml",
+    "bytes": 369,
+    "sha256": "2589064a6b6f2604acedf5e197ddeb1cb04ad21f3df23f7bbaea1c90a3c53e06"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_bar_chart.xml",
+    "bytes": 404,
+    "sha256": "34bebe5472469d7bbef78873fba7ce5e8c1a9a7c54ac326f130050cc2bc1feb7"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_book.xml",
+    "bytes": 380,
+    "sha256": "4ce9525536fa09dafa3ce2cdda39895ca7c21f1a0d44b466cf870b28ced51d39"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_menu.xml",
+    "bytes": 469,
+    "sha256": "e047c9e43ed8fa5dd3a757292bb1d17b3ea67f9c4f659998bc7c3de1cc212a08"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_schedule.xml",
+    "bytes": 460,
+    "sha256": "10e52f8618cbb72d6389f85dfa9c19ccd7f35a94db26fbede66d05d6a0a5109f"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_settings.xml",
+    "bytes": 1182,
+    "sha256": "f1606d937ae90416da87d915ccacc64f177a9854b36cec5aa98b68997717706b"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_star.xml",
+    "bytes": 467,
+    "sha256": "3dabdda7367e991736055c75d8f7cb86aac7a56b3732c7ad967fb571525d6eb1"
+  },
+  {
+    "path": "src/main/res/drawable/ic_drawer_storage.xml",
+    "bytes": 355,
+    "sha256": "a6104571a442cd380a800de8251b5fad7c3d2fcc1051b039cceadcebc008adf6"
+  },
+  {
+    "path": "src/main/res/drawable/ic_eraser.xml",
+    "bytes": 369,
+    "sha256": "0bdd9cc35278843b4bf2881497216c44edd6f097a689927dc2c8084ffb0c9ee0"
+  },
+  {
+    "path": "src/main/res/drawable/ic_expand.xml",
+    "bytes": 419,
+    "sha256": "01173329e4af74698d0bead5c84c289bbcf9a0d8c8f45c578af0b6bed347bc74"
+  },
+  {
+    "path": "src/main/res/drawable/ic_folder.xml",
+    "bytes": 369,
+    "sha256": "a7b77b828331d94701f83acdb1380d9bfe599437be8082ee6f7923dd8ac197b6"
+  },
+  {
+    "path": "src/main/res/drawable/ic_google.xml",
+    "bytes": 1110,
+    "sha256": "bf98f16ab887288846828cf6183e7be5dd3b1dc58c5073340b83ac7e2401d81f"
+  },
+  {
+    "path": "src/main/res/drawable/ic_guide_arrow_down.xml",
+    "bytes": 295,
+    "sha256": "3525042c38cb0b493cb99c2b9fb279bb44760d8beafa45de411ed5663f265113"
+  },
+  {
+    "path": "src/main/res/drawable/ic_guide_arrow_up.xml",
+    "bytes": 295,
+    "sha256": "472d773d15947497cc4f2c7af1930aea4a00f3ecb11c5ba12380336dcae3ccf6"
+  },
+  {
+    "path": "src/main/res/drawable/ic_guide_arrow.xml",
+    "bytes": 641,
+    "sha256": "d6851efd9cac069b0e302c3e5a08eeb4a64332b344223562aea9c4dbe8025509"
+  },
+  {
+    "path": "src/main/res/drawable/ic_help.xml",
+    "bytes": 613,
+    "sha256": "3fe19df09d9e0f42e0b1ecb07c74122438ff2110116b9f260f25d47a36ef7a5a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_highlighter.xml",
+    "bytes": 548,
+    "sha256": "3bd3c68fc40ab936da589e39b403dfb5b66f2655c8fe33ad248500995a637aca"
+  },
+  {
+    "path": "src/main/res/drawable/ic_home.xml",
+    "bytes": 367,
+    "sha256": "ec6f6d2b2cca824daa228258d7143b8b51414cc9d7c3aac5e939414f7081e404"
+  },
+  {
+    "path": "src/main/res/drawable/ic_image.xml",
+    "bytes": 368,
+    "sha256": "366cb979747fd42b71e5772bd1662159347012d50d1767566c6bd8757bdf9b63"
+  },
+  {
+    "path": "src/main/res/drawable/ic_listen_audio.xml",
+    "bytes": 550,
+    "sha256": "7ea0e0e013db4b9f2f53c10523ae66d9d9b121d5864e2c1f7724bb4ae4d93b9b"
+  },
+  {
+    "path": "src/main/res/drawable/ic_listen_pause.xml",
+    "bytes": 390,
+    "sha256": "063331c70924291ca868cdd31efed1798e347560adac2c579623d3bfd2243def"
+  },
+  {
+    "path": "src/main/res/drawable/ic_listen_play.xml",
+    "bytes": 377,
+    "sha256": "6f9d0d3a9412fc8bd5c2a2346c24df17d5b2f1e58b98ad6553bfd041c9e7bd01"
+  },
+  {
+    "path": "src/main/res/drawable/ic_listen_stop.xml",
+    "bytes": 371,
+    "sha256": "6637be11daef9861326686b1c87a25d2053bfcac5e4ab77843da051df9dc9f5c"
+  },
+  {
+    "path": "src/main/res/drawable/ic_menu.xml",
+    "bytes": 411,
+    "sha256": "ac15fcd7247802c723e90caee1655ef7a56b9431e59887d7bd0964d0fd7bce60"
+  },
+  {
+    "path": "src/main/res/drawable/ic_more_vert.xml",
+    "bytes": 516,
+    "sha256": "fe4ecf031b44143e15155a37ca72d6aa29170119a5c7d4d13a27c52e40041f4a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_create_badge.xml",
+    "bytes": 357,
+    "sha256": "08a68d5a7186db6930572b5bdded84c4603bf2e9548dae1cd334a9e77cc78a5c"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_create.xml",
+    "bytes": 369,
+    "sha256": "04dc37a9812908c966b3fa7c035de92392c8318bfcff50a6d990d9c9e48de1e3"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_flashcards_badge.xml",
+    "bytes": 361,
+    "sha256": "84806d746e5d692e80cceffd4f0b8d349fa074f39eea6bce32884b1c3c7c7f5f"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_flashcards.xml",
+    "bytes": 373,
+    "sha256": "08f699c038c4b467ab8323040409a327daca773fdd6c08e1bb06c21540c69069"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_home_badge.xml",
+    "bytes": 355,
+    "sha256": "fc92400b40682b628c734905a01ebd2c4333b798160ea0006cbd220d127c4b3e"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_home.xml",
+    "bytes": 367,
+    "sha256": "ec6f6d2b2cca824daa228258d7143b8b51414cc9d7c3aac5e939414f7081e404"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_quiz_badge.xml",
+    "bytes": 355,
+    "sha256": "92736c02248d1cbf6fe81cf30b11214759ca3739207cb284a5af724d5c2a964e"
+  },
+  {
+    "path": "src/main/res/drawable/ic_nav_quiz.xml",
+    "bytes": 367,
+    "sha256": "741547aea880ab02c95c43a0a9f8a69a62a7091b0a6c2fa13470d480ad4aa482"
+  },
+  {
+    "path": "src/main/res/drawable/ic_notebook.xml",
+    "bytes": 371,
+    "sha256": "81d6536178cf0824d631d8f86c7fc54773decbb4e355ab80ed733bada9b86c4c"
+  },
+  {
+    "path": "src/main/res/drawable/ic_outline.xml",
+    "bytes": 649,
+    "sha256": "8198074ec2865db87ee9f7955ad0c5e5d35955fa9878b56d95792e6e3585c870"
+  },
+  {
+    "path": "src/main/res/drawable/ic_pdf.xml",
+    "bytes": 366,
+    "sha256": "658ec54d2862f6e3dd94971b76bb439f556c612bc6a4783057caf92dfb95ee3c"
+  },
+  {
+    "path": "src/main/res/drawable/ic_pen.xml",
+    "bytes": 510,
+    "sha256": "9072bd1d8098228e792f0457cee635c057b6f49c92c30ec7b1ffc44589c6aae2"
+  },
+  {
+    "path": "src/main/res/drawable/ic_quiz.xml",
+    "bytes": 367,
+    "sha256": "741547aea880ab02c95c43a0a9f8a69a62a7091b0a6c2fa13470d480ad4aa482"
+  },
+  {
+    "path": "src/main/res/drawable/ic_redo.xml",
+    "bytes": 506,
+    "sha256": "807f4822fffc23f3ae6736e0921281042e932e925818922244ff21634cb634a4"
+  },
+  {
+    "path": "src/main/res/drawable/ic_refresh.xml",
+    "bytes": 571,
+    "sha256": "de8f0c31cbf5d0b960d4fbab42113080c6eee9fe29b08a2dadc4a5fe1eb36582"
+  },
+  {
+    "path": "src/main/res/drawable/ic_save.xml",
+    "bytes": 505,
+    "sha256": "8c91a9e42b4a6b0eb2335b060070582e52740d01119628600138c817702c4064"
+  },
+  {
+    "path": "src/main/res/drawable/ic_schedule.xml",
+    "bytes": 371,
+    "sha256": "14f0db3f50dfcc15403bd581485a25cce493c614ea5a8cfea814c6ad5aa7771b"
+  },
+  {
+    "path": "src/main/res/drawable/ic_search.xml",
+    "bytes": 598,
+    "sha256": "ced2ca67934b39cc4728717db7895d483dbd70a62f898591457cce5f8921526f"
+  },
+  {
+    "path": "src/main/res/drawable/ic_send.xml",
+    "bytes": 675,
+    "sha256": "2e6ed343d3bf37e5049172ec5b1b7105107f523bce2e2bede51681e90337f28c"
+  },
+  {
+    "path": "src/main/res/drawable/ic_settings.xml",
+    "bytes": 1224,
+    "sha256": "57daa904295a8153e3878bc878687bfd283146ff6c02a48125f20f8e279c1b17"
+  },
+  {
+    "path": "src/main/res/drawable/ic_share.xml",
+    "bytes": 722,
+    "sha256": "fdcf60ecc00a7d60969da1ce4b803685cc1a56750927b0084bfc0d90d8dc9d6b"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_account.xml",
+    "bytes": 723,
+    "sha256": "c4b689e626ab04a7e5808309e9b39fd83feeab5a9616cce810f06022af9b238a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_book.xml",
+    "bytes": 572,
+    "sha256": "971b7d63a863992163e49e819ef156eb1899b75866a814ab844c659e51ac03e9"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_close.xml",
+    "bytes": 528,
+    "sha256": "9ac3702291da42f17535458ae72f631bb1c44cff53cc98d103a03ad7794b90a0"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_feedback.xml",
+    "bytes": 580,
+    "sha256": "2d1e1ab1a010a1a7ee43f19b252fd052c768132a4e1ead4fc7ea30af791ad08b"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_help.xml",
+    "bytes": 722,
+    "sha256": "41d209b9e8d8e284999475407b51682b87ed871ad72ed13e8771e6be85674a2a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_home.xml",
+    "bytes": 506,
+    "sha256": "a5f0b7fb1bcbcf39593baf40b9052c4700a93929252964976909c0803a4281fe"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_notebooks.xml",
+    "bytes": 604,
+    "sha256": "3bc828eb25629abae18ee83be3e94890915467d3e71d6a23e7dd2cdffec38d2c"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_pdf.xml",
+    "bytes": 787,
+    "sha256": "d2c284eb9bae1e18d6d40b823ede04d2a33ac06ef1decb4fa481cfeb965ef072"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_performance.xml",
+    "bytes": 598,
+    "sha256": "a3279c679919bc8419e1f842afbc10d75a096d4eae20c3db50ee4f74686310ba"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_snapshots.xml",
+    "bytes": 498,
+    "sha256": "1fa6d36cce75e7b13615b2288df6ae6bca929cfcfa26ce72809f42cbf5914508"
+  },
+  {
+    "path": "src/main/res/drawable/ic_sidebar_storage.xml",
+    "bytes": 561,
+    "sha256": "4be9b085a18d6d83ee3efb26d224242fc466193b74e7e768e891fa3fac7fd32d"
+  },
+  {
+    "path": "src/main/res/drawable/ic_snapshot.xml",
+    "bytes": 372,
+    "sha256": "d0c2a0cf93ab9c3d8bd73698a83e278f31b9f04e6a8a8d217a35a4223b54e5a8"
+  },
+  {
+    "path": "src/main/res/drawable/ic_star.xml",
+    "bytes": 367,
+    "sha256": "e990b753216dd1be312df9d260657bcadf5ef75af5810a0b8c2f01cb49ab87c4"
+  },
+  {
+    "path": "src/main/res/drawable/ic_storage.xml",
+    "bytes": 370,
+    "sha256": "ee41887577d57114693645ccb67a1d9f0caeee0440304b1fd933c5a41ad13290"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_close.xml",
+    "bytes": 468,
+    "sha256": "17fd6349b0824780de9ec2106edd15c7a7d622ba5adbbebc6c3946afb74b8a90"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_cursor.xml",
+    "bytes": 420,
+    "sha256": "09cf756adb4a51c6d2e2ad7e230d7a3539785e68f6b3911d55c07a29c2c7787d"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_highlighter.xml",
+    "bytes": 548,
+    "sha256": "3bd3c68fc40ab936da589e39b403dfb5b66f2655c8fe33ad248500995a637aca"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_more.xml",
+    "bytes": 516,
+    "sha256": "fe4ecf031b44143e15155a37ca72d6aa29170119a5c7d4d13a27c52e40041f4a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_pen.xml",
+    "bytes": 510,
+    "sha256": "9072bd1d8098228e792f0457cee635c057b6f49c92c30ec7b1ffc44589c6aae2"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_redo.xml",
+    "bytes": 506,
+    "sha256": "807f4822fffc23f3ae6736e0921281042e932e925818922244ff21634cb634a4"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_save_pending.xml",
+    "bytes": 613,
+    "sha256": "0bf52696be6370e2bee6dd68b72a1094986e0e38f4a548b57506a789b6cc8b2a"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_save.xml",
+    "bytes": 505,
+    "sha256": "8c91a9e42b4a6b0eb2335b060070582e52740d01119628600138c817702c4064"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_saved.xml",
+    "bytes": 486,
+    "sha256": "6b24ef0ded84767793044609295b750aebd91683ef359ca4aed9a5302ccfec60"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_share.xml",
+    "bytes": 722,
+    "sha256": "fdcf60ecc00a7d60969da1ce4b803685cc1a56750927b0084bfc0d90d8dc9d6b"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_text_size.xml",
+    "bytes": 414,
+    "sha256": "a004f27b4c58c6f5eb1bca15218f77ac85905250f8be65b1c74f2e160b292c30"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_underliner.xml",
+    "bytes": 490,
+    "sha256": "6fabfd5d6a48b8a585e61a4958be2eba3724d5715305fa74090efcc310a196a8"
+  },
+  {
+    "path": "src/main/res/drawable/ic_toolbar_undo.xml",
+    "bytes": 505,
+    "sha256": "f1ddcdab5d98780397ed021b42d6333f5f73cc6ee6ddf7793fa17807734fa6b6"
+  },
+  {
+    "path": "src/main/res/drawable/ic_underliner.xml",
+    "bytes": 490,
+    "sha256": "6fabfd5d6a48b8a585e61a4958be2eba3724d5715305fa74090efcc310a196a8"
+  },
+  {
+    "path": "src/main/res/drawable/ic_undo.xml",
+    "bytes": 505,
+    "sha256": "f1ddcdab5d98780397ed021b42d6333f5f73cc6ee6ddf7793fa17807734fa6b6"
+  },
+  {
+    "path": "src/main/res/drawable/ic_upload.xml",
+    "bytes": 404,
+    "sha256": "c9a683b7c971a2c1ba6be567a2787a407b2ffef1b063ff2a4b68135d72c508f5"
+  },
+  {
+    "path": "src/main/res/drawable/loading_ring.xml",
+    "bytes": 871,
+    "sha256": "95b665116f06e76b5ff175f5a98acfa16e405994c4a71ae93166df5d4bbca371"
+  },
+  {
+    "path": "src/main/res/drawable/nerd_behind_this.xml",
+    "bytes": 33484,
+    "sha256": "40b71661fc1af0a496b1260dfda467caf1fb3e8854f9bc08936e2a86279162f1"
+  },
+  {
+    "path": "src/main/res/font/averia_serif_libre.xml",
+    "bytes": 639,
+    "sha256": "763fce9d4a683c671a3e098c93fc7423604b93fcd289c67053c9f3101c85567b"
+  },
+  {
+    "path": "src/main/res/layout/activity_main.xml",
+    "bytes": 21616,
+    "sha256": "bda6c6530ef1cc189a3774f5bd498cac1fe40e5a17645e6dc7007c949852083e"
+  },
+  {
+    "path": "src/main/res/layout/dialog_download_progress.xml",
+    "bytes": 1005,
+    "sha256": "129c6097457c7149a8b0581babbf6668cc68b3a245d991c1adb3231b095e989f"
+  },
+  {
+    "path": "src/main/res/layout/dialog_feedback_title.xml",
+    "bytes": 1084,
+    "sha256": "d20906a3a5d66a0353919dd4b8701cfba778c8facc7fb4b33683e167b298703a"
+  },
+  {
+    "path": "src/main/res/layout/dialog_help.xml",
+    "bytes": 637,
+    "sha256": "03a38fe7a3b48de49a9a5a48c180aea0eec1f377f12afda9bb05f28e78add316"
+  },
+  {
+    "path": "src/main/res/layout/dialog_notebook.xml",
+    "bytes": 1187,
+    "sha256": "f207dd2728bb8a2396e6b895faa8a6549dfd7959c2f6e2fd3afef000ec64701b"
+  },
+  {
+    "path": "src/main/res/layout/dialog_one_drive_link.xml",
+    "bytes": 1551,
+    "sha256": "bf76247ae18df3237b57d1c346538cc06de0ab567f07823a7927f62faf106fd4"
+  },
+  {
+    "path": "src/main/res/layout/dialog_snapshot_h2_choice.xml",
+    "bytes": 3155,
+    "sha256": "7a795617100033c408c8bb58c7eacb39b27415036a951e30a45e139c12ef8f2c"
+  },
+  {
+    "path": "src/main/res/layout/dialog_storage.xml",
+    "bytes": 678,
+    "sha256": "99888041c8fc07da42d3b87fea5237fb930d382a2039a192b3542ac96c8f0874"
+  },
+  {
+    "path": "src/main/res/layout/dialog_sync_sheet.xml",
+    "bytes": 1027,
+    "sha256": "301c810f2d092071792d5dd1e8e7025bc7b7901a18e7cda0909a979f9b8c7eb8"
+  },
+  {
+    "path": "src/main/res/layout/dialog_text_input.xml",
+    "bytes": 557,
+    "sha256": "c3781d83a19e0ce6e535bea6b7d78da531d189080ec5490eb667d7826b52914b"
+  },
+  {
+    "path": "src/main/res/layout/field_pick.xml",
+    "bytes": 1704,
+    "sha256": "ddadc38698c80c8a2c7ef220511dd69b04111849eaa8a90c2a305f76e05f793a"
+  },
+  {
+    "path": "src/main/res/layout/field_text.xml",
+    "bytes": 1208,
+    "sha256": "b91f8ff06d86fbfa263a38b0516e8efa4bed1620225cb3ae14c39b29814314ff"
+  },
+  {
+    "path": "src/main/res/layout/include_sync_status.xml",
+    "bytes": 1323,
+    "sha256": "5d5423bc700a127393f272a008339087deb0a0e402eaa7c11c73af83f9b12994"
+  },
+  {
+    "path": "src/main/res/layout/item_activity_row.xml",
+    "bytes": 3079,
+    "sha256": "9b09b1a6386d09fd80d165b460cfe3bfa76db1e4d810bb84a6213ffbc6637946"
+  },
+  {
+    "path": "src/main/res/layout/item_chapter_row.xml",
+    "bytes": 2191,
+    "sha256": "e0e6935e3c641b5e23545e588a52096853fc658b25c7e8119f0d782193818d02"
+  },
+  {
+    "path": "src/main/res/layout/item_device_row.xml",
+    "bytes": 1172,
+    "sha256": "3a0358069928beaa49a7c70310c501697f50aaabe5644f9fb96010becebf2640"
+  },
+  {
+    "path": "src/main/res/layout/item_feedback_bubble.xml",
+    "bytes": 729,
+    "sha256": "2ee50049c4e4eadaad16c4cb15d412274827ed29a1e4da2d5ec13c410339ca4e"
+  },
+  {
+    "path": "src/main/res/layout/item_paper_page.xml",
+    "bytes": 1270,
+    "sha256": "9871d91cddd1aa2c0841da880ba62de229f57d76aaed36490cfcb13e9a52386c"
+  },
+  {
+    "path": "src/main/res/layout/item_pick_row.xml",
+    "bytes": 1767,
+    "sha256": "3657dfd31fae00f40932ec8f7a08bb9234f672a2bfaadc92ab247f932962097a"
+  },
+  {
+    "path": "src/main/res/layout/item_poster_row.xml",
+    "bytes": 2366,
+    "sha256": "ed5851c7b441d56a3e24d197c29740f9f209b9cbaff28af80f4eb9a8d75a7991"
+  },
+  {
+    "path": "src/main/res/layout/item_quiz_option.xml",
+    "bytes": 732,
+    "sha256": "b49f2df8a1977b669cb92bda8d1754961f5fec5e4413fd8be44c71b607db7b21"
+  },
+  {
+    "path": "src/main/res/layout/item_rapid_chapter.xml",
+    "bytes": 2957,
+    "sha256": "1be280f7ba0ab9de494cf906cf0ea078587a9b93e2f3599bafb3adb05904c4e1"
+  },
+  {
+    "path": "src/main/res/layout/item_rapid_heading.xml",
+    "bytes": 3185,
+    "sha256": "a9019e7962a8af8fc38b9c2389e31f3987b69797100963dbcb4637a4de2c7fb2"
+  },
+  {
+    "path": "src/main/res/layout/item_stat_row.xml",
+    "bytes": 1843,
+    "sha256": "c8cb2ad958c2a98e5150860f484334a242fb5af711e138998ec228a20f7276a2"
+  },
+  {
+    "path": "src/main/res/layout/item_subject_row.xml",
+    "bytes": 2429,
+    "sha256": "2d9140def68c568ffda222435263fae767894909207d38608d6d44bf0244d555"
+  },
+  {
+    "path": "src/main/res/layout/nav_drawer_feedback.xml",
+    "bytes": 1187,
+    "sha256": "7a0a43522274a818bf0957b547c427bebac8c66b1a52936bb14ef475f4222716"
+  },
+  {
+    "path": "src/main/res/layout/nav_drawer_header.xml",
+    "bytes": 1734,
+    "sha256": "08fdaf971da02a306a4b25f7d2d4c129418f3b225b6c40f6c8007de307c610b1"
+  },
+  {
+    "path": "src/main/res/layout/overlay_coming_soon.xml",
+    "bytes": 1364,
+    "sha256": "8fc24ffabc56ca6903936ecb0dec0a1880615a4a693be02a825e675b0506ad8e"
+  },
+  {
+    "path": "src/main/res/layout/overlay_guide.xml",
+    "bytes": 3890,
+    "sha256": "6d6f0e5d1369b9810ac5039b0b3ccce35c7b78015d1be77253ff3510fdf85e55"
+  },
+  {
+    "path": "src/main/res/layout/panel_flashcards.xml",
+    "bytes": 5401,
+    "sha256": "853289755853bb32a3259f0f3937802d45eebe0064ec794a42a1d234f3daff7e"
+  },
+  {
+    "path": "src/main/res/layout/row_ink_size.xml",
+    "bytes": 1808,
+    "sha256": "cbd3221e09494383cca35b5cd2b195938e1140fd802231ac7a8248a068ea2ea7"
+  },
+  {
+    "path": "src/main/res/layout/row_outline.xml",
+    "bytes": 717,
+    "sha256": "12a45534177a809c5396504bce0a06237e8d236aa593b8c064f6973247f181f8"
+  },
+  {
+    "path": "src/main/res/layout/row_pdf_outline.xml",
+    "bytes": 2016,
+    "sha256": "b902b1e16a2a46f7aadacd94bf30297ad7e1bd36cc63f3b3909c8029a534da94"
+  },
+  {
+    "path": "src/main/res/layout/row_storage.xml",
+    "bytes": 1920,
+    "sha256": "01cb1a50510d92d015a276a978227caad7cc0057cd74fdfb79b2bffc102d6451"
+  },
+  {
+    "path": "src/main/res/layout/row_type_step.xml",
+    "bytes": 2126,
+    "sha256": "082f8bb233295e130697b62633d4dc1a77f6c7a4eb764ca940b6ae2128c8cea8"
+  },
+  {
+    "path": "src/main/res/layout/screen_ai_settings.xml",
+    "bytes": 7794,
+    "sha256": "d426d6d2e5a285487f5491180307b0788c7dff71e5259c7ef96968fdef31ec17"
+  },
+  {
+    "path": "src/main/res/layout/screen_create_ai.xml",
+    "bytes": 3545,
+    "sha256": "aac63121e890172425e16d46ae7cc73944e7f24f3a89db7b7e5fcf58c2f03e73"
+  },
+  {
+    "path": "src/main/res/layout/screen_flash_review.xml",
+    "bytes": 6711,
+    "sha256": "9f0badfe1d414585c598d31814516d600008564019332addefcff07fb190c40e"
+  },
+  {
+    "path": "src/main/res/layout/screen_flashcards.xml",
+    "bytes": 1266,
+    "sha256": "9fd465b8424e4c152c0560260a560250b9632a3eaa4d74988e7222baea06c788"
+  },
+  {
+    "path": "src/main/res/layout/screen_gate.xml",
+    "bytes": 8706,
+    "sha256": "f09b7188bda3f02c3329bdd82b41af40ec9557da513bdfd5fcf9e1501a414ca1"
+  },
+  {
+    "path": "src/main/res/layout/screen_home.xml",
+    "bytes": 17683,
+    "sha256": "8e6fef4392336406ca1d76ea1d87be521fdfffd811d20fc1a0d2e12cc236d02c"
+  },
+  {
+    "path": "src/main/res/layout/screen_paper.xml",
+    "bytes": 7687,
+    "sha256": "69894dc61df477d47bc46047f3b032d625f9dffdb0614eb52c311baf0e54591d"
+  },
+  {
+    "path": "src/main/res/layout/screen_performance.xml",
+    "bytes": 2141,
+    "sha256": "3c0f2d340b30c4b15f0be33ecf2cc0e88da35a87d2664d180aed9cb13b9c31a3"
+  },
+  {
+    "path": "src/main/res/layout/screen_poster.xml",
+    "bytes": 3524,
+    "sha256": "58d363b0f2b1353313f4ec19205004b80b75c1597757ca8408d9f10587f1b94c"
+  },
+  {
+    "path": "src/main/res/layout/screen_quiz.xml",
+    "bytes": 13442,
+    "sha256": "70ff6bdaa5243b94b96b6a9e8a9169fa754d733fcf81a2f9c8e7bebc60d61b17"
+  },
+  {
+    "path": "src/main/res/layout/screen_settings.xml",
+    "bytes": 5247,
+    "sha256": "39f4b241e41358ad7795dabba06880002b24831db0dabc635b62aba0b7246659"
+  },
+  {
+    "path": "src/main/res/layout/screen_slides.xml",
+    "bytes": 4046,
+    "sha256": "2aa85feb70148df517178d3722928e6f5ab2aa2cf27c3650ecd8261c3aaf84fc"
+  },
+  {
+    "path": "src/main/res/layout/sheet_feedback.xml",
+    "bytes": 2458,
+    "sha256": "eadbe9bceb76c0cf87a2419970c35a35d6f87454bf657df0c6d60c23514809f9"
+  },
+  {
+    "path": "src/main/res/layout/sheet_pen.xml",
+    "bytes": 5402,
+    "sha256": "0e4dc09470b2b3fb7d6670ead8a4b98ef035d91d25b29593e841f2234b0f9cd8"
+  },
+  {
+    "path": "src/main/res/layout/sheet_pick.xml",
+    "bytes": 2462,
+    "sha256": "4af9ae0f3f7a6de71e4fc2130b20e2d01ca033e9afb37d4b6f2bf9bc0b55a9fb"
+  },
+  {
+    "path": "src/main/res/layout/sheet_text_spacing.xml",
+    "bytes": 1033,
+    "sha256": "987c0fbed16ae23c1290f03041af6ede830fd4ab206e2da345a31a43738bd990"
+  },
+  {
+    "path": "src/main/res/layout/sheet_type.xml",
+    "bytes": 6416,
+    "sha256": "c6f635ec92893a977486c32bdc6117f0bd5ec433a55766df26e3c21abb888855"
+  },
+  {
+    "path": "src/main/res/menu/ai_settings.xml",
+    "bytes": 492,
+    "sha256": "7c067148c44048df9a3acab3342d45c9b7c7a07141897bebf0eecebdb40e51fe"
+  },
+  {
+    "path": "src/main/res/menu/bottom_nav.xml",
+    "bytes": 761,
+    "sha256": "00618fc699d2d73d657558ce70def19466b3d73ac987ae0102407bd33e675ccf"
+  },
+  {
+    "path": "src/main/res/menu/flashcards.xml",
+    "bytes": 727,
+    "sha256": "b9a7862b8d83009090f315e5f16a4caa9eeebde3fa0ed37e67000e2f76041a31"
+  },
+  {
+    "path": "src/main/res/menu/folders_subject.xml",
+    "bytes": 816,
+    "sha256": "40ddb086025510b1de5f329404d3f74ea2ac9d180694821f588883f3ee3ff750"
+  },
+  {
+    "path": "src/main/res/menu/folders_subjects.xml",
+    "bytes": 827,
+    "sha256": "1851e4d082eab083458070b711462853d7cf13d3baaeaadfbdf22d976572e53b"
+  },
+  {
+    "path": "src/main/res/menu/home.xml",
+    "bytes": 822,
+    "sha256": "663643ea6f6bc0741897e243b052e51aa70c9452e8ce1c55614fa01e051d069d"
+  },
+  {
+    "path": "src/main/res/menu/nav_drawer.xml",
+    "bytes": 1934,
+    "sha256": "c9d0fb19e772a1332e4ed0c29001be659c6db18f708847d88209b63c4c2ec40c"
+  },
+  {
+    "path": "src/main/res/menu/notebooks.xml",
+    "bytes": 1256,
+    "sha256": "1535a65b661a966c81a89c344f92a0cb0e6d60dd833c6915a9e9d0dcadc7151e"
+  },
+  {
+    "path": "src/main/res/menu/paper.xml",
+    "bytes": 3204,
+    "sha256": "4078369a5033bf46901ac797f0e621b76d62ca500b71cd9965dc332a9c43708e"
+  },
+  {
+    "path": "src/main/res/menu/pdfs.xml",
+    "bytes": 1445,
+    "sha256": "6340ee02efcfeef7c74572bd41b7fd559a281fdc83d0af77338cd585a267907c"
+  },
+  {
+    "path": "src/main/res/menu/poster.xml",
+    "bytes": 2513,
+    "sha256": "b275fd65f9fa7d26ad44d573a40b404d91d4f28df60ceb8b639158e60ff4ef7c"
+  },
+  {
+    "path": "src/main/res/menu/reader.xml",
+    "bytes": 2930,
+    "sha256": "3fd839402a03c7aa4fb02142a0165ecbc457ddfa76357bdea873f2ad302e2339"
+  },
+  {
+    "path": "src/main/res/menu/slides.xml",
+    "bytes": 1889,
+    "sha256": "838b7a5fbf9331860fbb155adf6f9bff6c9bb3fe604aedba10bf197c7042fc78"
+  },
+  {
+    "path": "src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+    "bytes": 334,
+    "sha256": "fc313b8596ff60c3dbd08c57751116e1829a632ca25199cea47cdc6bccaa88d1"
+  },
+  {
+    "path": "src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+    "bytes": 334,
+    "sha256": "fc313b8596ff60c3dbd08c57751116e1829a632ca25199cea47cdc6bccaa88d1"
+  },
+  {
+    "path": "src/main/res/raw/keep.xml",
+    "bytes": 176,
+    "sha256": "95aaa0647cc1989407c6e8a3b4adcfbea71c0ef9507cd171ff1678767af21b08"
+  },
+  {
+    "path": "src/main/res/values/colors.xml",
+    "bytes": 2315,
+    "sha256": "9555989eb123ff2e4b4b2a5c2c17c35eea5cf1b472a3c6e70d4651930cafba72"
+  },
+  {
+    "path": "src/main/res/values/dimens.xml",
+    "bytes": 279,
+    "sha256": "db61b25bafbd32bb2389654445ef1b7a189b7051850a8817677d9389728a70e7"
+  },
+  {
+    "path": "src/main/res/values/drawer_typography.xml",
+    "bytes": 429,
+    "sha256": "7d619e7068c1282f7a3d9a436657c2c03b81f1c926a7f97c424eefd95d8477e9"
+  },
+  {
+    "path": "src/main/res/values/icon_colors.xml",
+    "bytes": 349,
+    "sha256": "52fc5980e46f0c81f9c7083443e414a5031bc82dde45e0825f0fa03ee79d733d"
+  },
+  {
+    "path": "src/main/res/values/library_card_sizes.xml",
+    "bytes": 437,
+    "sha256": "581c83ba96ae6da47d62fef716e4d80594d845ed3d2819f97af21ae99c5f97b4"
+  },
+  {
+    "path": "src/main/res/values/menu_design.xml",
+    "bytes": 1318,
+    "sha256": "66a6a0922c8e3b70169210e4a40164f0cdeddf735da9ec32c587d9341c9ae52c"
+  },
+  {
+    "path": "src/main/res/values/strings.xml",
+    "bytes": 65251,
+    "sha256": "43df02025bfb757e67b20e8130db2720ab66386abe05fe8cdee2ee81318e89f2"
+  },
+  {
+    "path": "src/main/res/values/themes.xml",
+    "bytes": 11742,
+    "sha256": "7fdd1c839efd574eb2705bb3883d42db44c41abf460c17111b293246e6d188db"
+  },
+  {
+    "path": "src/main/res/values/ui_sizes.xml",
+    "bytes": 1043,
+    "sha256": "967c8826749490d40326a3a6f4db715f2c5e3c5a0769e7cb5a1cc72f6342f60d"
+  },
+  {
+    "path": "src/main/res/values-v27/themes.xml",
+    "bytes": 222,
+    "sha256": "0ff957ef35a642ef8ea6d97695716c887c2dcb9d7e6c909d607cf77126c14046"
+  },
+  {
+    "path": "src/main/res/xml/backup_rules.xml",
+    "bytes": 406,
+    "sha256": "475a757088d13ca2ea372e8fed133672ec8494baee61fab1a3da4340b1951058"
+  },
+  {
+    "path": "src/main/res/xml/data_extraction_rules.xml",
+    "bytes": 439,
+    "sha256": "7801121f5af6fa9a4669457ecdefddca7d4aaf7bab6f6f22f8ca5d36c36984d7"
+  },
+  {
+    "path": "src/main/res/xml/file_paths.xml",
+    "bytes": 277,
+    "sha256": "6a21ffeaa229186dfc959c5a44268bad93c5c1a67084e56bcff27f7518434444"
+  }
+]

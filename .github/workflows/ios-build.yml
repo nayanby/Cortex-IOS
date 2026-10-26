@@ -1,0 +1,29 @@
+name: iOS simulator build
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master, 'codex/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install project generator
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build for simulator without signing
+        run: >-
+          xcodebuild -project Cortex.xcodeproj -scheme Cortex
+          -configuration Debug -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Save simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cortex-iOS-Simulator
+          path: build/Build/Products/Debug-iphonesimulator/Cortex.app
+          if-no-files-found: error

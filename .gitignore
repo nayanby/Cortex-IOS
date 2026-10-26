@@ -1,0 +1,9 @@
+Generated/
+*.xcodeproj/
+DerivedData/
+build/
+.DS_Store
+*.mobileprovision
+*.p12
+GoogleService-Info.plist
+Config/Local.xcconfig
