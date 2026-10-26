@@ -12,7 +12,7 @@ final class LocalDocuments: ObservableObject {
     @Published var errorMessage: String?
     private let directory: URL
     private let indexURL: URL
-    static let maximumBytes = 32 * 1024 * 1024
+    nonisolated static let maximumBytes = 32 * 1024 * 1024
 
     init(directory: URL? = nil) {
         let base = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]

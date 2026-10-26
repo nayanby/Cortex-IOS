@@ -29,6 +29,11 @@ for (const name of ['jszip.min.js', 'viewer-typography.js']) {
   fs.copyFileSync(path.join(source, 'src/main/assets', name), path.join(target, name));
 }
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
+for (const [original, destination] of [
+  ['src/main/assets/fonts/OFL.txt', 'fonts/SourceSansPro-OFL.txt'],
+  ['src/main/assets/fonts/noto_serif-OFL.txt', 'fonts/NotoSerif-OFL.txt'],
+  ['src/main/res/raw/averia_serif_libre_license.txt', 'fonts/AveriaSerifLibre-OFL.txt']
+]) fs.copyFileSync(path.join(source, original), path.join(target, destination));
 fs.writeFileSync(path.join(target, 'android-reader-provenance.json'), JSON.stringify({
   androidVersion: '1.0.22', sourceHTMLSHA256: hash(html), rendererSHA256: hash(script),
   scope: 'DocxPrototype with XML helpers, formula patch, page styles, native overrides, typography and offline dependencies. No embedded app state.',

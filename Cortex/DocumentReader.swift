@@ -63,8 +63,10 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
     }
 
     func jump(to heading: ReaderHeading) {
-        webView.callAsyncJavaScript("return window.cortexJumpToHeading(index);",
-            arguments: ["index": heading.id], in: nil, contentWorld: .page, completionHandler: nil)
+        Task {
+            _ = try? await webView.callAsyncJavaScript("return window.cortexJumpToHeading(index);",
+                arguments: ["index": heading.id], in: nil, contentWorld: .page)
+        }
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
