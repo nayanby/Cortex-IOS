@@ -1,7 +1,7 @@
 import SwiftUI
 import PencilKit
 
-enum CortexInkMode: String, CaseIterable { case pen, highlighter, underliner, eraser }
+enum CortexInkMode: String, CaseIterable, Hashable { case pen, highlighter, underliner, eraser }
 @MainActor
 final class CortexInkSettings: ObservableObject {
     @Published private(set) var mode: CortexInkMode = .pen

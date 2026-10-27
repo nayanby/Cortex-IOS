@@ -123,11 +123,6 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
         webView.stopLoading(); webView.navigationDelegate = nil; canvas.delegate = nil; ink.onChange = nil
     }
 }
-private extension WKWebView {
-    func pdf(configuration:WKPDFConfiguration) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in createPDF(configuration:configuration) { continuation.resume(with:$0) } }
-    }
-}
 private struct SnapshotWebView: UIViewRepresentable {
     let controller: SnapshotController
     func makeUIView(context:Context) -> WKWebView { controller.load(); return controller.webView }
