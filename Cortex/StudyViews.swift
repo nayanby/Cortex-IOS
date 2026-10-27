@@ -30,6 +30,8 @@ struct StudyDetail: View {
     @State private var cardIndex = 0
     @State private var revealed = false
     @State private var answers: [Int: Int] = [:]
+    @ObservedObject private var progress = StudyProgress.shared
+    @State private var recordedQuiz = false
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
@@ -38,7 +40,21 @@ struct StudyDetail: View {
                     Text("Card \(cardIndex + 1) of \(cards.count)").font(.caption)
                     Text(.init(cards[cardIndex].front)).font(.title3).frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
                     Button(revealed ? "Hide answer" : "Show answer") { revealed.toggle() }.buttonStyle(.borderedProminent)
-                    if revealed { Text(.init(cards[cardIndex].back)).padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 12)) }
+                    if revealed {
+                        Text(.init(cards[cardIndex].back)).padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                        HStack {
+                            ForEach(Array(["Again", "Hard", "Good", "Easy"].enumerated()), id: \.offset) { grade, title in
+                                Button(title) {
+                                    progress.review(entry: entry.id, index: cardIndex, grade: grade)
+                                    if cardIndex + 1 < cards.count { cardIndex += 1 }
+                                    revealed = false
+                                }.buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                    if let review = progress.cards[entry.id + "/" + String(cardIndex)] {
+                        Text("Next review: " + review.due.formatted()).font(.caption)
+                    }
                     HStack {
                         Button("Previous") { cardIndex -= 1; revealed = false }.disabled(cardIndex == 0)
                         Spacer()
@@ -51,7 +67,13 @@ struct StudyDetail: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("\(index + 1). " + question.question).font(.headline)
                             ForEach(question.options.indices, id: \.self) { option in
-                                Button { answers[index] = option } label: {
+                                Button {
+                                    answers[index] = option
+                                    if answers.count == questions.count && !recordedQuiz {
+                                        progress.recordQuiz(title: entry.title, correct: answers.filter { questions[$0.key].correctIndex == $0.value }.count, total: questions.count)
+                                        recordedQuiz = true
+                                    }
+                                } label: {
                                     HStack {
                                         Image(systemName: answers[index] == option ? "checkmark.circle.fill" : "circle")
                                         Text(.init(question.options[option])).multilineTextAlignment(.leading)
@@ -68,7 +90,7 @@ struct StudyDetail: View {
                     }
                     if !questions.isEmpty {
                         Text("Score: \(answers.filter { questions[$0.key].correctIndex == $0.value }.count) / \(questions.count)")
-                        Button("Try again") { answers = [:] }
+                        Button("Try again") { answers = [:]; recordedQuiz = false }
                     }
                 }
                 if let sections = entry.content.sections {
@@ -78,6 +100,7 @@ struct StudyDetail: View {
                 }
             }.padding(18)
         }.background(CortexStyle.background).foregroundStyle(CortexStyle.ink)
+            .onAppear { progress.opened(entry) }
             .navigationTitle(entry.kind).navigationBarTitleDisplayMode(.inline)
             .toolbar(.visible, for: .navigationBar)
     }

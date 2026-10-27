@@ -80,8 +80,9 @@ struct StudyAI {
             }
         }
     }
-    static func generate(kind: String, topic: String, source: String, folder: String = "Created", document: String = "") async throws -> StudyEntry {
-        guard let key = AISettings.key(), !key.isEmpty else { throw StudyAIError.message("Add your Gemini API key in AI settings first.") }
+    static func generate(kind: String, topic: String, source: String, folder: String = "Created", document: String = "",
+                         suppliedKey: String? = nil, transport: URLSession? = nil) async throws -> StudyEntry {
+        guard let key = suppliedKey ?? AISettings.key(), !key.isEmpty else { throw StudyAIError.message("Add your Gemini API key in AI settings first.") }
         let model = AISettings.model.trimmingCharacters(in: .whitespacesAndNewlines)
         guard model.range(of: "^[A-Za-z0-9._-]+$", options: .regularExpression) != nil else { throw StudyAIError.message("Enter a valid Gemini model name in AI settings.") }
         guard source.count <= 200_000, topic.count <= 2_000 else { throw StudyAIError.message("Choose a shorter section (up to 200,000 characters).") }
@@ -106,8 +107,8 @@ struct StudyAI {
         request.timeoutInterval = 180
         let configuration = URLSessionConfiguration.ephemeral
         configuration.timeoutIntervalForResource = 190
-        let session = URLSession(configuration: configuration, delegate: AIRedirectGuard(), delegateQueue: nil)
-        defer { session.invalidateAndCancel() }
+        let session = transport ?? URLSession(configuration: configuration, delegate: AIRedirectGuard(), delegateQueue: nil)
+        defer { if transport == nil { session.invalidateAndCancel() } }
         let (data, response) = try await session.data(for: request)
         try Task.checkCancellation()
         guard let http = response as? HTTPURLResponse else { throw StudyAIError.message("Gemini returned an invalid response.") }

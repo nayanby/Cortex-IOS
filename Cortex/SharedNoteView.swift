@@ -35,6 +35,7 @@ struct SharedNoteView: View {
                 }
             }
         }
+        .onAppear { ReadingHistory.shared.opened(note) }
         .navigationTitle(note.displayName).navigationBarTitleDisplayMode(.inline)
         .task(id: "\(session.profile?.uid ?? ""):\(attempt)") {
             guard OfflineLibrary.file(for: note) == nil, let profile = session.profile else { return }

@@ -7,7 +7,7 @@ def build(source, output):
     output.mkdir(parents=True, exist_ok=True)
     notes=[]; entries=[]; warnings=[]; card_keys=set()
     ns={"w":"http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
-    for p in sorted((source/"files").rglob("*.docx")):
+    for p in sorted(p for p in (source/"files").rglob("*") if p.is_file() and p.suffix.lower() in {".docx", ".dotx"}):
         relative=p.relative_to(source/"files").as_posix()
         digest=hashlib.sha256(relative.encode()).hexdigest()
         name=digest+".docx"

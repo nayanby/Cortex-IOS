@@ -49,6 +49,9 @@ struct CortexBottomNavigation: View {
 struct ConsumerHomeView: View {
     @EnvironmentObject private var session: AccountSession
     @EnvironmentObject private var library: LibraryStore
+    @ObservedObject private var history = ReadingHistory.shared
+    @ObservedObject private var studies = StudyLibrary.shared
+    @ObservedObject private var studyProgress = StudyProgress.shared
     @State private var drawer = false
     @State private var showAccount = false
     @State private var searching = false
@@ -92,21 +95,30 @@ struct ConsumerHomeView: View {
                 }
             }
             .sheet(isPresented: $showAccount) { ConsumerAccountView() }
-            .alert("iOS port in progress", isPresented: Binding(get: { pendingFeature != nil }, set: { if !$0 { pendingFeature = nil } })) {
-                Button("OK") { pendingFeature = nil }
-            } message: { Text("\(pendingFeature ?? "This screen") is still being ported from Android.") }
+            .sheet(isPresented: Binding(get: { pendingFeature != nil }, set: { if !$0 { pendingFeature = nil } })) {
+                NavigationStack {
+                    UtilityView(name: pendingFeature ?? "How-to")
+                        .toolbar { Button("Done") { pendingFeature = nil } }
+                }
+            }
         }.tint(CortexStyle.ink)
     }
 
     private var homeContents: some View {
         Group {
             Text("Continue reading").font(CortexStyle.title(18)).padding(.bottom, -4)
+            if let record = history.recent.first, let note = library.catalog?.notes.first(where: { $0.path == record.path }) {
+                NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
+                    LibraryCard(title: note.displayName, subtitle: "Continue reading · " + note.subject, symbol: "doc.text")
+                }.buttonStyle(.plain)
+            } else {
             VStack(alignment: .leading, spacing: 2) {
                 Text("No notes opened yet").font(CortexStyle.title(16))
                 Text("Notes you open will appear here.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
             }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
                 .background(.white, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(CortexStyle.line, lineWidth: 1))
+            }
             NavigationLink { LibraryView(accountID: session.profile?.uid) } label: {
                 Text("Find your first topic").font(.system(size: 14, weight: .medium)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 48).background(CortexStyle.ink, in: RoundedRectangle(cornerRadius: 14))
@@ -129,8 +141,15 @@ struct ConsumerHomeView: View {
             Button { pendingFeature = "PDFs" } label: { homeCard("PDFS", "Import a PDF and mark it with the pen", "pdf", 0xE8F2EA, 0xCFE4D4) }.buttonStyle(.plain)
             Button { pendingFeature = "Notebooks" } label: { homeCard("NOTEBOOKS", "Same paper width as notes, blank or 8 mm ruling", "notebook", 0xF6EFE4, 0xE8D9C4) }.buttonStyle(.plain)
             Text("Previously Reviewed").font(CortexStyle.title(16)).padding(.top, 8)
-            Text("No snapshots opened yet").font(CortexStyle.title(16))
-            Text("Snapshots you open will appear here.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
+            let recent = studyProgress.recentStudy.compactMap { id in studies.entries.first { $0.id == id && $0.kind == "Snapshots" } }
+            if recent.isEmpty {
+                Text("No snapshots opened yet").font(CortexStyle.title(16))
+                Text("Snapshots you open will appear here.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
+            } else {
+                ForEach(Array(recent.prefix(5))) { entry in
+                    NavigationLink { StudyDetail(entry: entry) } label: { LibraryCard(title: entry.title, subtitle: entry.document, symbol: "doc.text") }.buttonStyle(.plain)
+                }
+            }
         }.foregroundStyle(CortexStyle.ink)
     }
 
