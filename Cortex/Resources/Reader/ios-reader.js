@@ -133,7 +133,7 @@
         if (end <= start) continue;
         const range = document.createRange(); range.setStart(node, start); range.setEnd(node, end);
         const mark = document.createElement('mark'); mark.dataset.cortexHighlight = 'true';
-        mark.style.backgroundColor = record.color === 'green' ? '#c7f2ce' : '#fff19a';
+        mark.style.backgroundColor = ({rose:'#FFEAEA',lemon:'#FFF9BD',aqua:'#CCFBFA',green:'#c7f2ce',yellow:'#fff19a'})[record.color] || '#FFF9BD';
         mark.style.color = 'inherit';
         mark.style.setProperty('font-size', 'inherit', 'important');
         mark.style.setProperty('line-height', 'inherit', 'important');
@@ -151,7 +151,7 @@
     const preceding = document.createRange(); preceding.selectNodeContents(paper); preceding.setEnd(range.startContainer, range.startOffset);
     const start = preceding.toString().length, quote = range.toString();
     if (!quote.length || quote.length > 20000 || highlights.length >= 250) return null;
-    const records = [...highlights, {start, end: start + quote.length, quote, color: color === 'green' ? 'green' : 'yellow'}];
+    const records = [...highlights, {start, end: start + quote.length, quote, color: ['rose','lemon','aqua','green','yellow'].includes(color) ? color : 'lemon'}];
     selection.removeAllRanges();
     return window.cortexApplyHighlights(records);
   };

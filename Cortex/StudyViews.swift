@@ -8,6 +8,10 @@ struct StudyBrowser: View {
     @State private var showingReviewSettings = false
     @ObservedObject private var progress = StudyProgress.shared
     var body: some View {
+        if kind == "Snapshots" { SnapshotLibraryView(note:note) }
+        else { browserBody }
+    }
+    private var browserBody: some View {
         List {
             if let error = library.loadError { Text(error).foregroundStyle(.red) }
             let entries = library.matching(kind: kind, note: note).filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) || $0.folder.localizedCaseInsensitiveContains(query) }
@@ -47,7 +51,8 @@ struct StudyDetail: View {
     @AppStorage("snapshot.fontSize") private var fontSize = 16.0
     @AppStorage("snapshot.lineSpacing") private var lineSpacing = 6.0
     var body: some View {
-        if entry.kind == "Slides" { SlideDeckView(entry: entry) }
+        if entry.kind == "Snapshots" { SnapshotReader(entry:entry) }
+        else if entry.kind == "Slides" { SlideDeckView(entry: entry) }
         else { contentBody }
     }
     private var contentBody: some View {

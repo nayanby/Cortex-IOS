@@ -145,15 +145,15 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     let view = PDFView()
     let file: PaperFile
     private let store: PaperLibrary
-    private let picker = PKToolPicker()
+    let ink = CortexInkSettings()
     private var canvases: [Int: PKCanvasView] = [:]
     private var pendingSaves: [Int: Task<Void, Never>] = [:]
-    @Published var drawing = false { didSet { updateTools() } }
     @Published var error: String?
     init(file: PaperFile, store: PaperLibrary? = nil) {
         self.file = file
         self.store = store ?? .shared
         super.init()
+        ink.onChange = { [weak self] in self?.updateTools() }
         view.autoScales = true
         view.displayDirection = .vertical
         view.displayMode = .singlePageContinuous
@@ -172,12 +172,12 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         let canvas = PKCanvasView(frame: page.bounds(for: .mediaBox))
         canvas.backgroundColor = .clear; canvas.isOpaque = false
         canvas.isScrollEnabled = false; canvas.drawingPolicy = .anyInput
-        canvas.tool = PKInkingTool(.pen, color: .black, width: 2)
+        canvas.tool = ink.tool
+        canvas.overrideUserInterfaceStyle = .light
         if let data = try? Data(contentsOf: store.drawingURL(file, page: index)), let drawing = try? PKDrawing(data: data) { canvas.drawing = drawing }
         canvas.delegate = self
-        canvas.isUserInteractionEnabled = drawing
+        canvas.isUserInteractionEnabled = ink.drawing
         canvases[index] = canvas
-        picker.addObserver(canvas)
         return canvas
     }
     func pdfView(_ pdfView: PDFView, willDisplayOverlayView overlayView: UIView, for page: PDFPage) {
@@ -198,12 +198,15 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     }
     private func updateTools() {
         for canvas in canvases.values {
-            canvas.isUserInteractionEnabled = drawing
-            picker.setVisible(drawing, forFirstResponder: canvas)
+            canvas.isUserInteractionEnabled = ink.drawing
+            canvas.tool = ink.tool
+            canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
+            canvas.alpha = ink.visible ? 1 : 0
         }
-        if drawing, let current = view.currentPage, let index = view.document?.index(for: current), let canvas = canvases[index] { canvas.becomeFirstResponder() }
+        if ink.drawing, let current = view.currentPage, let index = view.document?.index(for: current), let canvas = canvases[index] { canvas.becomeFirstResponder() }
         else { canvases.values.forEach { $0.resignFirstResponder() } }
     }
+    func clearInk() { activeCanvas?.drawing = PKDrawing() }
     func undo() { activeCanvas?.undoManager?.undo() }
     func redo() { activeCanvas?.undoManager?.redo() }
     private var activeCanvas: PKCanvasView? {
@@ -235,7 +238,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         pendingSaves.values.forEach { $0.cancel() }
         pendingSaves = [:]
         canvases.keys.forEach { saveCanvas($0) }
-        drawing = false; canvases.values.forEach { picker.removeObserver($0); $0.delegate = nil }; view.pageOverlayViewProvider = nil }
+        ink.drawing = false; canvases.values.forEach { $0.delegate = nil }; view.pageOverlayViewProvider = nil }
 }
 private struct PaperPDFView: UIViewRepresentable {
     @ObservedObject var controller: PaperController
@@ -253,15 +256,13 @@ struct PaperReader: View {
         PaperPDFView(controller: controller).navigationTitle(file.title).navigationBarTitleDisplayMode(.inline)
             .toolbar(.visible, for: .navigationBar)
             .toolbar {
-                Toggle(isOn: $controller.drawing) { Label("Pen", systemImage: "pencil.tip") }.toggleStyle(.button)
-                Button { controller.undo() } label: { Label("Undo", systemImage: "arrow.uturn.backward") }
-                Button { controller.redo() } label: { Label("Redo", systemImage: "arrow.uturn.forward") }
                 if file.kind == "Notebooks" {
                     Button { importingImage = true } label: { Label("Add image page", systemImage: "photo.badge.plus") }
                     Button { do { try PaperLibrary.shared.appendPage(file); controller.reload() } catch { controller.error = error.localizedDescription } } label: { Label("Add page", systemImage: "doc.badge.plus") }
                 }
                 Button { do { exportURL = try controller.export() } catch { controller.error = error.localizedDescription } } label: { Label("Export annotated PDF", systemImage: "square.and.arrow.up") }
             }
+            .safeAreaInset(edge:.bottom,spacing:0) { CortexInkToolbar(settings:controller.ink,undo:controller.undo,redo:controller.redo,clear:controller.clearInk) }
             .fileImporter(isPresented: $importingImage, allowedContentTypes: [.image]) { result in
                 do { try PaperLibrary.shared.appendImage(file, source: result.get()); controller.reload() }
                 catch { controller.error = error.localizedDescription }

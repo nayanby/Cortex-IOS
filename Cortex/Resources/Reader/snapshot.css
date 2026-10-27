@@ -1,0 +1,388 @@
+/* Snapshot layout ported from Consumer PosterHtml.kt. */
+@font-face { font-family: 'Lato'; src: url('fonts/lato_regular.ttf'); font-weight: 400; }
+@font-face { font-family: 'Lato'; src: url('fonts/lato_bold.ttf'); font-weight: 700; }
+@font-face { font-family: 'Lato'; src: url('fonts/lato_italic.ttf'); font-weight: 400; font-style: italic; }
+@font-face { font-family: 'Lato'; src: url('fonts/lato_bolditalic.ttf'); font-weight: 700; font-style: italic; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('fonts/averia_serif_libre_regular.ttf'); font-weight: 400; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('fonts/averia_serif_libre_bold.ttf'); font-weight: 700; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('fonts/averia_serif_libre_italic.ttf'); font-weight: 400; font-style: italic; }
+@font-face { font-family: 'Averia Serif Libre'; src: url('fonts/averia_serif_libre_bold_italic.ttf'); font-weight: 700; font-style: italic; }
+@font-face { font-family: "Source Sans Pro"; src: url("fonts/SourceSansPro-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Source Sans Pro"; src: url("fonts/SourceSansPro-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Source Sans Pro"; src: url("fonts/SourceSansPro-BoldItalic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+@font-face { font-family: "Noto Serif"; src: url("fonts/noto_serif_regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Noto Serif"; src: url("fonts/noto_serif_bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Noto Serif"; src: url("fonts/noto_serif_regularitalic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Noto Serif"; src: url("fonts/noto_serif_bolditalic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+@font-face { font-family: "Source Sans Pro"; src: url("fonts/SourceSansPro-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+:root { --title-size:17.25pt; --heading-line:1.125; --snapshot-gap:10px; }
+
+:root {
+  --body-size: 12.25pt;
+  --paragraph-scale: 1;
+  --body-lh: 1.5;
+  --table-size: 11.25pt;
+  --head-size: 15pt;
+  /* Snapshot chrome — same as the old native sheet / colors.xml */
+  --poster-text: #2E2E2E;
+  --poster-primary: #28467C;   /* subtle / Label: */
+  --poster-plum: #6F3D5D;      /* **emphasis** bold */
+  --poster-odd: #F1F5FB;
+  --poster-even: #F6F1F5;
+  --poster-neutral: #E7E1E4;
+  --poster-white: #FFFFFF;
+  --poster-page: #FFFFFF;
+  --paper-bg: #FFFFFF;
+  --line: #AEAAAA;
+  --charcoal: #667395;
+  --list-marker-gap: 6pt;
+  --bullet-marker-size: 0.309em;
+  --sub-marker-size: 0.359em;
+  --bullet-marker-top: 0.596em;
+  --sub-marker-top: 0.571em;
+  --level-one-to-two-gap: calc(2px * var(--paragraph-scale));
+  --level-two-to-two-gap: calc(2px * var(--paragraph-scale));
+  --level-two-to-one-gap: calc(10px * var(--paragraph-scale));
+  --face: "Lato", sans-serif;
+  --heading-face: "Averia Serif Libre", serif;
+  --table-face: "Lato", sans-serif;
+}
+*{ box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper-bg);
+  color: var(--poster-text);
+  font-family: var(--face);
+  -webkit-text-size-adjust: 100%;
+}
+#paper {
+  max-width: 18cm;
+  margin: 12px auto 20px;
+  background: var(--poster-page);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(40, 70, 124, 0.12);
+  padding: 30px 0.5cm 48px;
+  box-sizing: border-box;
+  width: min(100%, 18cm);
+}
+.reader-top-spacer {
+  height: 0px;
+}
+@media print {
+  html, body { background: #fff; }
+  #paper {
+    max-width: none;
+    width: auto;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 4px;
+  }
+  .reader-top-spacer { display: none; }
+  #paper.paged {
+    padding: 0;
+    background: transparent;
+  }
+  .print-page {
+    width: 210mm;
+    height: 297mm;
+    padding: 0.5cm 1cm 1cm;
+    box-sizing: border-box;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+    background: #fff;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  .doc-credit { display: block !important; }
+}
+.doc-root {
+  background: transparent;
+  font-family: var(--face);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  color: var(--poster-text);
+}
+/* On-screen only: credit belongs on the exported PDF. */
+.doc-credit {
+  display: none;
+  text-align: center;
+  color: var(--charcoal);
+  font-family: var(--face);
+  font-size: 10pt;
+  line-height: 1.35;
+  margin: 4px 0 12px;
+  font-weight: 400;
+}
+.doc-credit .brand {
+  color: var(--charcoal);
+  font-weight: 700;
+}
+.doc-credit img.play-icon {
+  height: 1.15em;
+  width: 1.15em;
+  vertical-align: -0.15em;
+  margin-left: 0.3em;
+}
+.doc-title {
+  display: block;
+  margin: calc(24px * var(--paragraph-scale)) auto 0;
+  max-width: 100%;
+  text-align: center;
+  background: var(--poster-primary);
+  color: var(--poster-white);
+  font-family: var(--heading-face);
+  font-weight: 700;
+  font-size: var(--title-size);
+  line-height: var(--heading-line);
+  padding: 6px;
+  border-radius: 12px;
+}
+.section {
+  margin: calc(24px * var(--paragraph-scale)) 0 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--poster-odd);
+}
+.section.even { background: var(--poster-even); }
+.section-head {
+  margin: 0;
+  padding: 6px;
+  text-align: center;
+  font-family: var(--face);
+  font-size: var(--head-size);
+  line-height: var(--heading-line);
+  font-weight: 700;
+  color: var(--poster-white);
+  background: var(--poster-primary);
+}
+.section.even .section-head { background: var(--poster-plum); }
+.section-body {
+  padding: calc(3px * var(--paragraph-scale)) 12px 0;
+  font-family: var(--face);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  color: var(--poster-text);
+}
+.section-body:has(> .group-h:first-child) { padding-top: 0; }
+.doc-p, .doc-li, .doc-num {
+  margin: 0;
+  padding: 0;
+  font-family: var(--face);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  color: var(--poster-text);
+}
+.doc-p {
+  margin-top: 0;
+  padding-top: 0;
+  margin-bottom: var(--snapshot-gap);
+}
+.doc-num { font-size: var(--body-size); }
+ul.doc-list, ol.doc-list {
+  margin: 0;
+  padding: 0 0 0 calc(var(--bullet-marker-size) + var(--list-marker-gap));
+  list-style: none;
+  list-style-position: outside;
+  font-family: var(--face);
+  color: var(--poster-text);
+}
+ol.doc-list { counter-reset: doc-num; list-style: none; padding-left: calc(18px + var(--list-marker-gap)); }
+ol.doc-list.after-level-1 { padding-left: calc(28px + var(--list-marker-gap)); }
+ol.doc-list.after-level-2 { padding-left: calc(38px + var(--list-marker-gap)); }
+li.doc-li, li.doc-num {
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+li.doc-num { counter-increment: doc-num; }
+li.doc-num::before {
+  content: counter(doc-num) ".";
+  position: absolute;
+  left: calc(-18px - var(--list-marker-gap));
+  width: 18px;
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--poster-primary);
+}
+/* Filled and hollow bullets are 0.5pt smaller and centered on the first line. */
+li.doc-li:not(.sub)::before {
+  content: "";
+  position: absolute;
+  left: auto;
+  right: calc(100% + var(--list-marker-gap));
+  top: var(--cnl-marker-top, calc(var(--bullet-marker-top) + 0em));
+  width: var(--bullet-marker-size);
+  height: var(--bullet-marker-size);
+  border-radius: 50%;
+  background: currentColor;
+  box-sizing: border-box;
+}
+/* Every L1 item includes paragraph air above its first line. Nested L2 items
+   have no top padding and use their own first-line offset below. */
+li.doc-li.sub {
+  list-style: none;
+}
+li.doc-li.sub::before {
+  content: "";
+  position: absolute;
+  left: auto;
+  right: calc(100% + var(--list-marker-gap));
+  top: var(--cnl-marker-top, var(--sub-marker-top));
+  width: var(--sub-marker-size);
+  height: var(--sub-marker-size);
+  border-radius: 50%;
+  border: 1.2px solid currentColor;
+  background: transparent;
+  box-sizing: border-box;
+}
+/* Nested L2 lists keep the same custom hollow marker; same indent as L1→L2. */
+ul.doc-list ul.doc-list {
+  list-style: none;
+  padding-left: calc(10px + var(--sub-marker-size) - var(--bullet-marker-size));
+}
+ul.doc-list ul.doc-list ul.doc-list { padding-left: 10px; }
+/* Match notes: 4px between L1, 2px into/between nested levels, 10px after groups. */
+li.doc-li.has-subs { padding-bottom: 0; }
+li.doc-li.has-subs > ul.doc-list { margin: var(--level-one-to-two-gap) 0 0; }
+ul.doc-list ul.doc-list > li.doc-li.has-subs > ul.doc-list { margin-top: calc(2px * var(--paragraph-scale)); }
+li.doc-li.has-subs + li.doc-li { padding-top: 0; }
+li.doc-li {
+  padding-top: 0em;
+  padding-bottom: calc(4px * var(--paragraph-scale));
+}
+li.doc-num { margin-bottom: calc(4px * var(--paragraph-scale)); }
+li.doc-li.sub { padding-top: 0; }
+li.doc-li.sub:not(.last-sub) { padding-bottom: var(--level-two-to-two-gap); }
+li.doc-li.sub.last-sub { padding-bottom: var(--level-two-to-one-gap); }
+li.doc-li.sub.has-subs { padding-bottom: 0; }
+ul.doc-list ul.doc-list > li.doc-li.has-subs:has(+ li.doc-li) > ul.doc-list > li.doc-li:last-child { padding-bottom: calc(2px * var(--paragraph-scale)); }
+.doc-list:has(> li.has-subs:last-child) + .doc-p { margin-top: 0; }
+.group-h {
+  margin: 0 0 calc(3px * var(--paragraph-scale));
+  padding-top: calc(16px * var(--paragraph-scale));
+  padding-left: 2px;
+  font-family: var(--face);
+  font-size: var(--body-size);
+  font-weight: 700;
+  text-transform: none;
+  color: #233D6B;
+  line-height: var(--heading-line);
+}
+/* Fixed group-heading padding replaces all trailing paragraph/list air. */
+.doc-p:has(+ .group-h), .group-h:has(+ .group-h) { margin-bottom: 0; }
+.section:has(> .section-body > .group-h:first-child) > .section-head { margin-bottom: 0; }
+.doc-list:has(+ .group-h) > :last-child,
+.doc-list:has(+ .group-h) > :last-child .doc-list > :last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.group-h + ul.doc-list > li.doc-li:first-child {
+  padding-top: 0;
+}
+.group-h + ul.doc-list > li.doc-li:first-child:not(.sub)::before {
+  top: var(--cnl-marker-top, var(--bullet-marker-top));
+}
+.doc-title + .section .section-head {
+  margin-top: 0;
+}
+.section-body > .doc-p:first-child { margin-top: 0; }
+.section:has(+ .section) .section-body > :last-child,
+.section:has(+ .section) .section-body > .doc-list:last-child > :last-child,
+.section:has(+ .section) .section-body > .doc-list:last-child > :last-child .doc-list > :last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.section-body > ul.doc-list:first-child > li.doc-li:first-child { padding-top: 0; }
+.section-body > ul.doc-list:first-child > li.doc-li:first-child:not(.sub)::before {
+  top: var(--cnl-marker-top, var(--bullet-marker-top));
+}
+/* A top-level list has one 3px entry gap and one 10px exit gap. */
+.section-body > .doc-p:has(+ ul.doc-list),
+.section-body > .doc-p:has(+ ol.doc-list) { margin-bottom: calc(3px * var(--paragraph-scale)); }
+.section-body > .poster-table-box:has(+ .doc-list) { margin-bottom: calc(3px * var(--paragraph-scale)); }
+.section-body > ul.doc-list > li.doc-li:last-child:not(.has-subs) { padding-bottom: calc(10px * var(--paragraph-scale)); }
+.section-body > ol.doc-list > li.doc-num:last-child { margin-bottom: calc(10px * var(--paragraph-scale)); }
+.section-body > .doc-list:has(+ .group-h) > li:last-child { padding-bottom: 0 !important; margin-bottom: 0 !important; }
+.section-body > .doc-list:has(+ .group-h) + .group-h { padding-top: calc(16px * var(--paragraph-scale)); }
+.section-body > .doc-list + .poster-table-box { margin-top: 0; }
+/* Label: = subtle (navy). **bold** runs in body = plum. */
+.label { color: var(--poster-primary); font-weight: 700; }
+.section-body strong,
+.section-body b { color: var(--poster-plum); font-weight: 700; }
+.table-title {
+  text-align: center;
+  font-family: var(--table-face);
+  font-weight: 700;
+  font-size: var(--body-size);
+  color: var(--poster-text);
+  margin: 12px 0 4px;
+}
+table.poster-table {
+  width: 100%;
+  max-width: none;
+  min-width: min-content;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 0.5pt solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0;
+  font-family: var(--table-face);
+  font-size: var(--table-size);
+  line-height: 1.3;
+  table-layout: auto;
+  color: #000;
+  background: var(--poster-white);
+}
+.poster-table-box {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, 18cm);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  margin: 8px 0 4px;
+  padding: 2px;
+}
+table.poster-table th,
+table.poster-table td {
+  font-family: var(--table-face);
+  font-size: var(--table-size) !important;
+  line-height: 1.3 !important;
+  padding: 4px 10px 7px;
+  min-width: min-content;
+  border-right: 0.5pt solid var(--line);
+  border-bottom: 0.5pt solid var(--line);
+  vertical-align: top;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+table.poster-table * {
+  font-family: var(--table-face);
+  font-size: var(--table-size) !important;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+table.poster-table th:last-child,
+table.poster-table td:last-child { border-right: 0; }
+table.poster-table tr:last-child th,
+table.poster-table tr:last-child td { border-bottom: 0; }
+table.poster-table th {
+  background: var(--poster-plum);
+  color: var(--poster-white);
+  font-weight: 700;
+  vertical-align: middle;
+}
+table.poster-table th strong,
+table.poster-table th b { color: var(--poster-white); font-weight: 700; }
+table.poster-table td strong,
+table.poster-table td b { color: #000; font-weight: 700; }
+table.poster-table tr.stripe td { background: var(--poster-neutral); }
+table.poster-table td { background: var(--poster-white); color: #000; }

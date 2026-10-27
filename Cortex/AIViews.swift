@@ -79,7 +79,6 @@ struct CreateStudyView: View {
             }
         }.navigationTitle("Create with AI").navigationBarTitleDisplayMode(.inline)
             .toolbar(.visible, for: .navigationBar)
-            .toolbar { Button("Done") { task?.cancel(); dismiss() } }
             .sheet(isPresented: $settings) { AISettingsView() }
             .onAppear { if source.isEmpty { source = initialSource }; if topic.isEmpty { topic = note?.displayName ?? "" } }
             .onDisappear { task?.cancel() }

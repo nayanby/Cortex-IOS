@@ -87,19 +87,13 @@ struct ConsumerHomeView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingAISettings) { AISettingsView() }
-            .sheet(isPresented: $showingCreate) { NavigationStack { CreateStudyView() } }
-            .sheet(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
-                NavigationStack {
-                    StudyBrowser(kind: studyKind ?? "Snapshots")
-                        .toolbar { Button("Done") { studyKind = nil } }
-                }
+            .navigationDestination(isPresented: $showingCreate) { CreateStudyView() }
+            .navigationDestination(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
+                StudyBrowser(kind: studyKind ?? "Snapshots")
             }
             .sheet(isPresented: $showAccount) { ConsumerAccountView() }
-            .sheet(isPresented: Binding(get: { pendingFeature != nil }, set: { if !$0 { pendingFeature = nil } })) {
-                NavigationStack {
-                    UtilityView(name: pendingFeature ?? "How-to")
-                        .toolbar { Button("Done") { pendingFeature = nil } }
-                }
+            .navigationDestination(isPresented: Binding(get: { pendingFeature != nil }, set: { if !$0 { pendingFeature = nil } })) {
+                UtilityView(name: pendingFeature ?? "How-to")
             }
         }.tint(CortexStyle.ink)
     }

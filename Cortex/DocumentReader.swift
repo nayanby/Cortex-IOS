@@ -222,8 +222,9 @@ struct DocumentReader: View {
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
-                    Button("Highlight selected text · yellow") { controller.highlight(color: "yellow") }
-                    Button("Highlight selected text · green") { controller.highlight(color: "green") }
+                    Button("Highlight selected text · rose") { controller.highlight(color: "rose") }
+                    Button("Highlight selected text · lemon") { controller.highlight(color: "lemon") }
+                    Button("Highlight selected text · aqua") { controller.highlight(color: "aqua") }
                     Button("Clear highlights", role: .destructive) { controller.clearHighlights() }
                     Button("Write on a PDF copy") { openPaperCopy() }
                         .disabled(controller.isLoading || controller.errorMessage != nil)
@@ -259,8 +260,8 @@ struct DocumentReader: View {
         .onChange(of: line) { _, _ in controller.applyTypography() }
         .onChange(of: paragraph) { _, _ in controller.applyTypography() }
         .alert("Highlights", isPresented: Binding(get: { controller.annotationMessage != nil }, set: { if !$0 { controller.annotationMessage = nil } })) { Button("OK") { controller.annotationMessage = nil } } message: { Text(controller.annotationMessage ?? "") }
-        .sheet(item: $annotatedCopy) { file in
-            NavigationStack { PaperReader(file: file).toolbar { Button("Done") { annotatedCopy = nil } } }
+        .navigationDestination(isPresented: Binding(get: { annotatedCopy != nil }, set: { if !$0 { annotatedCopy = nil } })) {
+            if let file = annotatedCopy { PaperReader(file: file) }
         }
         .sheet(isPresented: $showingBookmarks) {
             NavigationStack {
@@ -274,7 +275,7 @@ struct DocumentReader: View {
         }
         .onDisappear { audio.stop() }
         .sheet(isPresented: $showingAudio) { AudiobookView(controller: audio) }
-        .sheet(isPresented: $showingCreate) { NavigationStack { CreateStudyView(note: note, initialSource: sourceText) } }
+        .navigationDestination(isPresented: $showingCreate) { CreateStudyView(note: note, initialSource: sourceText) }
         .sheet(isPresented: $showingFonts) {
             NavigationStack {
                 Form {
@@ -289,11 +290,8 @@ struct DocumentReader: View {
                 }.navigationTitle("Font settings").toolbar { Button("Done") { showingFonts = false } }
             }.presentationDetents([.medium])
         }
-        .sheet(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
-            NavigationStack {
-                StudyBrowser(kind: studyKind ?? "Snapshots", note: note)
-                    .toolbar { Button("Done") { studyKind = nil } }
-            }
+        .navigationDestination(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
+            StudyBrowser(kind: studyKind ?? "Snapshots", note: note)
         }
         .sheet(isPresented: $showingOutline) {
             NavigationStack {
