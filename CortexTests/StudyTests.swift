@@ -2,6 +2,22 @@ import XCTest
 @testable import Cortex
 
 final class StudyTests: XCTestCase {
+    @MainActor
+    func testStudyAttemptReviewAndScoreSurviveRelaunch() throws {
+        let suite = "cortex-study-tests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let progress = StudyProgress(defaults: defaults)
+        progress.review(entry: "example", index: 0, grade: 2)
+        progress.saveAttempt(entry: "quiz", answers: [0: 1, 2: 3], completed: false)
+        progress.recordQuiz(title: "Example quiz", correct: 2, total: 3)
+        let restored = StudyProgress(defaults: defaults)
+        XCTAssertEqual(restored.attempts["quiz"]?.answers, [0: 1, 2: 3])
+        XCTAssertEqual(restored.attempts["quiz"]?.completed, false)
+        XCTAssertEqual(restored.quizzes.first?.correct, 2)
+        XCTAssertGreaterThan(try XCTUnwrap(restored.cards["example/0"]).due.timeIntervalSinceNow, 23 * 3600)
+    }
+
     func testGeminiRequestUsesKeyHeaderAndParsesStructuredDeck() async throws {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [GeminiStub.self]

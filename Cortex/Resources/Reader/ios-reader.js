@@ -66,6 +66,54 @@
     window.scrollTo(0, fraction * Math.max(0, document.documentElement.scrollHeight - innerHeight));
     return true;
   };
+  window.cortexRestoreProgress = fraction => {
+    fraction = Math.max(0, Math.min(1, Number(fraction) || 0));
+    window.scrollTo(0, fraction * Math.max(0, document.documentElement.scrollHeight - innerHeight));
+    reportProgress();
+  };
+  let highlights = [];
+  function textNodes() {
+    const walker = document.createTreeWalker(document.getElementById('paper'), NodeFilter.SHOW_TEXT);
+    const nodes = []; let node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    return nodes;
+  }
+  window.cortexApplyHighlights = records => {
+    const paper = document.getElementById('paper');
+    for (const mark of paper.querySelectorAll('mark[data-cortex-highlight]')) mark.replaceWith(...mark.childNodes);
+    paper.normalize();
+    const fullText = paper.textContent;
+    highlights = (Array.isArray(records) ? records : []).slice(0, 250).filter(record =>
+      Number.isInteger(record.start) && Number.isInteger(record.end) && record.start >= 0 &&
+      record.end > record.start && record.end - record.start <= 20000 &&
+      typeof record.quote === 'string' && fullText.slice(record.start, record.end) === record.quote);
+    for (const record of highlights) {
+      let offset = 0;
+      for (const node of textNodes()) {
+        const start = Math.max(0, record.start - offset), end = Math.min(node.length, record.end - offset);
+        offset += node.length;
+        if (end <= start) continue;
+        const range = document.createRange(); range.setStart(node, start); range.setEnd(node, end);
+        const mark = document.createElement('mark'); mark.dataset.cortexHighlight = 'true';
+        mark.style.backgroundColor = record.color === 'green' ? '#c7f2ce' : '#fff19a';
+        mark.style.color = 'inherit';
+        range.surroundContents(mark);
+      }
+    }
+    return highlights;
+  };
+  window.cortexHighlightSelection = color => {
+    const selection = window.getSelection(), paper = document.getElementById('paper');
+    if (!selection || !selection.rangeCount || selection.isCollapsed) return null;
+    const range = selection.getRangeAt(0);
+    if (!paper.contains(range.startContainer) || !paper.contains(range.endContainer)) return null;
+    const preceding = document.createRange(); preceding.selectNodeContents(paper); preceding.setEnd(range.startContainer, range.startOffset);
+    const start = preceding.toString().length, quote = range.toString();
+    if (!quote.length || quote.length > 20000 || highlights.length >= 250) return null;
+    const records = [...highlights, {start, end: start + quote.length, quote, color: color === 'green' ? 'green' : 'yellow'}];
+    selection.removeAllRanges();
+    return window.cortexApplyHighlights(records);
+  };
   window.cortexReadingProgress = progress;
   window.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);

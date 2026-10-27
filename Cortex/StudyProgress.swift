@@ -6,6 +6,7 @@ struct CardReview: Codable {
     let interval: Double
     let reviews: Int
 }
+struct QuizAttempt: Codable { let answers: [Int: Int]; let completed: Bool }
 struct QuizResult: Codable, Identifiable {
     let id: UUID
     let title: String
@@ -19,16 +20,20 @@ final class StudyProgress: ObservableObject {
     @Published private(set) var cards: [String: CardReview] = [:]
     @Published private(set) var quizzes: [QuizResult] = []
     @Published private(set) var recentStudy: [String] = []
-    init() {
-        recentStudy = UserDefaults.standard.stringArray(forKey: "study.recent") ?? []
-        if let data = UserDefaults.standard.data(forKey: "study.cardReviews"), let saved = try? JSONDecoder().decode([String: CardReview].self, from: data) { cards = saved }
-        if let data = UserDefaults.standard.data(forKey: "study.quizResults"), let saved = try? JSONDecoder().decode([QuizResult].self, from: data) { quizzes = saved }
+    @Published private(set) var attempts: [String: QuizAttempt] = [:]
+    private let defaults: UserDefaults
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        if let data = defaults.data(forKey: "study.attempts"), let saved = try? JSONDecoder().decode([String: QuizAttempt].self, from: data) { attempts = saved }
+        recentStudy = defaults.stringArray(forKey: "study.recent") ?? []
+        if let data = defaults.data(forKey: "study.cardReviews"), let saved = try? JSONDecoder().decode([String: CardReview].self, from: data) { cards = saved }
+        if let data = defaults.data(forKey: "study.quizResults"), let saved = try? JSONDecoder().decode([QuizResult].self, from: data) { quizzes = saved }
     }
     func opened(_ entry: StudyEntry) {
         recentStudy.removeAll { $0 == entry.id }
         recentStudy.insert(entry.id, at: 0)
         recentStudy = Array(recentStudy.prefix(20))
-        UserDefaults.standard.set(recentStudy, forKey: "study.recent")
+        defaults.set(recentStudy, forKey: "study.recent")
     }
     func review(entry: String, index: Int, grade: Int) {
         let key = entry + "/" + String(index)
@@ -41,12 +46,16 @@ final class StudyProgress: ObservableObject {
         default: days = max(4, (previous?.interval ?? 1) * 3)
         }
         cards[key] = CardReview(due: Date().addingTimeInterval(days * 86_400), interval: days, reviews: (previous?.reviews ?? 0) + 1)
-        if let data = try? JSONEncoder().encode(cards) { UserDefaults.standard.set(data, forKey: "study.cardReviews") }
+        if let data = try? JSONEncoder().encode(cards) { defaults.set(data, forKey: "study.cardReviews") }
+    }
+    func saveAttempt(entry: String, answers: [Int: Int], completed: Bool) {
+        attempts[entry] = QuizAttempt(answers: answers, completed: completed)
+        if let data = try? JSONEncoder().encode(attempts) { defaults.set(data, forKey: "study.attempts") }
     }
     func recordQuiz(title: String, correct: Int, total: Int) {
         quizzes.insert(QuizResult(id: UUID(), title: title, date: Date(), correct: correct, total: total), at: 0)
         quizzes = Array(quizzes.prefix(1000))
-        if let data = try? JSONEncoder().encode(quizzes) { UserDefaults.standard.set(data, forKey: "study.quizResults") }
+        if let data = try? JSONEncoder().encode(quizzes) { defaults.set(data, forKey: "study.quizResults") }
     }
 }
 

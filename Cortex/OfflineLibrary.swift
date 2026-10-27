@@ -7,7 +7,7 @@ enum OfflineLibrary {
               FileManager.default.fileExists(atPath: url.appendingPathComponent("catalog.json").path) else { return nil }
         return url
     }
-    static var available: Bool { root != nil }
+    static var available: Bool { catalog != nil }
     static let catalog: LibraryCatalog? = {
         guard let root, let data = try? Data(contentsOf: root.appendingPathComponent("catalog.json")) else { return nil }
         return try? JSONDecoder().decode(LibraryCatalog.self, from: data)

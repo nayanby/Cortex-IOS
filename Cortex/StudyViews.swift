@@ -32,6 +32,9 @@ struct StudyDetail: View {
     @State private var answers: [Int: Int] = [:]
     @ObservedObject private var progress = StudyProgress.shared
     @State private var recordedQuiz = false
+    @State private var showingFonts = false
+    @AppStorage("snapshot.fontSize") private var fontSize = 16.0
+    @AppStorage("snapshot.lineSpacing") private var lineSpacing = 6.0
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
@@ -69,17 +72,22 @@ struct StudyDetail: View {
                             ForEach(question.options.indices, id: \.self) { option in
                                 Button {
                                     answers[index] = option
-                                    if answers.count == questions.count && !recordedQuiz {
-                                        progress.recordQuiz(title: entry.title, correct: answers.filter { questions[$0.key].correctIndex == $0.value }.count, total: questions.count)
+                                    if answers.count == questions.filter({ $0.options.indices.contains($0.correctIndex) }).count && !recordedQuiz {
+                                        progress.recordQuiz(title: entry.title, correct: answers.filter { questions[$0.key].correctIndex == $0.value }.count, total: questions.filter { $0.options.indices.contains($0.correctIndex) }.count)
                                         recordedQuiz = true
                                     }
+                                    progress.saveAttempt(entry: entry.id, answers: answers, completed: recordedQuiz)
                                 } label: {
                                     HStack {
                                         Image(systemName: answers[index] == option ? "checkmark.circle.fill" : "circle")
                                         Text(.init(question.options[option])).multilineTextAlignment(.leading)
                                     }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
                                         .background(answerColor(index, option, question.correctIndex), in: RoundedRectangle(cornerRadius: 10))
-                                }.buttonStyle(.plain).disabled(answers[index] != nil)
+                                }.buttonStyle(.plain).disabled(answers[index] != nil || !question.options.indices.contains(question.correctIndex))
+                            }
+                            if !question.options.indices.contains(question.correctIndex) {
+                                Text("No answer key saved · excluded from scoring").font(.caption).foregroundStyle(CortexStyle.muted)
+                                if !question.explanation.isEmpty { Text(.init(question.explanation)) }
                             }
                             if let selected = answers[index] {
                                 Text(selected == question.correctIndex ? "Correct" : "Incorrect").font(.headline)
@@ -89,8 +97,8 @@ struct StudyDetail: View {
                         }.padding().background(.white, in: RoundedRectangle(cornerRadius: 14))
                     }
                     if !questions.isEmpty {
-                        Text("Score: \(answers.filter { questions[$0.key].correctIndex == $0.value }.count) / \(questions.count)")
-                        Button("Try again") { answers = [:]; recordedQuiz = false }
+                        Text("Score: \(answers.filter { questions[$0.key].correctIndex == $0.value }.count) / \(questions.filter { $0.options.indices.contains($0.correctIndex) }.count)")
+                        Button("Try again") { answers = [:]; recordedQuiz = false; progress.saveAttempt(entry: entry.id, answers: [:], completed: false) }
                     }
                 }
                 if let sections = entry.content.sections {
@@ -98,11 +106,29 @@ struct StudyDetail: View {
                         SnapshotSectionView(section: sections[index])
                     }
                 }
-            }.padding(18)
+            }.font(.system(size: fontSize)).lineSpacing(lineSpacing).padding(18)
         }.background(CortexStyle.background).foregroundStyle(CortexStyle.ink)
-            .onAppear { progress.opened(entry) }
+            .onAppear {
+                progress.opened(entry)
+                if let attempt = progress.attempts[entry.id], let questions = entry.content.questions {
+                    answers = attempt.answers.filter { questions.indices.contains($0.key) && questions[$0.key].options.indices.contains($0.value) }
+                    recordedQuiz = attempt.completed
+                }
+            }
             .navigationTitle(entry.kind).navigationBarTitleDisplayMode(.inline)
             .toolbar(.visible, for: .navigationBar)
+            .toolbar {
+                Button { showingFonts = true } label: { Label("Font settings", systemImage: "textformat.size") }
+            }
+            .sheet(isPresented: $showingFonts) {
+                NavigationStack {
+                    Form {
+                        Stepper("Font size: \(fontSize, specifier: "%.0f")", value: $fontSize, in: 12...28)
+                        Stepper("Line spacing: \(lineSpacing, specifier: "%.0f")", value: $lineSpacing, in: 0...16)
+                        Button("Reset to default") { fontSize = 16; lineSpacing = 6 }
+                    }.navigationTitle("Font settings").toolbar { Button("Done") { showingFonts = false } }
+                }.presentationDetents([.medium])
+            }
     }
     private func answerColor(_ question: Int, _ option: Int, _ correct: Int) -> Color {
         guard let selected = answers[question] else { return Color.gray.opacity(0.07) }

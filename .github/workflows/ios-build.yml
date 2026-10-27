@@ -22,6 +22,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Validate offline packaging
+        run: python3 scripts/test-package-offline.py
       - name: Generate Xcode project
         run: xcodegen generate
       - uses: actions/cache/restore@v4

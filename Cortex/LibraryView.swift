@@ -37,6 +37,11 @@ struct LibraryView: View {
                 if let catalog = library.catalog {
                     ScrollView {
                         LazyVStack(spacing: 8) {
+                            if StudyLibrary.shared.entries.contains(where: { $0.kind == "Notes" }) {
+                                NavigationLink { StudyBrowser(kind: "Notes") } label: {
+                                    LibraryCard(title: "Created notes", subtitle: "Saved AI notes on this device", symbol: "doc.text")
+                                }.buttonStyle(.plain)
+                            }
                             if !localDocuments.documents.isEmpty {
                                 HStack {
                                     Text("My notes").font(CortexStyle.title())

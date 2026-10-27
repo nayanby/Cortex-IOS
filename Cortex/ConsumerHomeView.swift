@@ -109,7 +109,7 @@ struct ConsumerHomeView: View {
             Text("Continue reading").font(CortexStyle.title(18)).padding(.bottom, -4)
             if let record = history.recent.first, let note = library.catalog?.notes.first(where: { $0.path == record.path }) {
                 NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
-                    LibraryCard(title: note.displayName, subtitle: "Continue reading · " + note.subject, symbol: "doc.text")
+                    LibraryCard(title: note.displayName, subtitle: "Continue reading Â· " + note.subject, symbol: "doc.text")
                 }.buttonStyle(.plain)
             } else {
             VStack(alignment: .leading, spacing: 2) {
@@ -119,7 +119,7 @@ struct ConsumerHomeView: View {
                 .background(.white, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(CortexStyle.line, lineWidth: 1))
             }
-            NavigationLink { LibraryView(accountID: session.profile?.uid) } label: {
+            NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: {
                 Text("Find your first topic").font(.system(size: 14, weight: .medium)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 48).background(CortexStyle.ink, in: RoundedRectangle(cornerRadius: 14))
             }.buttonStyle(.plain)
@@ -134,7 +134,7 @@ struct ConsumerHomeView: View {
                     CortexArtwork(name: "right", size: 22)
                 }.padding(10).frame(minHeight: 56).background(gradient(0xF0E8EB, 0xE1D0DC), in: RoundedRectangle(cornerRadius: 12))
             }.buttonStyle(.plain)
-            NavigationLink { LibraryView(accountID: session.profile?.uid) } label: {
+            NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: {
                 homeCard("DEEP DIVE", "Long form notes, flashcards and Qbank", "book", 0xEAF3FC, 0xCFE1F5)
             }.buttonStyle(.plain)
             Button { studyKind = "Snapshots" } label: { homeCard("SNAPSHOTS", "Concise notes", "snapshot", 0xF0E8EB, 0xE1D0DC) }.buttonStyle(.plain)
@@ -184,7 +184,7 @@ struct ConsumerHomeView: View {
                 }
                 Divider()
                 Button { drawer = false } label: { drawerRow("Home", "home") }
-                NavigationLink { LibraryView(accountID: session.profile?.uid) } label: { drawerRow("Deep dive", "book") }
+                NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: { drawerRow("Deep dive", "book") }
                     .simultaneousGesture(TapGesture().onEnded { drawer = false })
                 ForEach([("Snapshots", "snapshot"), ("Notebooks", "notebook"), ("PDFs", "pdf"), ("Performance", "quiz"), ("Storage", "storage")], id: \.0) { item in
                     Button { drawer = false; if item.0 == "Snapshots" { studyKind = "Snapshots" } else { pendingFeature = item.0 } } label: { drawerRow(item.0, item.1) }

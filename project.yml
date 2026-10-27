@@ -62,6 +62,7 @@ targets:
       properties:
         CortexFirebaseBundleID: $(CORTEX_BUNDLE_ID)
         FirebaseAppDelegateProxyEnabled: false
+        UIBackgroundModes: [audio]
         CFBundleURLTypes:
           - CFBundleURLSchemes: ['$(CORTEX_GOOGLE_URL_SCHEME)']
         UIAppFonts:

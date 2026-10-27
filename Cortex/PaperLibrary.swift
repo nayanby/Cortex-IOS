@@ -39,6 +39,14 @@ final class PaperLibrary: ObservableObject {
         try blankPage(ruled: ruled).write(to: url(file), options: [.atomic, .completeFileProtection])
         do { try commit([file] + files) } catch { try? FileManager.default.removeItem(at: url(file)); throw error }
     }
+    func saveRenderedPDF(_ data: Data, title: String, id: UUID) throws -> PaperFile {
+        if let existing = files.first(where: { $0.id == id }) { return existing }
+        let file = PaperFile(id: id, title: title, kind: "PDFs", ruled: false)
+        try data.write(to: url(file), options: [.atomic, .completeFileProtection])
+        do { try commit([file] + files) } catch { try? FileManager.default.removeItem(at: url(file)); throw error }
+        return file
+    }
+    func existing(id: UUID) -> PaperFile? { files.first { $0.id == id } }
     func appendPage(_ file: PaperFile) throws {
         guard let document = PDFDocument(url: url(file)), let blank = PDFDocument(data: blankPage(ruled: file.ruled)), let page = blank.page(at: 0) else { throw StudyAIError.message("The notebook could not be opened.") }
         document.insert(page, at: document.pageCount)
@@ -113,17 +121,18 @@ struct PaperBrowser: View {
 }
 
 @MainActor
-final class PaperController: NSObject, ObservableObject, PDFPageOverlayViewProvider, PKCanvasViewDelegate {
+final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPageOverlayViewProvider, PKCanvasViewDelegate {
     let view = PDFView()
     let file: PaperFile
     private let store: PaperLibrary
     private let picker = PKToolPicker()
     private var canvases: [Int: PKCanvasView] = [:]
+    private var pendingSaves: [Int: Task<Void, Never>] = [:]
     @Published var drawing = false { didSet { updateTools() } }
     @Published var error: String?
-    init(file: PaperFile, store: PaperLibrary = .shared) {
+    init(file: PaperFile, store: PaperLibrary? = nil) {
         self.file = file
-        self.store = store
+        self.store = store ?? .shared
         super.init()
         view.autoScales = true
         view.displayDirection = .vertical
@@ -156,7 +165,15 @@ final class PaperController: NSObject, ObservableObject, PDFPageOverlayViewProvi
     }
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
         guard let index = canvases.first(where: { $0.value === canvasView })?.key else { return }
-        do { try canvasView.drawing.dataRepresentation().write(to: store.drawingURL(file, page: index), options: [.atomic, .completeFileProtection]) }
+        pendingSaves[index]?.cancel()
+        pendingSaves[index] = Task { [weak self] in
+            do { try await Task.sleep(nanoseconds: 250_000_000) } catch { return }
+            self?.saveCanvas(index)
+        }
+    }
+    private func saveCanvas(_ index: Int) {
+        guard let canvas = canvases[index] else { return }
+        do { try canvas.drawing.dataRepresentation().write(to: store.drawingURL(file, page: index), options: [.atomic, .completeFileProtection]) }
         catch { self.error = "The pen marks could not be saved. Keep this page open and try again." }
     }
     private func updateTools() {
@@ -194,7 +211,11 @@ final class PaperController: NSObject, ObservableObject, PDFPageOverlayViewProvi
         try data.write(to: output, options: [.atomic, .completeFileProtection])
         return output
     }
-    func stop() { drawing = false; canvases.values.forEach { picker.removeObserver($0); $0.delegate = nil }; view.pageOverlayViewProvider = nil }
+    func stop() {
+        pendingSaves.values.forEach { $0.cancel() }
+        pendingSaves = [:]
+        canvases.keys.forEach { saveCanvas($0) }
+        drawing = false; canvases.values.forEach { picker.removeObserver($0); $0.delegate = nil }; view.pageOverlayViewProvider = nil }
 }
 private struct PaperPDFView: UIViewRepresentable {
     @ObservedObject var controller: PaperController

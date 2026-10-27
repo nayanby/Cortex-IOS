@@ -3,11 +3,20 @@ import argparse, hashlib, json, re, shutil, zipfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+def note_order(path):
+    match=re.match(r"^([IVXLCDM]+)\.",path.stem)
+    if match:
+        values={"I":1,"V":5,"X":10,"L":50,"C":100,"D":500,"M":1000}
+        numeral=match[1]
+        number=sum(-values[c] if i+1<len(numeral) and values[c]<values[numeral[i+1]] else values[c] for i,c in enumerate(numeral))
+        return (path.parent.as_posix().casefold(),0,number,path.name.casefold())
+    return (path.parent.as_posix().casefold(),1,0,path.name.casefold())
+
 def build(source, output):
     output.mkdir(parents=True, exist_ok=True)
     notes=[]; entries=[]; warnings=[]; card_keys=set()
     ns={"w":"http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
-    for p in sorted(p for p in (source/"files").rglob("*") if p.is_file() and p.suffix.lower() in {".docx", ".dotx"}):
+    for p in sorted((p for p in (source/"files").rglob("*") if p.is_file() and p.suffix.lower() in {".docx", ".dotx"}),key=note_order):
         relative=p.relative_to(source/"files").as_posix()
         digest=hashlib.sha256(relative.encode()).hexdigest()
         name=digest+".docx"
@@ -55,6 +64,7 @@ def build(source, output):
         data=e.pop("data")
         e["content"]=data
 
+    entries=list({entry["id"]:entry for entry in entries}.values())
     (output/"catalog.json").write_text(json.dumps({"notes":notes},ensure_ascii=False),encoding="utf-8")
     (output/"study.json").write_text(json.dumps(entries,ensure_ascii=False),encoding="utf-8")
     (output/"import-warnings.json").write_text(json.dumps(warnings),encoding="utf-8")

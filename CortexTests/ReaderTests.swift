@@ -50,6 +50,24 @@ final class ReaderTests: XCTestCase {
         _ = try await controller.webView.callAsyncJavaScript("return window.cortexSetTypography(0, 1.4375, 0.16);", arguments: [:], in: nil, contentWorld: .page)
         let reset = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
         XCTAssertEqual(try XCTUnwrap(reset), try XCTUnwrap(baseline), accuracy: 0.05)
+        let highlighted = try await controller.webView.evaluateJavaScript("""
+            (() => {
+              const node = document.querySelector('#paper .doc-p').firstChild;
+              const walker = document.createTreeWalker(document.querySelector('#paper .doc-p'), NodeFilter.SHOW_TEXT);
+              const text = walker.nextNode();
+              const range = document.createRange(); range.setStart(text, 0); range.setEnd(text, Math.min(6, text.length));
+              const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range);
+              const records = window.cortexHighlightSelection('yellow');
+              window.cortexApplyHighlights(records);
+              return document.querySelectorAll('mark[data-cortex-highlight]').length > 0;
+            })()
+            """) as? Bool
+        XCTAssertEqual(highlighted, true)
+        let afterHighlight = try await controller.webView.evaluateJavaScript("document.getElementById('paper').textContent") as? String
+        XCTAssertEqual(afterHighlight, text, "Highlighting must preserve all document text")
+        let stale = try await controller.webView.callAsyncJavaScript("return window.cortexApplyHighlights(records).length;",
+            arguments: ["records": [["start": 0, "end": 5, "quote": "WRONG", "color": "yellow"]]], in: nil, contentWorld: .page) as? Int
+        XCTAssertEqual(stale, 0, "Changed document text must not receive an old highlight")
         let jumped = try await controller.webView.callAsyncJavaScript("return window.cortexJumpToHeading(index);",
             arguments: ["index": 0], in: nil, contentWorld: .page) as? Bool
         XCTAssertEqual(jumped, true)
