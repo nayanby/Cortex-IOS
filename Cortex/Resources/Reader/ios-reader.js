@@ -10,7 +10,7 @@
   function reportProgress() {
     window.webkit?.messageHandlers?.readingProgress?.postMessage(progress());
   }
-  window.cortexLoadDocument = async (base64, savedProgress = 0) => {
+  window.cortexLoadDocument = async (base64, savedProgress = 0, typography = {delta:0, line:1.4375, paragraph:0.16}) => {
     window.cortexReleaseImages();
     const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     const doc = new window.CortexDocx(bytes);
@@ -19,6 +19,7 @@
     document.getElementById('paper').replaceChildren(root);
     window.cnlIndentHeadingPrefixes?.(root);
     window.cnlAlignBulletMarkers?.(root);
+    await window.cortexSetTypography(typography.delta, typography.line, typography.paragraph);
     headings = [...root.querySelectorAll('.doc-p.h1,.doc-p.h2,.doc-p.h3,.doc-p.h4')];
     // Force style resolution, then load the faces used by the note. A previously
     // resolved fonts.ready promise alone can precede layout of newly inserted text.
@@ -47,12 +48,14 @@
   };
   const originalSizes = new WeakMap();
   const originalLayout = new WeakMap();
-  window.cortexSetTypography = (delta, line, paragraph) => {
+  let typographySerial = 0;
+  window.cortexSetTypography = async (delta, line, paragraph) => {
     delta = Number(delta); line = Number(line); paragraph = Number(paragraph);
     if (!Number.isFinite(delta) || delta < -1.5 || delta > 1.5 ||
         !Number.isFinite(line) || line < 1 || line > 2 ||
         !Number.isFinite(paragraph) || paragraph < 0.08 || paragraph > 0.33) return false;
     const fraction = progress();
+    const serial = ++typographySerial;
     const elements = [...document.querySelectorAll('#paper *')].filter(el => !el.closest('svg, math') && !el.matches('mark[data-cortex-highlight]'));
     // Capture the whole tree before changing any inherited styles.
     for (const el of elements) {
@@ -95,7 +98,10 @@
         if (layout.bottom > 0) el.style.setProperty('margin-bottom', layout.bottom * (1 + paragraph) + 'px', 'important');
       }
     }
-    window.scrollTo(0, fraction * Math.max(0, document.documentElement.scrollHeight - innerHeight));
+    void document.getElementById('paper').offsetHeight;
+    await document.fonts.ready;
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    if (serial === typographySerial) window.scrollTo(0, fraction * Math.max(0, document.documentElement.scrollHeight - innerHeight));
     return true;
   };
   window.cortexRestoreProgress = fraction => {

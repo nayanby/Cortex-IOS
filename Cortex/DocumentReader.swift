@@ -58,8 +58,9 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
                 let data = try await Task.detached(priority: .userInitiated) { try Data(contentsOf: url) }.value
                 try Task.checkCancellation()
                 let result = try await webView.callAsyncJavaScript(
-                    "return await window.cortexLoadDocument(base64, position);",
-                    arguments: ["base64": data.base64EncodedString(), "position": UserDefaults.standard.double(forKey: progressKey)],
+                    "return await window.cortexLoadDocument(base64, position, typography);",
+                    arguments: ["base64": data.base64EncodedString(), "position": UserDefaults.standard.double(forKey: progressKey),
+                                "typography": typographyArguments()],
                     in: nil, contentWorld: .page)
                 try Task.checkCancellation()
                 headings = (result as? [[String: Any]] ?? []).compactMap { item in
@@ -71,7 +72,6 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
                    let records = try? JSONSerialization.jsonObject(with: data) {
                     _ = try? await webView.callAsyncJavaScript("return window.cortexApplyHighlights(records);", arguments: ["records": records], in: nil, contentWorld: .page)
                 }
-                applyTypography()
                 isLoading = false
             } catch is CancellationError { }
             catch { fail("Could not open this Word document. \(error.localizedDescription)") }
@@ -108,14 +108,18 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
         Task { _ = try? await webView.callAsyncJavaScript("window.cortexRestoreProgress(fraction);", arguments: ["fraction": bookmark.fraction], in: nil, contentWorld: .page) }
     }
 
-    func applyTypography() {
+    private func typographyArguments() -> [String: Double] {
         let defaults = UserDefaults.standard
-        let delta = defaults.double(forKey: "reader.fontDelta")
-        let line = defaults.object(forKey: "reader.line") as? Double ?? 1.4375
-        let paragraph = defaults.object(forKey: "reader.paragraph") as? Double ?? 0.16
+        return ["delta": defaults.double(forKey: "reader.fontDelta"),
+                "line": defaults.object(forKey: "reader.line") as? Double ?? 1.4375,
+                "paragraph": defaults.object(forKey: "reader.paragraph") as? Double ?? 0.16]
+    }
+
+    func applyTypography() {
+        let arguments = typographyArguments()
         Task {
             _ = try? await webView.callAsyncJavaScript("return window.cortexSetTypography(delta, line, paragraph);",
-                arguments: ["delta": delta, "line": line, "paragraph": paragraph], in: nil, contentWorld: .page)
+                arguments: arguments, in: nil, contentWorld: .page)
         }
     }
 
