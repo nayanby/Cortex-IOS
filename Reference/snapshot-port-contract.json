@@ -1,0 +1,21 @@
+{
+  "snapshotSource": "../Cortex Consumer 2/app/src/main/java/com/clinicalnotes/library/ui/PosterHtml.kt",
+  "snapshotSourceSHA256": "a5c62f56521f68f30b907ffae13ac7cb4d5ad2291df97b122487037adf41ac5c",
+  "layout": "Consumer PosterHtml sections/groups/lists/tables and original CSS; escaped structured data only",
+  "penColors": [
+    "28467C",
+    "6F3D5D",
+    "AF3E3E"
+  ],
+  "washColors": [
+    "FFEAEA",
+    "FFF9BD",
+    "CCFBFA"
+  ],
+  "underlineColors": [
+    "E89090",
+    "D4C04A",
+    "B1E5E6"
+  ],
+  "navigation": "Primary sections push in the app NavigationStack; sheets reserved for configuration and system sharing"
+}

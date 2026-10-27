@@ -23,7 +23,8 @@ Run this after downloading the latest device artifact. Injecting resources must 
 - Original CORTEX app icon for iPhone and iPad.
 - Local catalog, subject/chapter navigation, heading search, Word imports and original Android DOCX rendering with tables, formulas and embedded images.
 - Reader font size, line spacing, paragraph spacing, outline, bookmarks, text highlights, and saved reading position.
-- Reader links to matching local Snapshots, Flashcards and Qbank; structured Snapshot sections, groups and tables.
+- Primary sections open in the main navigation stack. Snapshots browse by subject, chapter and heading, using the Consumer HTML/CSS layout, bundled fonts, nested lists and tables.
+- Snapshot drawing and PDF export use the same exact Consumer ink palette as PDFs and notebooks, with in-app pen, highlighter, underliner, eraser and cursor controls.
 - Flashcard reveal/rating and local review scheduling; Qbank answer explanations, saved attempts, scoring and performance history.
 - Create with AI for Notes, Snapshots, Flashcards and Qbank, from a topic, pasted source or selected/open note text. Generated content is validated and saved locally.
 - Sidebar AI settings for a personal Google Gemini key and model. Keys use device-only Keychain storage and the API-key header; they are never written to bundled resources or source control. Generation sends only explicitly submitted text directly to Google, requires internet and uses the user's quota. The default model matches the current Android source, `gemini-3.8-flash`.

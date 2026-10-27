@@ -8,13 +8,13 @@ The user requested a matching iOS Consumer app, then explicitly requested a priv
 | --- | --- |
 | Catalog | Private catalog generated from actual local DOCX/DOTX files, Roman chapter ordering, headings, stable path identifiers, bundled-file resolution; local catalog takes priority |
 | Reader | Android renderer/styles/fonts, images/tables/OMML, persistent position, outline, font/line/paragraph controls, quote-validated highlights, bookmarks |
-| Snapshots | Existing local payloads, chapter matching, sections/groups/points/numbering/tables, search and font controls |
+| Snapshots | Subject/chapter/heading navigation, original Consumer CSS and safe HTML renderer, font controls, drawing and paginated PDF sharing |
 | Flashcards | Existing local decks, answer reveal, rating, local schedule and persistence |
 | Qbank | Existing local sets, explanations, unscored missing-answer states, saved attempts and completed-quiz history |
 | AI | Direct Gemini API with a user-entered Keychain key, editable model, structured/validated Notes/Snapshots/Flashcards/Qbank, cancellation and quota/network errors, local persistence |
 | Paper | PDF import, blank/ruled notebooks, pages, PencilKit tools, mark persistence, PDF export and note-to-PDF writing copies |
 | Audio | Native iPad speech, paragraph position, speed and interruptions; different from Android cloud TTS |
-| Navigation | Original home artwork/header/cards/drawer/pill, working study/paper/settings/help/storage/performance routes and recents |
+| Navigation | Main-screen study/paper/Create routes, original home artwork/header/cards/drawer/pill, Snapshot hierarchy, settings/help/storage/performance and recents |
 | Optional Firebase | Registered standard/sideload clients, strict configuration validation, Google account flow and authenticated online downloads; no production rule changes |
 
 ## Local import
