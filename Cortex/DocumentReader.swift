@@ -228,7 +228,7 @@ struct DocumentReader: View {
                 } label: { Label("Annotations", systemImage: "highlighter") }
                 Button { showingFonts = true } label: { Label("Font settings", systemImage: "textformat.size") }
                 Menu {
-                    ForEach(["Snapshots", "Flashcards", "Qbank"], id: \.self) { kind in
+                    ForEach(["Snapshots", "Flashcards", "Qbank", "Slides"], id: \.self) { kind in
                         Button(kind) { studyKind = kind }
                     }
                     Button("Read aloud") {

@@ -2,6 +2,7 @@ import SwiftUI
 import PDFKit
 import PencilKit
 import UniformTypeIdentifiers
+import ImageIO
 
 struct PaperFile: Identifiable, Codable {
     let id: UUID
@@ -52,6 +53,25 @@ final class PaperLibrary: ObservableObject {
         document.insert(page, at: document.pageCount)
         guard let data = document.dataRepresentation() else { throw StudyAIError.message("The page could not be added.") }
         try data.write(to: url(file), options: [.atomic, .completeFileProtection])
+    }
+    func appendImage(_ file: PaperFile, source: URL) throws {
+        let scoped = source.startAccessingSecurityScopedResource()
+        defer { if scoped { source.stopAccessingSecurityScopedResource() } }
+        guard let imageSource = CGImageSourceCreateWithURL(source as CFURL, nil),
+              let image = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceCreateThumbnailWithTransform: true, kCGImageSourceThumbnailMaxPixelSize: 3000] as CFDictionary),
+              let document = PDFDocument(url: url(file)) else { throw StudyAIError.message("Choose a readable image file.") }
+        let bounds = CGRect(x: 0, y: 0, width: 595.28, height: 841.89)
+        let data = UIGraphicsPDFRenderer(bounds: bounds).pdfData { context in
+            context.beginPage(); UIColor.white.setFill(); context.cgContext.fill(bounds)
+            let size = CGSize(width: CGFloat(image.width), height: CGFloat(image.height))
+            let scale = min((bounds.width - 40) / size.width, (bounds.height - 40) / size.height)
+            let target = CGRect(x: (bounds.width - size.width * scale) / 2, y: (bounds.height - size.height * scale) / 2, width: size.width * scale, height: size.height * scale)
+            UIImage(cgImage: image).draw(in: target)
+        }
+        guard let page = PDFDocument(data: data)?.page(at: 0) else { throw StudyAIError.message("The image could not be added.") }
+        document.insert(page, at: document.pageCount)
+        guard let updated = document.dataRepresentation() else { throw StudyAIError.message("The notebook could not be saved.") }
+        try updated.write(to: url(file), options: [.atomic, .completeFileProtection])
     }
     func rename(_ file: PaperFile, title: String) throws {
         var updated = files
@@ -227,6 +247,7 @@ struct PaperReader: View {
     let file: PaperFile
     @StateObject private var controller: PaperController
     @State private var exportURL: URL?
+    @State private var importingImage = false
     init(file: PaperFile) { self.file = file; _controller = StateObject(wrappedValue: PaperController(file: file)) }
     var body: some View {
         PaperPDFView(controller: controller).navigationTitle(file.title).navigationBarTitleDisplayMode(.inline)
@@ -236,9 +257,14 @@ struct PaperReader: View {
                 Button { controller.undo() } label: { Label("Undo", systemImage: "arrow.uturn.backward") }
                 Button { controller.redo() } label: { Label("Redo", systemImage: "arrow.uturn.forward") }
                 if file.kind == "Notebooks" {
+                    Button { importingImage = true } label: { Label("Add image page", systemImage: "photo.badge.plus") }
                     Button { do { try PaperLibrary.shared.appendPage(file); controller.reload() } catch { controller.error = error.localizedDescription } } label: { Label("Add page", systemImage: "doc.badge.plus") }
                 }
                 Button { do { exportURL = try controller.export() } catch { controller.error = error.localizedDescription } } label: { Label("Export annotated PDF", systemImage: "square.and.arrow.up") }
+            }
+            .fileImporter(isPresented: $importingImage, allowedContentTypes: [.image]) { result in
+                do { try PaperLibrary.shared.appendImage(file, source: result.get()); controller.reload() }
+                catch { controller.error = error.localizedDescription }
             }
             .sheet(isPresented: Binding(get: { exportURL != nil }, set: { if !$0 { exportURL = nil } })) {
                 if let exportURL { ShareSheet(items: [exportURL]) }

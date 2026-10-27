@@ -5,6 +5,17 @@ import PencilKit
 
 @MainActor
 final class PaperTests: XCTestCase {
+    func testLongSlideExportFlowsWithoutDroppingLastPoint() throws {
+        let points = (0..<100).map { ["text": "Point \($0): a sentence that must remain readable in the exported presentation."] } + [["text": "Final slide sentinel"]]
+        let content = try JSONDecoder().decode(StudyContent.self, from: JSONSerialization.data(withJSONObject: ["title": "Test", "sections": [["heading": "Long slide", "points": points]]]))
+        let entry = StudyEntry(id: "test", kind: "Slides", document: "Test", folder: "Test", title: "Test", content: content)
+        let url = try SlideExport.pdf(entry)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let document = try XCTUnwrap(PDFDocument(url: url))
+        XCTAssertGreaterThan(document.pageCount, 1)
+        XCTAssertTrue((document.string ?? "").contains("Final slide sentinel"))
+    }
+
     func testNotebookPagesAndPenMarksSurviveReopenAndExport() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }

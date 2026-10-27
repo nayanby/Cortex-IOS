@@ -53,7 +53,7 @@ struct CreateStudyView: View {
         Form {
             Section("Create with AI") {
                 Picker("Create", selection: $kind) {
-                    ForEach(["Notes", "Snapshots", "Flashcards", "Qbank"], id: \.self) { Text($0) }
+                    ForEach(["Notes", "Snapshots", "Flashcards", "Qbank", "Slides"], id: \.self) { Text($0) }
                 }
                 TextField("Topic or instructions", text: $topic, axis: .vertical)
                 Text("Source text (optional)").font(.caption)
@@ -73,7 +73,7 @@ struct CreateStudyView: View {
                 Section("Saved on this device") { NavigationLink("Open " + created.kind) { StudyDetail(entry: created) } }
             }
             Section("Your library") {
-                ForEach(["Notes", "Snapshots", "Flashcards", "Qbank"], id: \.self) { kind in
+                ForEach(["Notes", "Snapshots", "Flashcards", "Qbank", "Slides"], id: \.self) { kind in
                     NavigationLink(kind) { StudyBrowser(kind: kind) }
                 }
             }

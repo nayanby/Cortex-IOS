@@ -27,10 +27,11 @@ Run this after downloading the latest device artifact. Injecting resources must 
 - Create with AI for Notes, Snapshots, Flashcards and Qbank, from a topic, pasted source or selected/open note text. Generated content is validated and saved locally.
 - Sidebar AI settings for a personal Google Gemini key and model. Keys use device-only Keychain storage and the API-key header; they are never written to bundled resources or source control. Generation sends only explicitly submitted text directly to Google, requires internet and uses the user's quota. The default model matches the current Android source, `gemini-3.8-flash`.
 - PDF import, blank/8 mm ruled notebooks, additional notebook pages, PencilKit pen/highlighter/eraser, undo/redo, persistent marks and annotated PDF export. A note can be copied to PDF for handwriting.
+- AI-created slide decks with page navigation and PDF export; long sections flow across continuation pages. Notebook images can be added as an image page.
 - Built-in iPad read-aloud with paragraph navigation, pause/resume, speed, saved position and audio-interruption handling. This uses Apple's voice rather than the Android cloud TTS backend.
 - Home reading/Snapshot recents, local storage information, and in-app help.
 
-These native implementations still require real-iPad interaction and visual acceptance. Android cloud study sync, full revision-state parity, slide tools, cloud audiobook behavior, export quotas and all cross-platform saved-data round trips are not complete. See [port status](docs/PORT-STATUS.md).
+These native implementations still require real-iPad interaction and visual acceptance. Android cloud study sync, full revision-state parity, cloud audiobook behavior, export quotas and all cross-platform saved-data round trips are not complete. See [port status](docs/PORT-STATUS.md).
 
 ## Cloud builds and tests
 

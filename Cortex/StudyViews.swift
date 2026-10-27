@@ -47,6 +47,10 @@ struct StudyDetail: View {
     @AppStorage("snapshot.fontSize") private var fontSize = 16.0
     @AppStorage("snapshot.lineSpacing") private var lineSpacing = 6.0
     var body: some View {
+        if entry.kind == "Slides" { SlideDeckView(entry: entry) }
+        else { contentBody }
+    }
+    private var contentBody: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 Text(entry.content.title ?? entry.title).font(CortexStyle.title(24))

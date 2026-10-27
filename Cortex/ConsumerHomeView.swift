@@ -186,8 +186,8 @@ struct ConsumerHomeView: View {
                 Button { drawer = false } label: { drawerRow("Home", "home") }
                 NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: { drawerRow("Deep dive", "book") }
                     .simultaneousGesture(TapGesture().onEnded { drawer = false })
-                ForEach([("Snapshots", "snapshot"), ("Notebooks", "notebook"), ("PDFs", "pdf"), ("Performance", "quiz"), ("Storage", "storage")], id: \.0) { item in
-                    Button { drawer = false; if item.0 == "Snapshots" { studyKind = "Snapshots" } else { pendingFeature = item.0 } } label: { drawerRow(item.0, item.1) }
+                ForEach([("Snapshots", "snapshot"), ("Slides", "book"), ("Notebooks", "notebook"), ("PDFs", "pdf"), ("Performance", "quiz"), ("Storage", "storage")], id: \.0) { item in
+                    Button { drawer = false; if ["Snapshots", "Slides"].contains(item.0) { studyKind = item.0 } else { pendingFeature = item.0 } } label: { drawerRow(item.0, item.1) }
                 }
                 Button { drawer = false; showingAISettings = true } label: { drawerRow("AI settings", "settings") }
                 Button { drawer = false; showingCreate = true } label: { drawerRow("Create with AI", "create") }

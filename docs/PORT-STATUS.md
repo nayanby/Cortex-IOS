@@ -29,8 +29,8 @@ The private content lives only under ignored `build/OfflineLibrary` and in a loc
 - Enter a personal Gemini key in the app and validate an actual generation request; automated tests use a fake transport and no real key.
 - Android/iOS screenshots and interactions at equivalent widths; complete visual parity is still unverified.
 - Cloud study sync, complete revision-state parity and cross-platform state migration. The local interval progression and Again requeue behavior now follow the Android implementation.
-- Android slide-generation/presentation tools, cloud TTS/audiobook behavior and media-control parity.
-- Full Android annotation anchors, notebook image layers, export quotas/formats and shared/personal data round trips. Native PDF writing copies do not modify the source DOCX.
+- Exact Android slide layout, cloud TTS/audiobook behavior and media-control parity. Native AI slide creation/navigation/PDF export are implemented.
+- Full Android annotation anchors, movable notebook image layers, export quotas/formats and shared/personal data round trips. Native PDF writing copies do not modify the source DOCX.
 - App icon assets, distribution signing, TestFlight/App Store setup.
 
 Imported notes must be preserved by replacing the existing installation using the same sideload identity. Do not uninstall the existing app during update testing.
