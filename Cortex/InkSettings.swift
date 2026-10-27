@@ -86,7 +86,7 @@ struct CortexInkToolbar: View {
                 Button(action:undo) { Image(systemName:"arrow.uturn.backward").frame(width:32,height:38) }.accessibilityLabel("Undo")
                 Button(action:redo) { Image(systemName:"arrow.uturn.forward").frame(width:32,height:38) }.accessibilityLabel("Redo")
             }.buttonStyle(.plain).foregroundStyle(CortexStyle.ink).padding(.horizontal,12).padding(.vertical,4)
-        }.background(.white).overlay(alignment:.top) { CortexStyle.line.frame(height:1) }
+        }.frame(height:48).background(.white).overlay(alignment:.top) { CortexStyle.line.frame(height:1) }
             .confirmationDialog("Delete all ink on this page?",isPresented:$confirmClear,titleVisibility:.visible) {
                 Button("Delete ink",role:.destructive,action:clear)
             }
