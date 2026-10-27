@@ -4,7 +4,8 @@ import XCTest
 final class StudyTests: XCTestCase {
     func testAndroidReviewIntervalProgressionAndBounds() {
         var days = 0.0
-        for expected in [2.0, 4, 10, 30, 68, 180, 365] {
+        // Verified against Android's aiFlashcardNextIntervalDays: Math.round(4.5) is 5.
+        for expected in [2.0, 5, 11, 30, 68, 180, 365] {
             days = StudyProgress.nextInterval(current: days, grade: 2)
             XCTAssertEqual(days, expected)
         }
