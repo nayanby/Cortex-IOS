@@ -38,15 +38,35 @@ final class StudyProgress: ObservableObject {
     func review(entry: String, index: Int, grade: Int) {
         let key = entry + "/" + String(index)
         let previous = cards[key]
-        let days: Double
-        switch grade {
-        case 0: days = 10.0 / 1440
-        case 1: days = max(1, (previous?.interval ?? 1) * 1.2)
-        case 2: days = max(1, (previous?.interval ?? 0) * 2.5)
-        default: days = max(4, (previous?.interval ?? 1) * 3)
-        }
-        cards[key] = CardReview(due: Date().addingTimeInterval(days * 86_400), interval: days, reviews: (previous?.reviews ?? 0) + 1)
+        let days = Self.nextInterval(current: previous?.interval ?? 0, grade: grade,
+            retention: defaults.object(forKey: "study.retention") as? Double ?? 0.92,
+            maximum: defaults.object(forKey: "study.maxInterval") as? Double ?? 365)
+        let seconds = grade == 0 ? 600 : days * 86_400
+        cards[key] = CardReview(due: Date().addingTimeInterval(seconds), interval: days, reviews: (previous?.reviews ?? 0) + 1)
         if let data = try? JSONEncoder().encode(cards) { defaults.set(data, forKey: "study.cardReviews") }
+    }
+    // Port of aiFlashcardNextIntervalDays from the Android Consumer reader.
+    nonisolated static func nextInterval(current: Double, grade: Int, retention: Double = 0.92, maximum: Double = 365) -> Double {
+        if grade == 0 { return 0 }
+        if current < 1 { return grade == 1 ? 1 : grade == 2 ? 2 : 4 }
+        let factor = max(0.70, min(1.10, 0.92 / min(0.99, max(0.80, retention))))
+        let multiplier = grade == 1 ? 1.35 : grade == 2 ? 2.25 : 3.2
+        var next = max(1, (current * multiplier * factor).rounded())
+        if grade == 2 {
+            let minimum: Double = current <= 2 ? 4 : current <= 8 ? 10 : current <= 20 ? 30 : current <= 45 ? 60 : current <= 100 ? 180 : 365
+            next = max(next, minimum)
+        }
+        return min(max(1, maximum), next)
+    }
+    func dueQueue(_ entry: StudyEntry) -> [Int] {
+        guard let deck = entry.content.cards else { return [] }
+        let reviewed = deck.indices.filter { index in
+            guard let review = cards[entry.id + "/" + String(index)] else { return false }
+            return review.due <= Date()
+        }.sorted { cards[entry.id + "/" + String($0)]!.due < cards[entry.id + "/" + String($1)]!.due }
+        let newLimit = defaults.object(forKey: "study.newCards") as? Int ?? 30
+        let new = deck.indices.filter { cards[entry.id + "/" + String($0)] == nil }.prefix(max(0, newLimit))
+        return Array(reviewed.prefix(9999)) + new
     }
     func saveAttempt(entry: String, answers: [Int: Int], completed: Bool) {
         attempts[entry] = QuizAttempt(answers: answers, completed: completed)

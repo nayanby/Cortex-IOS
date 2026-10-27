@@ -30,7 +30,7 @@ Run this after downloading the latest device artifact. Injecting resources must 
 - Built-in iPad read-aloud with paragraph navigation, pause/resume, speed, saved position and audio-interruption handling. This uses Apple's voice rather than the Android cloud TTS backend.
 - Home reading/Snapshot recents, local storage information, and in-app help.
 
-These native implementations still require real-iPad interaction and visual acceptance. Android cloud study sync, exact revision algorithms, slide tools, cloud audiobook behavior, export quotas and all cross-platform saved-data round trips are not complete. See [port status](docs/PORT-STATUS.md).
+These native implementations still require real-iPad interaction and visual acceptance. Android cloud study sync, full revision-state parity, slide tools, cloud audiobook behavior, export quotas and all cross-platform saved-data round trips are not complete. See [port status](docs/PORT-STATUS.md).
 
 ## Cloud builds and tests
 

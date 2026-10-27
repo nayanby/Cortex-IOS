@@ -2,6 +2,17 @@ import XCTest
 @testable import Cortex
 
 final class StudyTests: XCTestCase {
+    func testAndroidReviewIntervalProgressionAndBounds() {
+        var days = 0.0
+        for expected in [2.0, 4, 10, 30, 68, 180, 365] {
+            days = StudyProgress.nextInterval(current: days, grade: 2)
+            XCTAssertEqual(days, expected)
+        }
+        XCTAssertEqual(StudyProgress.nextInterval(current: 30, grade: 0), 0)
+        XCTAssertEqual(StudyProgress.nextInterval(current: 10, grade: 3, maximum: 20), 20)
+        XCTAssertLessThan(StudyProgress.nextInterval(current: 30, grade: 2, retention: 0.99), StudyProgress.nextInterval(current: 30, grade: 2, retention: 0.80))
+    }
+
     @MainActor
     func testStudyAttemptReviewAndScoreSurviveRelaunch() throws {
         let suite = "cortex-study-tests-" + UUID().uuidString

@@ -5,10 +5,12 @@ struct StudyBrowser: View {
     var note: LibraryNote? = nil
     @ObservedObject private var library = StudyLibrary.shared
     @State private var query = ""
+    @State private var showingReviewSettings = false
+    @ObservedObject private var progress = StudyProgress.shared
     var body: some View {
         List {
             if let error = library.loadError { Text(error).foregroundStyle(.red) }
-            let entries = library.matching(kind: kind, note: note).filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) }
+            let entries = library.matching(kind: kind, note: note).filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) || $0.folder.localizedCaseInsensitiveContains(query) }
             if entries.isEmpty {
                 ContentUnavailableView("No saved \(kind.lowercased())", systemImage: "books.vertical", description: Text("No matching saved content is included in this local catalog."))
             }
@@ -17,11 +19,17 @@ struct StudyBrowser: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(entry.title).font(CortexStyle.title(17))
                         Text(entry.folder + " · " + entry.document).font(.caption).foregroundStyle(CortexStyle.muted)
+                        if let cards = entry.content.cards { Text("\(cards.count) cards · \(progress.dueQueue(entry).count) ready to review").font(.caption2) }
+                        if let questions = entry.content.questions { Text("\(questions.count) questions").font(.caption2) }
                     }
                 }
             }
         }.searchable(text: $query).navigationTitle(kind).navigationBarTitleDisplayMode(.inline)
             .toolbar(.visible, for: .navigationBar)
+            .toolbar {
+                if kind == "Flashcards" { Button { showingReviewSettings = true } label: { Label("Review settings", systemImage: "gearshape") } }
+            }
+            .sheet(isPresented: $showingReviewSettings) { ReviewSettingsView() }
     }
 }
 
@@ -29,6 +37,9 @@ struct StudyDetail: View {
     let entry: StudyEntry
     @State private var cardIndex = 0
     @State private var revealed = false
+    @State private var reviewQueue: [Int] = []
+    @State private var reviewReady = false
+    @State private var reviewFinished = false
     @State private var answers: [Int: Int] = [:]
     @ObservedObject private var progress = StudyProgress.shared
     @State private var recordedQuiz = false
@@ -40,6 +51,10 @@ struct StudyDetail: View {
             VStack(alignment: .leading, spacing: 18) {
                 Text(entry.content.title ?? entry.title).font(CortexStyle.title(24))
                 if let cards = entry.content.cards, !cards.isEmpty {
+                    if reviewFinished {
+                        ContentUnavailableView("No more cards in this session", systemImage: "checkmark.circle", description: Text("Your review ratings have been saved."))
+                        Button("Review all cards") { reviewQueue = Array(cards.indices); cardIndex = 0; reviewFinished = false }
+                    } else {
                     Text("Card \(cardIndex + 1) of \(cards.count)").font(.caption)
                     Text(.init(cards[cardIndex].front)).font(.title3).frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
                     Button(revealed ? "Hide answer" : "Show answer") { revealed.toggle() }.buttonStyle(.borderedProminent)
@@ -49,7 +64,10 @@ struct StudyDetail: View {
                             ForEach(Array(["Again", "Hard", "Good", "Easy"].enumerated()), id: \.offset) { grade, title in
                                 Button(title) {
                                     progress.review(entry: entry.id, index: cardIndex, grade: grade)
-                                    if cardIndex + 1 < cards.count { cardIndex += 1 }
+                                    reviewQueue.removeAll { $0 == cardIndex }
+                                    if grade == 0 { reviewQueue.append(cardIndex) }
+                                    if let next = reviewQueue.first { cardIndex = next }
+                                    else { reviewFinished = true }
                                     revealed = false
                                 }.buttonStyle(.bordered)
                             }
@@ -58,10 +76,7 @@ struct StudyDetail: View {
                     if let review = progress.cards[entry.id + "/" + String(cardIndex)] {
                         Text("Next review: " + review.due.formatted()).font(.caption)
                     }
-                    HStack {
-                        Button("Previous") { cardIndex -= 1; revealed = false }.disabled(cardIndex == 0)
-                        Spacer()
-                        Button("Next") { cardIndex += 1; revealed = false }.disabled(cardIndex + 1 >= cards.count)
+                    Text("\(reviewQueue.count) cards left in this session").font(.caption)
                     }
                 }
                 if let questions = entry.content.questions {
@@ -110,6 +125,12 @@ struct StudyDetail: View {
         }.background(CortexStyle.background).foregroundStyle(CortexStyle.ink)
             .onAppear {
                 progress.opened(entry)
+                if !reviewReady, entry.content.cards != nil {
+                    reviewQueue = progress.dueQueue(entry)
+                    cardIndex = reviewQueue.first ?? 0
+                    reviewFinished = reviewQueue.isEmpty
+                    reviewReady = true
+                }
                 if let attempt = progress.attempts[entry.id], let questions = entry.content.questions {
                     answers = attempt.answers.filter { questions.indices.contains($0.key) && questions[$0.key].options.indices.contains($0.value) }
                     recordedQuiz = attempt.completed
@@ -188,5 +209,23 @@ private struct SnapshotSectionView: View {
                 }
             }
         }.padding(16).frame(maxWidth: .infinity, alignment: .leading).background(.white, in: RoundedRectangle(cornerRadius: 14))
+    }
+}
+
+struct ReviewSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("study.retention") private var retention = 0.92
+    @AppStorage("study.maxInterval") private var maximum = 365.0
+    @AppStorage("study.newCards") private var newCards = 30
+    var body: some View {
+        NavigationStack {
+            Form {
+                Stepper("New cards per session: \(newCards)", value: $newCards, in: 1...500)
+                Stepper("Desired retention: \(retention * 100, specifier: "%.0f")%", value: $retention, in: 0.8...0.99, step: 0.01)
+                Stepper("Maximum interval: \(maximum, specifier: "%.0f") days", value: $maximum, in: 1...3650)
+                Text("Again returns the card to the session and schedules a 10-minute relearning interval. Other ratings follow the Consumer app’s interval progression.").font(.caption)
+                Button("Reset defaults") { newCards = 30; retention = 0.92; maximum = 365 }
+            }.navigationTitle("Review settings").toolbar { Button("Done") { dismiss() } }
+        }
     }
 }
