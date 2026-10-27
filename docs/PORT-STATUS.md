@@ -25,7 +25,7 @@ The private content lives only under ignored `build/OfflineLibrary` and in a loc
 
 ## Required acceptance and remaining parity
 
-- Compile and XCTest verification of the latest source, followed by physical iPad checks of notes, font controls, study navigation, notebook drawing/export and audio.
+- Physical iPad visual/interaction acceptance of notes, font controls, study navigation, notebook drawing/export and audio. The latest 21 automated tests passed.
 - Enter a personal Gemini key in the app and validate an actual generation request; automated tests use a fake transport and no real key.
 - Android/iOS screenshots and interactions at equivalent widths; complete visual parity is still unverified.
 - Cloud study sync, complete revision-state parity and cross-platform state migration. The local interval progression and Again requeue behavior now follow the Android implementation.
@@ -39,4 +39,6 @@ Imported notes must be preserved by replacing the existing installation using th
 
 Run [40422791574](https://github.com/nayanby/Cortex-IOS/actions/runs/40422791574) successfully built the earlier physical-device IPA and passed its 11 tests. That installation was opened on the user's iPad, but its online notes were unavailable because the signer changed the bundle identifier. The current workflow uses a matching registered sideload client. Offline bundles independently permit local-file testing without an account.
 
-Latest feature validation is in progress; compilation is not equivalent to complete parity or live OAuth/AI acceptance.
+Run [40488001731](https://github.com/nayanby/Cortex-IOS/actions/runs/40488001731) passed both device/simulator compilation and all 21 automated tests. Checks include Consumer Snapshot colours, nested lists/tables, escaped text, PDF export, exact pen palette and PDF markup-mode routing, in addition to the account/reader/study tests. The tested source differs from the installed app code only in the PencilKit floating-point assertion tolerance.
+
+The user confirmed manual installation of `Cortex-iPad-Offline-Updated.ipa` through iPASide. Both previously imported Word files were verified byte-for-byte against their local backups after the update. The final private package contains all 142 Word packages and 1,207 original study files, has the original CORTEX app icon, and limits its longest internal path to 128 characters. Main sections now use navigation destinations; Snapshot browsing follows subject → chapter → heading and uses the original Consumer stylesheet with safe structured rendering. Physical visual review is ongoing; complete parity and live OAuth/AI acceptance are not claimed.
