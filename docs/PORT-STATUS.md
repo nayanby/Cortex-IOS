@@ -21,7 +21,7 @@ The user requested a matching iOS Consumer app, then explicitly requested a priv
 
 142 Word packages (including one template), 3,112 headings, 549 Snapshots, 458 flashcard decks, 439 unique Qbank sets. All original study files are copied privately; duplicate display records are collapsed. Two empty flashcard files are reported; two unique Qbank questions lacking valid answer keys remain readable and unscored.
 
-The private content lives only under ignored `build/OfflineLibrary` and in a locally enriched unsigned IPA. It must be added before device signing. Cloud/public build artifacts contain no user-supplied document or study payloads.
+The private content lives only under ignored `build/OfflineLibrary` and in a locally enriched unsigned IPA. It must be added before device signing. Raw study files use short hashed paths and an original-path manifest so Windows signing stays below its path limit. Cloud/public build artifacts contain no user-supplied document or study payloads.
 
 ## Required acceptance and remaining parity
 
@@ -31,7 +31,7 @@ The private content lives only under ignored `build/OfflineLibrary` and in a loc
 - Cloud study sync, complete revision-state parity and cross-platform state migration. The local interval progression and Again requeue behavior now follow the Android implementation.
 - Exact Android slide layout, cloud TTS/audiobook behavior and media-control parity. Native AI slide creation/navigation/PDF export are implemented.
 - Full Android annotation anchors, movable notebook image layers, export quotas/formats and shared/personal data round trips. Native PDF writing copies do not modify the source DOCX.
-- App icon assets, distribution signing, TestFlight/App Store setup.
+- Distribution signing and TestFlight/App Store setup. The original CORTEX app icon is now configured for iPhone/iPad.
 
 Imported notes must be preserved by replacing the existing installation using the same sideload identity. Do not uninstall the existing app during update testing.
 

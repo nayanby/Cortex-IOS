@@ -6,7 +6,7 @@ Native iPhone/iPad port of Cortex Consumer, targeting iOS 17 and later. The Andr
 
 The user-supplied Windows library can be packaged privately into the unsigned device IPA. When this bundle is present, the app uses its local catalog before cached online catalogs and opens without sign-in. Production Firebase rules and permissions are unchanged.
 
-The current local import contains 141 DOCX notes and one Word template, 3,112 headings, 549 Snapshots, 458 flashcard decks (12,075 cards), and 439 unique Qbank sets (6,335 questions). Duplicate records are removed from the displayed catalog. Original study files are retained in the private bundle, including two empty flashcard files reported in `import-warnings.json`. Two unique questions have no valid answer key and are excluded from scoring.
+The current local import contains 141 DOCX notes and one Word template, 3,112 headings, 549 Snapshots, 458 flashcard decks (12,075 cards), and 439 unique Qbank sets (6,335 questions). Duplicate records are removed from the displayed catalog. Original study files are retained under short hashed filenames, with their original paths recorded in `source-files.json`, including two empty flashcard files reported in `import-warnings.json`. Two unique questions have no valid answer key and are excluded from scoring.
 
 Personal documents, study content, Firebase configuration and API keys are excluded from Git. The public repository contains source, artwork, the original metadata catalog and synthetic tests.
 
@@ -20,6 +20,7 @@ Run this after downloading the latest device artifact. Injecting resources must 
 
 ## Features
 
+- Original CORTEX app icon for iPhone and iPad.
 - Local catalog, subject/chapter navigation, heading search, Word imports and original Android DOCX rendering with tables, formulas and embedded images.
 - Reader font size, line spacing, paragraph spacing, outline, bookmarks, text highlights, and saved reading position.
 - Reader links to matching local Snapshots, Flashcards and Qbank; structured Snapshot sections, groups and tables.
