@@ -34,6 +34,14 @@ final class SnapshotTests: XCTestCase {
         XCTAssertTrue((result?["family"] as? String ?? "").contains("Lato"))
         XCTAssertEqual(result?["injected"] as? Bool,false)
         XCTAssertTrue((result?["text"] as? String ?? "").contains("<script>window.injected=true</script>"))
+        var previous:Double?
+        for delta in [1,2,3] {
+            _ = try await controller.webView.callAsyncJavaScript("return await window.cortexSnapshotType(delta,1.375,0.16);",arguments:["delta":delta],in:nil,contentWorld:.page)
+            let computed = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('.section-body')).fontSize)") as? Double
+            let size = try XCTUnwrap(computed)
+            if let previous { XCTAssertEqual(size-previous,4.0/3.0,accuracy:0.05,"Each Snapshot step must add exactly one point") }
+            previous = size
+        }
         let output = try await controller.exportPDF()
         defer { try? FileManager.default.removeItem(at:output) }
         XCTAssertGreaterThan((try Data(contentsOf:output)).count,1000)

@@ -58,14 +58,19 @@ final class StudyProgress: ObservableObject {
         }
         return min(max(1, maximum), next)
     }
+    nonisolated static func cardKey(_ entry:StudyEntry,index:Int) -> String {
+        guard let deck = entry.content.cards, deck.indices.contains(index) else { return entry.id + "/" + String(index) }
+        let card = deck[index]
+        return (card.sourceEntryID ?? entry.id) + "/" + String(card.sourceIndex ?? index)
+    }
     func dueQueue(_ entry: StudyEntry) -> [Int] {
         guard let deck = entry.content.cards else { return [] }
         let reviewed = deck.indices.filter { index in
-            guard let review = cards[entry.id + "/" + String(index)] else { return false }
+            guard let review = cards[Self.cardKey(entry,index:index)] else { return false }
             return review.due <= Date()
-        }.sorted { cards[entry.id + "/" + String($0)]!.due < cards[entry.id + "/" + String($1)]!.due }
+        }.sorted { cards[Self.cardKey(entry,index:$0)]!.due < cards[Self.cardKey(entry,index:$1)]!.due }
         let newLimit = defaults.object(forKey: "study.newCards") as? Int ?? 30
-        let new = deck.indices.filter { cards[entry.id + "/" + String($0)] == nil }.prefix(max(0, newLimit))
+        let new = deck.indices.filter { cards[Self.cardKey(entry,index:$0)] == nil }.prefix(max(0, newLimit))
         return Array(reviewed.prefix(9999)) + new
     }
     func saveAttempt(entry: String, answers: [Int: Int], completed: Bool) {

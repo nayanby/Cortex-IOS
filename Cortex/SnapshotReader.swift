@@ -163,7 +163,7 @@ struct SnapshotReader: View {
             .sheet(isPresented:$fonts) {
                 NavigationStack {
                     Form {
-                        Stepper("Font size: \(delta,specifier:"%+.2f") pt",value:$delta,in:-1.5...1.5,step:0.25)
+                        Stepper("Font size: \(12.25 + delta,specifier:"%.2f") pt",value:$delta,in:-1...12,step:1)
                         Stepper("Line spacing: \(line,specifier:"%.2f")",value:$line,in:1...2,step:0.0625)
                         Picker("Paragraph spacing",selection:$paragraph) {
                             ForEach([0.08,0.11313708498984761,0.16,0.22627416997969524,0.32],id:\.self) { Text($0.formatted(.number.precision(.fractionLength(2)))).tag($0) }
@@ -177,6 +177,6 @@ struct SnapshotReader: View {
             .onChange(of:paragraph) { _,_ in controller.applyType() }
             .sheet(isPresented:Binding(get:{exportURL != nil},set:{if !$0 { exportURL = nil }})) { if let exportURL { ShareSheet(items:[exportURL]) } }
             .alert("Snapshot",isPresented:Binding(get:{controller.error != nil},set:{if !$0 { controller.error = nil }})) { Button("OK") { controller.error = nil } } message: { Text(controller.error ?? "") }
-            .onAppear { StudyProgress.shared.opened(entry) }
+            .onAppear { delta = min(12,max(-1,delta.rounded())); StudyProgress.shared.opened(entry) }
     }
 }

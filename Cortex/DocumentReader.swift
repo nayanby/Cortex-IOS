@@ -256,6 +256,7 @@ struct DocumentReader: View {
                     .disabled(controller.headings.isEmpty)
             }
         }
+        .onAppear { fontDelta = min(12,max(-1,fontDelta.rounded())) }
         .onChange(of: fontDelta) { _, _ in controller.applyTypography() }
         .onChange(of: line) { _, _ in controller.applyTypography() }
         .onChange(of: paragraph) { _, _ in controller.applyTypography() }
@@ -279,7 +280,7 @@ struct DocumentReader: View {
         .sheet(isPresented: $showingFonts) {
             NavigationStack {
                 Form {
-                    Stepper("Font size: \(fontDelta, specifier: "%+.2f") pt", value: $fontDelta, in: -1.5...1.5, step: 0.25)
+                    Stepper("Font size: \(12.25 + fontDelta, specifier: "%.2f") pt", value: $fontDelta, in: -1...12, step: 1)
                     Stepper("Line spacing: \(line, specifier: "%.2f")", value: $line, in: 1...2, step: 0.0625)
                     Picker("Paragraph spacing", selection: $paragraph) {
                         ForEach([0.08, 0.11313708498984761, 0.16, 0.22627416997969524, 0.32], id: \.self) { value in

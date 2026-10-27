@@ -51,7 +51,7 @@
   let typographySerial = 0;
   window.cortexSetTypography = async (delta, line, paragraph) => {
     delta = Number(delta); line = Number(line); paragraph = Number(paragraph);
-    if (!Number.isFinite(delta) || delta < -1.5 || delta > 1.5 ||
+    if (!Number.isFinite(delta) || delta < -1.5 || delta > 12 ||
         !Number.isFinite(line) || line < 1 || line > 2 ||
         !Number.isFinite(paragraph) || paragraph < 0.08 || paragraph > 0.33) return false;
     const fraction = progress();

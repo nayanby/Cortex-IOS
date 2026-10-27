@@ -42,11 +42,15 @@ final class ReaderTests: XCTestCase {
         let baseline = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
         for _ in 0..<2 {
             let applied = try await controller.webView.callAsyncJavaScript("return window.cortexSetTypography(delta, line, paragraph);",
-                arguments: ["delta": 1.5, "line": 1.75, "paragraph": 0.32], in: nil, contentWorld: .page) as? Bool
+                arguments: ["delta": 1.0, "line": 1.75, "paragraph": 0.32], in: nil, contentWorld: .page) as? Bool
             XCTAssertEqual(applied, true)
             let enlarged = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
-            XCTAssertEqual(try XCTUnwrap(enlarged), try XCTUnwrap(baseline) + 2, accuracy: 0.05)
+            XCTAssertEqual(try XCTUnwrap(enlarged), try XCTUnwrap(baseline) + 4.0/3.0, accuracy: 0.05)
         }
+        let expanded = try await controller.webView.callAsyncJavaScript("return window.cortexSetTypography(3, 1.4375, 0.16);",arguments:[:],in:nil,contentWorld:.page) as? Bool
+        XCTAssertEqual(expanded,true,"Font adjustments must work beyond the old 1.5-point limit")
+        let large = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
+        XCTAssertEqual(try XCTUnwrap(large),try XCTUnwrap(baseline)+4,accuracy:0.05)
         _ = try await controller.webView.callAsyncJavaScript("return window.cortexSetTypography(0, 1.4375, 0.16);", arguments: [:], in: nil, contentWorld: .page)
         let reset = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
         XCTAssertEqual(try XCTUnwrap(reset), try XCTUnwrap(baseline), accuracy: 0.05)

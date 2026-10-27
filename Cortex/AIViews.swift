@@ -41,6 +41,7 @@ struct CreateStudyView: View {
     @Environment(\.dismiss) private var dismiss
     var note: LibraryNote? = nil
     var initialSource: String = ""
+    var initialKind: String = "Snapshots"
     @State private var kind = "Snapshots"
     @State private var topic = ""
     @State private var source = ""
@@ -49,6 +50,7 @@ struct CreateStudyView: View {
     @State private var error: String?
     @State private var created: StudyEntry?
     @State private var settings = false
+    @State private var initialized = false
     var body: some View {
         Form {
             Section("Create with AI") {
@@ -80,7 +82,7 @@ struct CreateStudyView: View {
         }.navigationTitle("Create with AI").navigationBarTitleDisplayMode(.inline)
             .toolbar(.visible, for: .navigationBar)
             .sheet(isPresented: $settings) { AISettingsView() }
-            .onAppear { if source.isEmpty { source = initialSource }; if topic.isEmpty { topic = note?.displayName ?? "" } }
+            .onAppear { if !initialized { kind = initialKind; source = initialSource; topic = note?.displayName ?? ""; initialized = true } }
             .onDisappear { task?.cancel() }
     }
     private func generate() {

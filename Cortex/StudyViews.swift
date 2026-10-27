@@ -9,6 +9,7 @@ struct StudyBrowser: View {
     @ObservedObject private var progress = StudyProgress.shared
     var body: some View {
         if kind == "Snapshots" { SnapshotLibraryView(note:note) }
+        else if kind == "Flashcards" || kind == "Qbank" { StudySelectionView(kind:kind,note:note) }
         else { browserBody }
     }
     private var browserBody: some View {
@@ -72,7 +73,7 @@ struct StudyDetail: View {
                         HStack {
                             ForEach(Array(["Again", "Hard", "Good", "Easy"].enumerated()), id: \.offset) { grade, title in
                                 Button(title) {
-                                    progress.review(entry: entry.id, index: cardIndex, grade: grade)
+                                    progress.review(entry: cards[cardIndex].sourceEntryID ?? entry.id, index: cards[cardIndex].sourceIndex ?? cardIndex, grade: grade)
                                     reviewQueue.removeAll { $0 == cardIndex }
                                     if grade == 0 { reviewQueue.append(cardIndex) }
                                     if let next = reviewQueue.first { cardIndex = next }
@@ -82,7 +83,7 @@ struct StudyDetail: View {
                             }
                         }
                     }
-                    if let review = progress.cards[entry.id + "/" + String(cardIndex)] {
+                    if let review = progress.cards[StudyProgress.cardKey(entry,index:cardIndex)] {
                         Text("Next review: " + review.due.formatted()).font(.caption)
                     }
                     Text("\(reviewQueue.count) cards left in this session").font(.caption)

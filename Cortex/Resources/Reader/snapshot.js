@@ -48,7 +48,7 @@
     return html + '</tbody></table></div>';
   }
   window.cortexSnapshotType = async (delta = 0, line = 1.375, paragraph = 0.16) => {
-    delta = Math.max(-1.5,Math.min(1.5,Number(delta)||0)); line = Math.max(1,Math.min(2,Number(line)||1.375)); paragraph = Math.max(0.08,Math.min(0.32,Number(paragraph)||0.16));
+    delta = Math.max(-1.5,Math.min(12,Number(delta)||0)); line = Math.max(1,Math.min(2,Number(line)||1.375)); paragraph = Math.max(0.08,Math.min(0.32,Number(paragraph)||0.16));
     const root = document.documentElement, body = Math.max(10.5,12.25+delta), leading = 1.5*line/1.375;
     const marker = Math.round((0.35*body-0.5)/body*1000)/1000, sub = Math.round((0.4*body-0.5)/body*1000)/1000;
     const values = {'--body-size':body+'pt','--table-size':(body-1)+'pt','--head-size':(15+delta)+'pt','--title-size':(17.25+delta)+'pt','--heading-line':1.125*line/1.375,'--paragraph-scale':paragraph/0.16,'--snapshot-gap':10*paragraph/0.16+'px','--body-lh':leading,'--bullet-marker-size':marker+'em','--sub-marker-size':sub+'em','--bullet-marker-top':((leading-marker)/2)+'em','--sub-marker-top':((leading-sub)/2)+'em'};

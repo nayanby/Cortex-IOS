@@ -2,6 +2,34 @@ import XCTest
 @testable import Cortex
 
 final class StudyTests: XCTestCase {
+    func testSubjectAndChapterSelectionExcludesOtherStudySets() throws {
+        func entry(_ id:String,_ kind:String,_ folder:String,_ document:String) throws -> StudyEntry {
+            let source = kind == "Qbank" ? #"{"questions":[{"question":"Q","options":["A","B"],"correctIndex":0,"explanation":"E"}]}"# : #"{"cards":[{"front":"Q","back":"A"}]}"#
+            let content = try JSONDecoder().decode(StudyContent.self,from:Data(source.utf8))
+            return StudyEntry(id:id,kind:kind,document:document,folder:folder,title:id,content:content)
+        }
+        let rows = try [entry("a","Flashcards","Cardiology","I. Heart"),entry("b","Flashcards","Cardiology","II. ECG"),entry("c","Flashcards","Neurology","I. Heart"),entry("d","Qbank","Cardiology","I. Heart")]
+        XCTAssertEqual(StudySelection.scope(rows,kind:"Flashcards",subject:"cardiology",chapter:nil).map(\.id),["a","b"])
+        XCTAssertEqual(StudySelection.scope(rows,kind:"Flashcards",subject:"Cardiology",chapter:"I. Heart").map(\.id),["a"])
+        XCTAssertEqual(StudySelection.scope(rows,kind:"Qbank",subject:"Cardiology",chapter:"I. Heart").map(\.id),["d"])
+    }
+    @MainActor
+    func testCombinedFlashcardsKeepOriginalReviewProgress() throws {
+        let content = try JSONDecoder().decode(StudyContent.self,from:Data(#"{"cards":[{"front":"First","back":"Answer"},{"front":"Second","back":"Answer"}]}"#.utf8))
+        let a = StudyEntry(id:"deck-a",kind:"Flashcards",document:"A",folder:"Cardiology",title:"A",content:content)
+        let b = StudyEntry(id:"deck-b",kind:"Flashcards",document:"B",folder:"Neurology",title:"B",content:content)
+        let combined = StudySelection.aggregate([a,b],kind:"Flashcards",title:"Selected subjects")
+        XCTAssertEqual(combined.content.cards?.count,4)
+        XCTAssertEqual(combined.id,StudySelection.aggregate([b,a],kind:"Flashcards",title:"Selected subjects").id)
+        XCTAssertEqual(StudyProgress.cardKey(combined,index:0),"deck-a/0")
+        let suite = "selection-tests-"+UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName:suite));defer { defaults.removePersistentDomain(forName:suite) }
+        let progress = StudyProgress(defaults:defaults)
+        progress.review(entry:a.id,index:0,grade:2)
+        XCTAssertFalse(progress.dueQueue(combined).contains(0))
+        XCTAssertEqual(progress.dueQueue(combined).count,3)
+    }
+
     func testAndroidReviewIntervalProgressionAndBounds() {
         var days = 0.0
         // Verified against Android's aiFlashcardNextIntervalDays: Math.round(4.5) is 5.

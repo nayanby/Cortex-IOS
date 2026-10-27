@@ -33,7 +33,12 @@ struct StudyContent: Codable {
     var cards: [StudyCard]?
     var questions: [StudyQuestion]?
 }
-struct StudyCard: Codable { let front: String; let back: String }
+struct StudyCard: Codable {
+    let front: String
+    let back: String
+    var sourceEntryID: String? = nil
+    var sourceIndex: Int? = nil
+}
 struct StudyQuestion: Codable {
     let question: String
     let options: [String]
