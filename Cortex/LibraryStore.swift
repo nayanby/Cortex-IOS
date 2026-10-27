@@ -15,7 +15,9 @@ final class LibraryStore: ObservableObject {
     init() {
         cachedCatalog = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("cortex-catalog.json")
-        if let data = try? Data(contentsOf: cachedCatalog), let saved = try? JSONDecoder().decode(LibraryCatalog.self, from: data) {
+        if let local = OfflineLibrary.catalog {
+            catalog = local
+        } else if let data = try? Data(contentsOf: cachedCatalog), let saved = try? JSONDecoder().decode(LibraryCatalog.self, from: data) {
             catalog = saved
         } else {
             do { catalog = try LibraryCatalog.load() }
@@ -34,7 +36,7 @@ final class LibraryStore: ObservableObject {
     func refresh(profile: ConsumerProfile) async {
         // Like Android: free accounts use the shipped/cached catalog and can read
         // notes; full/trial/beta accounts also receive remote catalog updates.
-        guard profile.hasFullAccess(), !isRefreshing, let existing = catalog else { return }
+        guard !OfflineLibrary.available, profile.hasFullAccess(), !isRefreshing, let existing = catalog else { return }
         isRefreshing = true
         defer { isRefreshing = false }
         do {

@@ -51,6 +51,11 @@ jobs:
           name: Cortex-Appetize
           path: build/Cortex-Appetize.zip
           if-no-files-found: error
+      - name: Prepare matching private iPad sideload configuration
+        env:
+          CORTEX_FIREBASE_PLIST: ${{ secrets.FIREBASE_IOS_SIDELOAD_CONFIG_PLIST || secrets.FIREBASE_IOS_CONFIG_PLIST }}
+          CORTEX_REPLACE_FIREBASE_CONFIG: '1'
+        run: python3 scripts/prepare-firebase.py
       - name: Build unsigned app for iPad and iPhone
         run: >-
           xcodebuild -project Cortex.xcodeproj -scheme Cortex
@@ -70,6 +75,12 @@ jobs:
           name: Cortex-iPad-Unsigned
           path: device-package/Cortex-iPad-Unsigned.ipa
           if-no-files-found: error
+      - name: Restore standard client configuration for simulator tests
+        if: always()
+        env:
+          CORTEX_FIREBASE_PLIST: ${{ secrets.FIREBASE_IOS_CONFIG_PLIST }}
+          CORTEX_REPLACE_FIREBASE_CONFIG: '1'
+        run: python3 scripts/prepare-firebase.py
       - name: Run account, download and reader integration tests
         timeout-minutes: 20
         run: |

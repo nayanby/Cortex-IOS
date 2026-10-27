@@ -43,6 +43,29 @@
     reportProgress();
     return true;
   };
+  const originalSizes = new WeakMap();
+  window.cortexSetTypography = (delta, line, paragraph) => {
+    delta = Number(delta); line = Number(line); paragraph = Number(paragraph);
+    if (!Number.isFinite(delta) || delta < -1.5 || delta > 1.5 ||
+        !Number.isFinite(line) || line < 1 || line > 2 ||
+        !Number.isFinite(paragraph) || paragraph < 0.08 || paragraph > 0.33) return false;
+    const fraction = progress();
+    const elements = [...document.querySelectorAll('#paper *')].filter(el => !el.closest('svg, math'));
+    // Capture the whole tree before changing any inherited styles.
+    for (const el of elements) {
+      if (!originalSizes.has(el)) originalSizes.set(el, parseFloat(getComputedStyle(el).fontSize));
+    }
+    for (const el of elements) {
+      const original = originalSizes.get(el);
+      if (Number.isFinite(original)) el.style.fontSize = Math.max(4, original + delta * 96 / 72) + 'px';
+    }
+    for (const el of document.querySelectorAll('#paper .doc-p')) {
+      el.style.lineHeight = String(line);
+      el.style.marginBottom = paragraph + 'em';
+    }
+    window.scrollTo(0, fraction * Math.max(0, document.documentElement.scrollHeight - innerHeight));
+    return true;
+  };
   window.cortexReadingProgress = progress;
   window.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);

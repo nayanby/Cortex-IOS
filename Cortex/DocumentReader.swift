@@ -58,9 +58,21 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
                           let level = item["level"] as? Int else { return nil }
                     return ReaderHeading(id: index, text: text, level: level)
                 }
+                applyTypography()
                 isLoading = false
             } catch is CancellationError { }
             catch { fail("Could not open this Word document. \(error.localizedDescription)") }
+        }
+    }
+
+    func applyTypography() {
+        let defaults = UserDefaults.standard
+        let delta = defaults.double(forKey: "reader.fontDelta")
+        let line = defaults.object(forKey: "reader.line") as? Double ?? 1.4375
+        let paragraph = defaults.object(forKey: "reader.paragraph") as? Double ?? 0.16
+        Task {
+            _ = try? await webView.callAsyncJavaScript("return window.cortexSetTypography(delta, line, paragraph);",
+                arguments: ["delta": delta, "line": line, "paragraph": paragraph], in: nil, contentWorld: .page)
         }
     }
 
@@ -119,13 +131,22 @@ struct DocumentReader: View {
     let document: LocalDocument
     let fileURL: URL
     let allowsSharing: Bool
+    let note: LibraryNote?
     @StateObject private var controller: ReaderController
     @State private var showingOutline = false
+    @State private var showingFonts = false
+    @State private var studyKind: String?
+    @State private var showingCreate = false
+    @State private var sourceText = ""
+    @AppStorage("reader.fontDelta") private var fontDelta = 0.0
+    @AppStorage("reader.line") private var line = 1.4375
+    @AppStorage("reader.paragraph") private var paragraph = 0.16
 
-    init(document: LocalDocument, fileURL: URL, allowsSharing: Bool = true) {
+    init(document: LocalDocument, fileURL: URL, allowsSharing: Bool = true, note: LibraryNote? = nil) {
         self.document = document
         self.fileURL = fileURL
         self.allowsSharing = allowsSharing
+        self.note = note
         _controller = StateObject(wrappedValue: ReaderController(fileURL: fileURL, documentID: document.id))
     }
 
@@ -143,11 +164,47 @@ struct DocumentReader: View {
         .navigationTitle(document.title).navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
+                Button { showingFonts = true } label: { Label("Font settings", systemImage: "textformat.size") }
+                Menu {
+                    ForEach(["Snapshots", "Flashcards", "Qbank"], id: \.self) { kind in
+                        Button(kind) { studyKind = kind }
+                    }
+                    Button("Create with AI") {
+                        Task {
+                            sourceText = (try? await controller.webView.evaluateJavaScript("document.getElementById('paper').innerText")) as? String ?? ""
+                            showingCreate = true
+                        }
+                    }.disabled(controller.isLoading || controller.errorMessage != nil)
+                } label: { Label("Study tools", systemImage: "rectangle.stack") }
                 if allowsSharing {
                     ShareLink(item: fileURL) { Label("Share Word document", systemImage: "square.and.arrow.up") }
                 }
                 Button { showingOutline = true } label: { Label("Outline", systemImage: "list.bullet") }
                     .disabled(controller.headings.isEmpty)
+            }
+        }
+        .onChange(of: fontDelta) { _, _ in controller.applyTypography() }
+        .onChange(of: line) { _, _ in controller.applyTypography() }
+        .onChange(of: paragraph) { _, _ in controller.applyTypography() }
+        .sheet(isPresented: $showingCreate) { NavigationStack { CreateStudyView(note: note, initialSource: sourceText) } }
+        .sheet(isPresented: $showingFonts) {
+            NavigationStack {
+                Form {
+                    Stepper("Font size: \(fontDelta, specifier: "%+.2f") pt", value: $fontDelta, in: -1.5...1.5, step: 0.25)
+                    Stepper("Line spacing: \(line, specifier: "%.2f")", value: $line, in: 1...2, step: 0.0625)
+                    Picker("Paragraph spacing", selection: $paragraph) {
+                        ForEach([0.08, 0.11313708498984761, 0.16, 0.22627416997969524, 0.32], id: \.self) { value in
+                            Text(value.formatted(.number.precision(.fractionLength(2)))).tag(value)
+                        }
+                    }
+                    Button("Reset to default") { fontDelta = 0; line = 1.4375; paragraph = 0.16 }
+                }.navigationTitle("Font settings").toolbar { Button("Done") { showingFonts = false } }
+            }.presentationDetents([.medium])
+        }
+        .sheet(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
+            NavigationStack {
+                StudyBrowser(kind: studyKind ?? "Snapshots", note: note)
+                    .toolbar { Button("Done") { studyKind = nil } }
             }
         }
         .sheet(isPresented: $showingOutline) {

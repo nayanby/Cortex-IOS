@@ -39,6 +39,17 @@ final class ReaderTests: XCTestCase {
         XCTAssertEqual(fontReady, true)
         let restored = try await controller.webView.evaluateJavaScript("window.cortexReadingProgress()") as? Double
         XCTAssertEqual(try XCTUnwrap(restored), 0.35, accuracy: 0.02)
+        let baseline = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
+        for _ in 0..<2 {
+            let applied = try await controller.webView.callAsyncJavaScript("return window.cortexSetTypography(delta, line, paragraph);",
+                arguments: ["delta": 1.5, "line": 1.75, "paragraph": 0.32], in: nil, contentWorld: .page) as? Bool
+            XCTAssertEqual(applied, true)
+            let enlarged = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
+            XCTAssertEqual(try XCTUnwrap(enlarged), try XCTUnwrap(baseline) + 2, accuracy: 0.05)
+        }
+        _ = try await controller.webView.callAsyncJavaScript("return window.cortexSetTypography(0, 1.4375, 0.16);", arguments: [:], in: nil, contentWorld: .page)
+        let reset = try await controller.webView.evaluateJavaScript("parseFloat(getComputedStyle(document.querySelector('#paper .doc-p')).fontSize)") as? Double
+        XCTAssertEqual(try XCTUnwrap(reset), try XCTUnwrap(baseline), accuracy: 0.05)
         let jumped = try await controller.webView.callAsyncJavaScript("return window.cortexJumpToHeading(index);",
             arguments: ["index": 0], in: nil, contentWorld: .page) as? Bool
         XCTAssertEqual(jumped, true)

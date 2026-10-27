@@ -24,12 +24,12 @@ enum FirebaseSetup {
 
     // Validate before invoking the SDK: an accidental Android or other-project
     // configuration must never initialize the consumer app against that backend.
-    static func validate(_ data: Data) throws {
+    static func validate(_ data: Data, expectedBundleID: String = bundleID) throws {
         guard let fields = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
             throw FirebaseConfigurationError.invalidPropertyList
         }
         guard fields["PROJECT_ID"] as? String == projectID else { throw FirebaseConfigurationError.wrongProject }
-        guard fields["BUNDLE_ID"] as? String == bundleID else { throw FirebaseConfigurationError.wrongBundle }
+        guard fields["BUNDLE_ID"] as? String == expectedBundleID else { throw FirebaseConfigurationError.wrongBundle }
         guard let appID = fields["GOOGLE_APP_ID"] as? String,
               appID.hasPrefix("1:"), appID.contains(":ios:"),
               let sender = fields["GCM_SENDER_ID"] as? String,
@@ -58,7 +58,8 @@ enum FirebaseSetup {
             return .missingConfiguration
         }
         do {
-            try validate(Data(contentsOf: file))
+            let buildBundleID = bundle.object(forInfoDictionaryKey: "CortexFirebaseBundleID") as? String ?? bundleID
+            try validate(Data(contentsOf: file), expectedBundleID: buildBundleID)
             guard let options = FirebaseOptions(contentsOfFile: file.path),
                   options.bundleID == Bundle.main.bundleIdentifier else { return .rejectedConfiguration }
             #if DEBUG && targetEnvironment(simulator)

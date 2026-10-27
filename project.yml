@@ -50,7 +50,7 @@ targets:
       Release: Config/Firebase.generated.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.cortex.notes
+        PRODUCT_BUNDLE_IDENTIFIER: $(CORTEX_BUNDLE_ID)
         # Keep development builds usable until the final iOS icon set is supplied.
         ASSETCATALOG_COMPILER_APPICON_NAME: ''
         GENERATE_INFOPLIST_FILE: YES
@@ -60,6 +60,7 @@ targets:
     info:
       path: Generated/Info.plist
       properties:
+        CortexFirebaseBundleID: $(CORTEX_BUNDLE_ID)
         FirebaseAppDelegateProxyEnabled: false
         CFBundleURLTypes:
           - CFBundleURLSchemes: ['$(CORTEX_GOOGLE_URL_SCHEME)']

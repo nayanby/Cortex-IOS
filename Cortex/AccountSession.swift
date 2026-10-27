@@ -36,6 +36,7 @@ enum AccountFailurePolicy {
 final class AccountSession: ObservableObject {
     @Published private(set) var profile: ConsumerProfile?
     @Published private(set) var configurationAvailable = false
+    @Published private(set) var configurationStatus: FirebaseSetup.Status = .missingConfiguration
     @Published private(set) var isRestoring = false
     @Published private(set) var isSigningIn = false
     @Published var errorMessage: String?
@@ -49,7 +50,8 @@ final class AccountSession: ObservableObject {
     func start() {
         guard !started else { return }
         started = true
-        configurationAvailable = FirebaseSetup.configure() == .configured
+        configurationStatus = FirebaseSetup.configure()
+        configurationAvailable = configurationStatus == .configured
         guard configurationAvailable else { return }
         isRestoring = true
         listener = Auth.auth().addStateDidChangeListener { [weak self] _, _ in

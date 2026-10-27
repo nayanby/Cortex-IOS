@@ -2,12 +2,14 @@
 import os
 import pathlib
 import plistlib
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def validate(fields):
-    if fields.get("PROJECT_ID") != "cortex-v1b" or fields.get("BUNDLE_ID") != "com.cortex.notes":
+    bundle_id = fields.get("BUNDLE_ID", "")
+    if fields.get("PROJECT_ID") != "cortex-v1b" or not re.fullmatch(r"com\.cortex\.notes(?:\.[A-Z0-9]{10})?", bundle_id):
         raise ValueError("Firebase project or bundle ID does not match CORTEX iOS")
     if not str(fields.get("GOOGLE_APP_ID", "")).startswith("1:302875225635:ios:"):
         raise ValueError("Configuration must belong to the registered Apple app")
@@ -29,15 +31,23 @@ def main():
         validate(fields)
         target.write_bytes(plistlib.dumps(fields))
         target.chmod(0o600)
+    elif os.environ.get("CORTEX_REPLACE_FIREBASE_CONFIG") == "1":
+        # Ephemeral CI may switch from a device client back to an unconfigured
+        # simulator build. Do not retain the previous client's plist.
+        target.unlink(missing_ok=True)
     scheme = "com.cortex.notes.unconfigured"
+    bundle_id = "com.cortex.notes"
     if target.exists():
-        scheme = validate(plistlib.loads(target.read_bytes())) or scheme
+        fields = plistlib.loads(target.read_bytes())
+        scheme = validate(fields) or scheme
+        bundle_id = fields["BUNDLE_ID"]
         print("Validated local Firebase Apple configuration.")
     else:
         print("No live Firebase config supplied; building offline preview and emulator tests.")
     (directory / "Firebase.generated.xcconfig").write_text(
         "// Generated locally; contains only the Google callback scheme.\n"
-        f"CORTEX_GOOGLE_URL_SCHEME = {scheme}\n", encoding="utf-8")
+        f"CORTEX_GOOGLE_URL_SCHEME = {scheme}\n"
+        f"CORTEX_BUNDLE_ID = {bundle_id}\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

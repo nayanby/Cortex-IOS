@@ -11,9 +11,12 @@ struct SharedNoteView: View {
 
     var body: some View {
         Group {
-            if let profile = session.profile, let localURL {
+            if let bundled = OfflineLibrary.file(for: note) {
+                DocumentReader(document: LocalDocument(id: SharedDocumentCache.identifier(for: "offline/" + note.path),
+                    title: note.displayName, importedAt: .distantPast), fileURL: bundled, allowsSharing: false, note: note)
+            } else if let profile = session.profile, let localURL {
                 DocumentReader(document: LocalDocument(id: SharedDocumentCache.identifier(for: profile.uid + "/" + note.path),
-                    title: note.displayName, importedAt: .distantPast), fileURL: localURL, allowsSharing: false)
+                    title: note.displayName, importedAt: .distantPast), fileURL: localURL, allowsSharing: false, note: note)
             } else if session.profile == nil, let preview = PreviewLibrary.file(for: note) {
                 DocumentReader(document: LocalDocument(id: SharedDocumentCache.identifier(for: "preview/" + note.path),
                     title: note.displayName, importedAt: .distantPast), fileURL: preview, allowsSharing: false)
@@ -34,7 +37,7 @@ struct SharedNoteView: View {
         }
         .navigationTitle(note.displayName).navigationBarTitleDisplayMode(.inline)
         .task(id: "\(session.profile?.uid ?? ""):\(attempt)") {
-            guard let profile = session.profile else { return }
+            guard OfflineLibrary.file(for: note) == nil, let profile = session.profile else { return }
             localURL = nil; errorMessage = nil; progress = 0
             do {
                 let file = try await library.document(note, profile: profile) { value in

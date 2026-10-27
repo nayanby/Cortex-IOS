@@ -54,6 +54,9 @@ struct ConsumerHomeView: View {
     @State private var searching = false
     @State private var query = ""
     @State private var pendingFeature: String?
+    @State private var studyKind: String?
+    @State private var showingAISettings = false
+    @State private var showingCreate = false
 
     var body: some View {
         NavigationStack {
@@ -73,12 +76,21 @@ struct ConsumerHomeView: View {
                 .background(CortexStyle.background)
                 .overlay(alignment: .bottom) {
                     CortexBottomNavigation { item in
-                        if item != "home" { pendingFeature = item == "quiz" ? "Qbank" : item.capitalized }
+                        if item == "create" { showingCreate = true }
+                        else if item != "home" { studyKind = item == "quiz" ? "Qbank" : "Flashcards" }
                     }
                 }
                 if drawer { drawerContents }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $showingAISettings) { AISettingsView() }
+            .sheet(isPresented: $showingCreate) { NavigationStack { CreateStudyView() } }
+            .sheet(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
+                NavigationStack {
+                    StudyBrowser(kind: studyKind ?? "Snapshots")
+                        .toolbar { Button("Done") { studyKind = nil } }
+                }
+            }
             .sheet(isPresented: $showAccount) { ConsumerAccountView() }
             .alert("iOS port in progress", isPresented: Binding(get: { pendingFeature != nil }, set: { if !$0 { pendingFeature = nil } })) {
                 Button("OK") { pendingFeature = nil }
@@ -99,12 +111,12 @@ struct ConsumerHomeView: View {
                 Text("Find your first topic").font(.system(size: 14, weight: .medium)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 48).background(CortexStyle.ink, in: RoundedRectangle(cornerRadius: 14))
             }.buttonStyle(.plain)
-            Button { pendingFeature = "Flashcards" } label: {
+            Button { studyKind = "Flashcards" } label: {
                 HStack(spacing: 10) {
                     CortexArtwork(name: "star", size: 32)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Flashcards due today").font(CortexStyle.title(16))
-                        Text("No cards yet. Open a topic to start studying.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
+                        Text("Browse saved flashcard decks.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
                     }
                     Spacer(minLength: 0)
                     CortexArtwork(name: "right", size: 22)
@@ -113,7 +125,7 @@ struct ConsumerHomeView: View {
             NavigationLink { LibraryView(accountID: session.profile?.uid) } label: {
                 homeCard("DEEP DIVE", "Long form notes, flashcards and Qbank", "book", 0xEAF3FC, 0xCFE1F5)
             }.buttonStyle(.plain)
-            Button { pendingFeature = "Snapshots" } label: { homeCard("SNAPSHOTS", "Concise notes", "snapshot", 0xF0E8EB, 0xE1D0DC) }.buttonStyle(.plain)
+            Button { studyKind = "Snapshots" } label: { homeCard("SNAPSHOTS", "Concise notes", "snapshot", 0xF0E8EB, 0xE1D0DC) }.buttonStyle(.plain)
             Button { pendingFeature = "PDFs" } label: { homeCard("PDFS", "Import a PDF and mark it with the pen", "pdf", 0xE8F2EA, 0xCFE4D4) }.buttonStyle(.plain)
             Button { pendingFeature = "Notebooks" } label: { homeCard("NOTEBOOKS", "Same paper width as notes, blank or 8 mm ruling", "notebook", 0xF6EFE4, 0xE8D9C4) }.buttonStyle(.plain)
             Text("Previously Reviewed").font(CortexStyle.title(16)).padding(.top, 8)
@@ -156,8 +168,10 @@ struct ConsumerHomeView: View {
                 NavigationLink { LibraryView(accountID: session.profile?.uid) } label: { drawerRow("Deep dive", "book") }
                     .simultaneousGesture(TapGesture().onEnded { drawer = false })
                 ForEach([("Snapshots", "snapshot"), ("Notebooks", "notebook"), ("PDFs", "pdf"), ("Performance", "quiz"), ("Storage", "storage")], id: \.0) { item in
-                    Button { drawer = false; pendingFeature = item.0 } label: { drawerRow(item.0, item.1) }
+                    Button { drawer = false; if item.0 == "Snapshots" { studyKind = "Snapshots" } else { pendingFeature = item.0 } } label: { drawerRow(item.0, item.1) }
                 }
+                Button { drawer = false; showingAISettings = true } label: { drawerRow("AI settings", "settings") }
+                Button { drawer = false; showingCreate = true } label: { drawerRow("Create with AI", "create") }
                 Button { drawer = false; if session.profile != nil { showAccount = true } else { pendingFeature = "Account sign-in" } } label: { drawerRow("Account", "settings") }
                 Button { drawer = false; pendingFeature = "How-to" } label: { drawerRow("How-to", "help") }
                 Spacer()

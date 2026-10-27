@@ -13,6 +13,15 @@ final class FirebaseSetupTests: XCTestCase {
         XCTAssertNoThrow(try FirebaseSetup.validate(config()))
     }
 
+    func testSideloadConfigurationMustMatchItsRegisteredBuildIdentifier() throws {
+        let signedID = "com.cortex.notes.TESTTEAM01"
+        let data = try config(changing: "BUNDLE_ID", to: signedID)
+        XCTAssertNoThrow(try FirebaseSetup.validate(data, expectedBundleID: signedID))
+        XCTAssertThrowsError(try FirebaseSetup.validate(data)) {
+            XCTAssertEqual($0 as? FirebaseConfigurationError, .wrongBundle)
+        }
+    }
+
     func testRejectsWrongProjectAndBundle() throws {
         XCTAssertThrowsError(try FirebaseSetup.validate(config(changing: "PROJECT_ID", to: "other-project"))) {
             XCTAssertEqual($0 as? FirebaseConfigurationError, .wrongProject)

@@ -6,13 +6,21 @@ struct CortexRootView: View {
     @StateObject private var library = LibraryStore()
     @Environment(\.scenePhase) private var scenePhase
     @State private var started = false
+    @State private var browsingOffline = false
 
     var body: some View {
         Group {
             if !started { ProgressView("Opening Cortex…") }
+            else if OfflineLibrary.available { ConsumerHomeView() }
             else if !session.configurationAvailable {
                 #if DEBUG
-                ConsumerHomeView()
+                if session.configurationStatus == .rejectedConfiguration, !browsingOffline {
+                    VStack(spacing: 20) {
+                        ContentUnavailableView("Online notes unavailable", systemImage: "person.crop.circle.badge.exclamationmark",
+                            description: Text("Install an updated CORTEX build to sign in. You can still browse the catalog and read imported files."))
+                        Button("Browse offline") { browsingOffline = true }.buttonStyle(.borderedProminent)
+                    }
+                } else { ConsumerHomeView() }
                 #else
                 ContentUnavailableView("Cortex isn't ready on this build", systemImage: "book.closed",
                                        description: Text("Please install an updated build."))
