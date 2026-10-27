@@ -47,9 +47,12 @@ struct StudySelectionView: View {
     private var entries: [StudyEntry] { StudySelection.scope(library.entries,kind:kind,subject:currentSubject,chapter:currentChapter) }
     private var isSubjects: Bool { currentSubject == nil }
     private var isChapters: Bool { currentSubject != nil && currentChapter == nil }
+    private var visibleEntries: [StudyEntry] {
+        entries.filter { query.isEmpty || $0.folder.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) || $0.title.localizedCaseInsensitiveContains(query) }
+    }
     private var chosen: [StudyEntry] {
-        guard !selected.isEmpty else { return entries }
-        return entries.filter { selected.contains(isSubjects ? $0.folder : isChapters ? $0.document : $0.id) }
+        guard !selected.isEmpty else { return visibleEntries }
+        return entries.filter { selected.contains("subject:" + $0.folder) || selected.contains("chapter:" + $0.document) || selected.contains("entry:" + $0.id) }
     }
     var body: some View {
         ScrollView {
@@ -62,13 +65,13 @@ struct StudySelectionView: View {
                 if let error = library.loadError { Text(error).foregroundStyle(.red) }
                 if entries.isEmpty { ContentUnavailableView("No saved \(kind.lowercased())",systemImage:"books.vertical",description:Text("Create a set with AI to study this topic.")) }
                 if !query.isEmpty {
-                    ForEach(entries.filter { $0.folder.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) || $0.title.localizedCaseInsensitiveContains(query) }) { entry in
+                    ForEach(visibleEntries) { entry in
                         entryRow(entry)
                     }
                 } else if isSubjects {
                     ForEach(Array(Set(entries.map(\.folder))).sorted { $0.localizedStandardCompare($1) == .orderedAscending },id:\.self) { name in
                         HStack(spacing:6) {
-                            check(name)
+                            check("subject:" + name,title:name)
                             NavigationLink { StudySelectionView(kind:kind,subject:name) } label: {
                                 LibraryCard(title:name,subtitle:summary(entries.filter { $0.folder == name }),symbol:"books.vertical")
                             }.buttonStyle(.plain)
@@ -77,7 +80,7 @@ struct StudySelectionView: View {
                 } else if isChapters {
                     ForEach(chapters,id:\.self) { name in
                         HStack(spacing:6) {
-                            check(name)
+                            check("chapter:" + name,title:name)
                             NavigationLink { StudySelectionView(kind:kind,subject:currentSubject,chapter:name) } label: {
                                 LibraryCard(title:name,subtitle:summary(entries.filter { $0.document == name }),symbol:"doc.text")
                             }.buttonStyle(.plain)
@@ -96,25 +99,25 @@ struct StudySelectionView: View {
             }
             .safeAreaInset(edge:.bottom,spacing:0) {
                 if !entries.isEmpty {
-                    Button { combined = StudySelection.aggregate(chosen,kind:kind,title:currentChapter ?? currentSubject ?? (selected.isEmpty ? "All subjects" : "Selected subjects"),catalog:catalog.catalog) } label: {
+                    Button { combined = StudySelection.aggregate(chosen,kind:kind,title:currentChapter ?? currentSubject ?? (selected.isEmpty ? (query.isEmpty ? "All subjects" : "Search results") : "Selected subjects"),catalog:catalog.catalog) } label: {
                         VStack(spacing:3) {
                             Text(kind == "Flashcards" ? "Review \(selected.isEmpty ? "all" : "selection")" : "Solve \(selected.isEmpty ? "all" : "selection")").font(CortexStyle.title(17))
                             Text(summary(chosen)).font(.system(size:12))
                         }.frame(maxWidth:.infinity).padding(12)
-                    }.buttonStyle(.borderedProminent).padding(12).background(.white)
+                    }.buttonStyle(.borderedProminent).disabled(chosen.isEmpty).padding(12).background(.white)
                 }
             }
             .navigationDestination(isPresented:Binding(get:{combined != nil},set:{if !$0 { combined = nil }})) { if let combined { StudyDetail(entry:combined) } }
             .sheet(isPresented:$reviewSettings) { ReviewSettingsView() }
     }
-    private func check(_ id:String) -> some View {
+    private func check(_ id:String,title:String) -> some View {
         Button { if selected.contains(id) { selected.remove(id) } else { selected.insert(id) } } label: {
             Image(systemName:selected.contains(id) ? "checkmark.square.fill" : "square").font(.system(size:22)).frame(width:36,height:48)
-        }.buttonStyle(.plain).accessibilityLabel(selected.contains(id) ? "Deselect" : "Select")
+        }.buttonStyle(.plain).accessibilityLabel((selected.contains(id) ? "Deselect " : "Select ") + title)
     }
     private func entryRow(_ entry:StudyEntry) -> some View {
         HStack(spacing:6) {
-            check(isSubjects ? entry.folder : isChapters ? entry.document : entry.id)
+            check("entry:" + entry.id,title:entry.title)
             NavigationLink { StudyDetail(entry:entry) } label: {
                 LibraryCard(title:entry.title,subtitle:summary([entry]),symbol:"doc.text")
             }.buttonStyle(.plain)
