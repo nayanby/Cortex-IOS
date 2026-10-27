@@ -14,13 +14,13 @@ def note_order(path):
 
 def build(source, output):
     output.mkdir(parents=True, exist_ok=True)
-    notes=[]; entries=[]; warnings=[]; card_keys=set()
+    notes=[]; entries=[]; warnings=[]; card_keys=set(); bundle_files=[]; originals={}
     ns={"w":"http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
     for p in sorted((p for p in (source/"files").rglob("*") if p.is_file() and p.suffix.lower() in {".docx", ".dotx"}),key=note_order):
         relative=p.relative_to(source/"files").as_posix()
         digest=hashlib.sha256(relative.encode()).hexdigest()
         name=digest+".docx"
-        shutil.copy2(p,output/name)
+        shutil.copy2(p,output/name);bundle_files.append(output/name)
         headings=[]
         with zipfile.ZipFile(p) as z:
             root=ET.fromstring(z.read("word/document.xml"))
@@ -36,8 +36,12 @@ def build(source, output):
     for kind,folder in [("Snapshots","Snapshots"),("Flashcards","flashcards"),("Qbank","Qbank")]:
         files=sorted([p for p in (source/folder).rglob("*") if p.is_file()],key=lambda p:(p.name!="flashcards.json",str(p)))
         for p in files:
-            dest=output/"data"/folder/p.relative_to(source/folder)
-            dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,dest)
+            original=p.relative_to(source).as_posix()
+            short="raw/"+hashlib.sha256(original.encode()).hexdigest()[:24]+".bin"
+            if short in originals and originals[short]!=original:raise ValueError("Raw content identifier collision")
+            originals[short]=original
+            dest=output/short
+            dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,dest);bundle_files.append(dest)
             if p.suffix.lower()!=".json": continue
             try: v=json.loads(p.read_text(encoding="utf-8-sig"))
             except (ValueError, UnicodeError):
@@ -68,17 +72,21 @@ def build(source, output):
     (output/"catalog.json").write_text(json.dumps({"notes":notes},ensure_ascii=False),encoding="utf-8")
     (output/"study.json").write_text(json.dumps(entries,ensure_ascii=False),encoding="utf-8")
     (output/"import-warnings.json").write_text(json.dumps(warnings),encoding="utf-8")
+    (output/"source-files.json").write_text(json.dumps(originals,ensure_ascii=False),encoding="utf-8")
+    bundle_files += [output/name for name in ["catalog.json","study.json","import-warnings.json","source-files.json"]]
     print(json.dumps({"warnings":warnings,"notes":len(notes),"headings":sum(len(n["headings"]) for n in notes),"studyEntries":len(entries),"sourceFiles":counts}))
+
+    return bundle_files
 
 def main():
     p=argparse.ArgumentParser();p.add_argument("--source",type=Path,required=True);p.add_argument("--output",type=Path,default=Path("build/OfflineLibrary"));p.add_argument("--ipa",type=Path);p.add_argument("--output-ipa",type=Path)
-    a=p.parse_args();build(a.source,a.output)
+    a=p.parse_args();bundle_files=build(a.source,a.output)
     if a.ipa:
         if not a.output_ipa or a.ipa.resolve()==a.output_ipa.resolve():p.error("Choose a distinct --output-ipa")
         with zipfile.ZipFile(a.ipa) as src,zipfile.ZipFile(a.output_ipa,"w",zipfile.ZIP_DEFLATED) as dst:
             for info in src.infolist():
                 if "/OfflineLibrary/" not in info.filename:dst.writestr(info,src.read(info))
-            for f in a.output.rglob("*"):
-                if f.is_file():dst.write(f,"Payload/Cortex.app/OfflineLibrary/"+f.relative_to(a.output).as_posix())
+            for f in bundle_files:
+                dst.write(f,"Payload/Cortex.app/OfflineLibrary/"+f.relative_to(a.output).as_posix())
         print("Private offline IPA created; sign with iPASide before installation.")
 if __name__=="__main__":main()
