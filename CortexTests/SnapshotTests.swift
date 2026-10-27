@@ -45,7 +45,7 @@ final class SnapshotTests: XCTestCase {
         XCTAssertEqual(settings.hexColors,[0x28467C,0x6F3D5D,0xAF3E3E])
         settings.select(.highlighter)
         XCTAssertEqual(settings.hexColors,[0xFFEAEA,0xFFF9BD,0xCCFBFA])
-        XCTAssertEqual((settings.tool as? PKInkingTool)?.width,14)
+        XCTAssertEqual(try XCTUnwrap(settings.tool as? PKInkingTool).width,14,accuracy:0.001)
         settings.select(.underliner)
         XCTAssertEqual(settings.hexColors,[0xE89090,0xD4C04A,0xB1E5E6])
         settings.select(.pen);settings.color(1)
