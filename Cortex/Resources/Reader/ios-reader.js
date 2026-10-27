@@ -24,6 +24,8 @@
     // resolved fonts.ready promise alone can precede layout of newly inserted text.
     void root.offsetHeight;
     await Promise.all([
+      document.fonts.load('400 16px "Lato"'),
+      document.fonts.load('700 16px "Lato"'),
       document.fonts.load('400 16px "Source Sans Pro"'),
       document.fonts.load('700 16px "Source Sans Pro"'),
       document.fonts.load('400 16px "Averia Serif Libre"'),
@@ -44,24 +46,54 @@
     return true;
   };
   const originalSizes = new WeakMap();
+  const originalLayout = new WeakMap();
   window.cortexSetTypography = (delta, line, paragraph) => {
     delta = Number(delta); line = Number(line); paragraph = Number(paragraph);
     if (!Number.isFinite(delta) || delta < -1.5 || delta > 1.5 ||
         !Number.isFinite(line) || line < 1 || line > 2 ||
         !Number.isFinite(paragraph) || paragraph < 0.08 || paragraph > 0.33) return false;
     const fraction = progress();
-    const elements = [...document.querySelectorAll('#paper *')].filter(el => !el.closest('svg, math'));
+    const elements = [...document.querySelectorAll('#paper *')].filter(el => !el.closest('svg, math') && !el.matches('mark[data-cortex-highlight]'));
     // Capture the whole tree before changing any inherited styles.
     for (const el of elements) {
-      if (!originalSizes.has(el)) originalSizes.set(el, parseFloat(getComputedStyle(el).fontSize));
+      if (!originalSizes.has(el)) {
+        const computed = getComputedStyle(el);
+        originalSizes.set(el, parseFloat(computed.fontSize));
+        originalLayout.set(el, {line: parseFloat(computed.lineHeight), top: parseFloat(computed.marginTop), bottom: parseFloat(computed.marginBottom)});
+      }
     }
+    const headingSelector = '.h1,.h2,.h3,.h4,.boldside1,.boldside2,.boldside3,.word-h1,.word-h2,.word-h3,.word-h4';
     for (const el of elements) {
-      const original = originalSizes.get(el);
-      if (Number.isFinite(original)) el.style.fontSize = Math.max(4, original + delta * 96 / 72) + 'px';
-    }
-    for (const el of document.querySelectorAll('#paper .doc-p')) {
-      el.style.lineHeight = String(line);
-      el.style.marginBottom = paragraph + 'em';
+      const original = originalSizes.get(el), layout = originalLayout.get(el);
+      const inTable = !!el.closest('table');
+      const size = inTable ? Math.max(14, 17 - 2 / 3 + delta * 4 / 3) - 4 / 3 : Math.max(4, original + delta * 4 / 3);
+      if (!Number.isFinite(size)) continue;
+      const heading = !!el.closest(headingSelector);
+      el.style.setProperty('font-size', size + 'px', 'important');
+      const leading = inTable ? size * 1.3 : size * (heading ? 1.125 : 1.5) * line / 1.5;
+      el.style.setProperty('line-height', leading + 'px', 'important');
+      if (el.classList.contains('doc-list')) el.style.setProperty('--cnl-list-first-line-height', leading + 'px');
+      const isParagraph = el.classList.contains('doc-p'), isBlock = el.classList.contains('doc-block');
+      if (inTable && isParagraph) {
+        el.style.setProperty('margin-top', '0', 'important');
+        el.style.setProperty('margin-bottom', '2pt', 'important');
+      } else if ((isParagraph || isBlock) && !heading) {
+        el.style.setProperty('margin-top', '0', 'important');
+        el.style.setProperty('margin-bottom', '0', 'important');
+        if (isBlock) {
+          const list = el.querySelector(':scope > .doc-list, :scope > .doc-p.doc-list');
+          el.style.setProperty('padding-top', (list ? 0 : 0.05 * size) + 'px', 'important');
+          el.style.setProperty('padding-bottom', (list ? 6 : 14) * paragraph / 0.16 + 'px', 'important');
+        } else {
+          const inBlock = el.parentElement?.classList.contains('doc-block');
+          const added = Number.isFinite(layout.line) ? layout.line * size / original * paragraph : 0;
+          el.style.setProperty('margin-top', (inBlock ? 0 : added) + 'px', 'important');
+          el.style.setProperty('margin-bottom', (inBlock ? 0 : 14 * paragraph / 0.16) + 'px', 'important');
+        }
+      } else if (layout) {
+        if (layout.top > 0) el.style.setProperty('margin-top', layout.top * (1 + paragraph) + 'px', 'important');
+        if (layout.bottom > 0) el.style.setProperty('margin-bottom', layout.bottom * (1 + paragraph) + 'px', 'important');
+      }
     }
     window.scrollTo(0, fraction * Math.max(0, document.documentElement.scrollHeight - innerHeight));
     return true;
@@ -97,6 +129,9 @@
         const mark = document.createElement('mark'); mark.dataset.cortexHighlight = 'true';
         mark.style.backgroundColor = record.color === 'green' ? '#c7f2ce' : '#fff19a';
         mark.style.color = 'inherit';
+        mark.style.setProperty('font-size', 'inherit', 'important');
+        mark.style.setProperty('line-height', 'inherit', 'important');
+        mark.style.setProperty('font-family', 'inherit', 'important');
         range.surroundContents(mark);
       }
     }

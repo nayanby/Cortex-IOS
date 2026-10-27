@@ -8,3 +8,16 @@ body { display: block !important; }
 .doc-root { width: 100%; }
 img { max-width: 100%; height: auto; }
 @media print { #paper { max-width: none !important; padding: 0 !important; } }
+
+/* Current Consumer textbook faces: Lato body, Averia headings, Noto boldside.
+   Tables retain the supplied Source Sans face. */
+#paper#paper *:not(.h1):not(.h2):not(.h3):not(.h4):not(.boldside1):not(.boldside2):not(.boldside3) {
+  font-family: "Lato", sans-serif !important;
+}
+#paper#paper#paper :is(.h1,.h2,.h3,.h4),
+#paper#paper#paper :is(.h1,.h2,.h3,.h4) * { font-family: "Averia Serif Libre", serif !important; }
+#paper#paper#paper :is(.boldside1,.boldside2,.boldside3),
+#paper#paper#paper :is(.boldside1,.boldside2,.boldside3) * { font-family: "Noto Serif", serif !important; }
+#paper#paper#paper#paper table, #paper#paper#paper#paper table * { font-family: "Source Sans Pro", sans-serif !important; }
+#paper#paper#paper .cnl-glyph-calibri,
+#paper#paper#paper .doc-list[data-list-level="1"] .list-marker.is-bullet::before { font-family: Calibri, Carlito, "Segoe UI Symbol", sans-serif !important; }
