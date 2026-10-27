@@ -33,6 +33,10 @@ final class PaperTests: XCTestCase {
         try drawing.dataRepresentation().write(to: library.drawingURL(file, page: 1))
         let controller = PaperController(file: file, store: library)
         defer { controller.stop() }
+        controller.ink.select(.pen)
+        XCTAssertTrue(controller.view.isInMarkupMode)
+        controller.ink.drawing = false
+        XCTAssertFalse(controller.view.isInMarkupMode)
         let output = try controller.export()
         defer { try? FileManager.default.removeItem(at: output) }
         let exported = try XCTUnwrap(PDFDocument(url: output))

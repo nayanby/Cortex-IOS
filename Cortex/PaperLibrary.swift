@@ -197,6 +197,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         catch { self.error = "The pen marks could not be saved. Keep this page open and try again." }
     }
     private func updateTools() {
+        view.isInMarkupMode = ink.drawing
         for canvas in canvases.values {
             canvas.isUserInteractionEnabled = ink.drawing
             canvas.tool = ink.tool
