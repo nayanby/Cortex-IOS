@@ -2,8 +2,19 @@ import SwiftUI
 
 // A selection keeps each flashcard's original review identity across combined decks.
 enum StudySelection {
-    static func aggregate(_ entries:[StudyEntry],kind:String,title:String) -> StudyEntry {
-        let rows = entries.filter { $0.kind == kind }.sorted { $0.id < $1.id }
+    static func aggregate(_ entries:[StudyEntry],kind:String,title:String,catalog:LibraryCatalog? = nil) -> StudyEntry {
+        let notes = catalog?.notes ?? []
+        let rows = entries.filter { $0.kind == kind }.sorted { left,right in
+            if left.folder != right.folder { return left.folder.localizedStandardCompare(right.folder) == .orderedAscending }
+            let a = notes.first { $0.subject.caseInsensitiveCompare(left.folder) == .orderedSame && $0.displayName.caseInsensitiveCompare(left.document) == .orderedSame }
+            let b = notes.first { $0.subject.caseInsensitiveCompare(right.folder) == .orderedSame && $0.displayName.caseInsensitiveCompare(right.document) == .orderedSame }
+            if a?.sortOrder != b?.sortOrder { return (a?.sortOrder ?? Int.max) < (b?.sortOrder ?? Int.max) }
+            if left.document != right.document { return left.document.localizedStandardCompare(right.document) == .orderedAscending }
+            let ai = a?.headings?.firstIndex { $0.text.caseInsensitiveCompare(left.title) == .orderedSame } ?? Int.max
+            let bi = b?.headings?.firstIndex { $0.text.caseInsensitiveCompare(right.title) == .orderedSame } ?? Int.max
+            if ai != bi { return ai < bi }
+            return left.title == right.title ? left.id < right.id : left.title.localizedStandardCompare(right.title) == .orderedAscending
+        }
         let id = "selection-" + SharedDocumentCache.identifier(for:kind + ":" + rows.map(\.id).joined(separator:"|")).uuidString
         let cards:[StudyCard]? = kind == "Flashcards" ? rows.flatMap { entry in
             (entry.content.cards ?? []).enumerated().map { index,card in
@@ -85,7 +96,7 @@ struct StudySelectionView: View {
             }
             .safeAreaInset(edge:.bottom,spacing:0) {
                 if !entries.isEmpty {
-                    Button { combined = StudySelection.aggregate(chosen,kind:kind,title:currentChapter ?? currentSubject ?? (selected.isEmpty ? "All subjects" : "Selected subjects")) } label: {
+                    Button { combined = StudySelection.aggregate(chosen,kind:kind,title:currentChapter ?? currentSubject ?? (selected.isEmpty ? "All subjects" : "Selected subjects"),catalog:catalog.catalog) } label: {
                         VStack(spacing:3) {
                             Text(kind == "Flashcards" ? "Review \(selected.isEmpty ? "all" : "selection")" : "Solve \(selected.isEmpty ? "all" : "selection")").font(CortexStyle.title(17))
                             Text(summary(chosen)).font(.system(size:12))
