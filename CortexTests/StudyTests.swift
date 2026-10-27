@@ -49,11 +49,12 @@ final class StudyTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suite) }
         let progress = StudyProgress(defaults: defaults)
         progress.review(entry: "example", index: 0, grade: 2)
-        progress.saveAttempt(entry: "quiz", answers: [0: 1, 2: 3], completed: false)
+        progress.saveAttempt(entry: "quiz", answers: [0: 1, 2: 3], completed: false,currentIndex:2)
         progress.recordQuiz(title: "Example quiz", correct: 2, total: 3)
         let restored = StudyProgress(defaults: defaults)
         XCTAssertEqual(restored.attempts["quiz"]?.answers, [0: 1, 2: 3])
         XCTAssertEqual(restored.attempts["quiz"]?.completed, false)
+        XCTAssertEqual(restored.attempts["quiz"]?.currentIndex,2)
         XCTAssertEqual(restored.quizzes.first?.correct, 2)
         XCTAssertGreaterThan(try XCTUnwrap(restored.cards["example/0"]).due.timeIntervalSinceNow, 23 * 3600)
     }
