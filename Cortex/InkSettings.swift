@@ -58,17 +58,18 @@ struct CortexInkToolbar: View {
     let redo: () -> Void
     let clear: () -> Void
     @State private var confirmClear = false
+    @State private var options = false
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 14) {
                 ForEach([CortexInkMode.pen,.highlighter,.underliner,.eraser], id: \.self) { mode in
-                    Button { settings.select(mode) } label: {
-                        Image(systemName: symbol(mode)).font(.system(size: 20))
+                    Button { if settings.drawing && settings.mode == mode {options = true} else {settings.select(mode)} } label: {
+                        Image("consumer_tool_" + mode.rawValue).resizable().scaledToFit().frame(width:20,height:20)
                             .foregroundStyle(CortexStyle.ink).frame(width: 36,height: 38)
                             .background(settings.drawing && settings.mode == mode ? Color(hex:0xE4EBFA) : .clear,in:RoundedRectangle(cornerRadius:8))
                     }.accessibilityLabel(mode.rawValue.capitalized)
                 }
-                Button { settings.drawing = false } label: { Image(systemName: "cursorarrow").frame(width:32,height:38) }.accessibilityLabel("Cursor and scroll")
+                Button { settings.drawing = false } label: { Image("consumer_tool_cursor").resizable().scaledToFit().frame(width:20,height:20).frame(width:32,height:38) }.accessibilityLabel("Cursor and scroll")
                 if settings.drawing {
                     ForEach(settings.colors.indices, id: \.self) { index in
                         Button { settings.color(index) } label: {
@@ -83,10 +84,12 @@ struct CortexInkToolbar: View {
                         Button("Delete ink",role:.destructive) { confirmClear = true }
                     } label: { Image(systemName:"slider.horizontal.3").frame(width:32,height:38) }
                 }
-                Button(action:undo) { Image(systemName:"arrow.uturn.backward").frame(width:32,height:38) }.accessibilityLabel("Undo")
-                Button(action:redo) { Image(systemName:"arrow.uturn.forward").frame(width:32,height:38) }.accessibilityLabel("Redo")
+                Button {options = true} label: {Image(systemName:"slider.horizontal.3").frame(width:32,height:38)}.accessibilityLabel("Pen settings")
+                Button(action:undo) { Image("consumer_tool_undo").resizable().scaledToFit().frame(width:20,height:20).frame(width:32,height:38) }.accessibilityLabel("Undo")
+                Button(action:redo) { Image("consumer_tool_redo").resizable().scaledToFit().frame(width:20,height:20).frame(width:32,height:38) }.accessibilityLabel("Redo")
             }.buttonStyle(.plain).foregroundStyle(CortexStyle.ink).padding(.horizontal,12).padding(.vertical,4)
         }.frame(height:48).background(.white).overlay(alignment:.top) { CortexStyle.line.frame(height:1) }
+            .sheet(isPresented:$options) {ConsumerInkOptions(settings:settings,clear:{confirmClear = true})}
             .confirmationDialog("Delete all ink on this page?",isPresented:$confirmClear,titleVisibility:.visible) {
                 Button("Delete ink",role:.destructive,action:clear)
             }
