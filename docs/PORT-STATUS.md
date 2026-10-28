@@ -9,10 +9,10 @@ The user requested a matching iOS Consumer app, then explicitly requested a priv
 | Catalog | Private catalog generated from actual local DOCX/DOTX files, Roman chapter ordering, headings, stable path identifiers, bundled-file resolution; local catalog takes priority |
 | Reader | Android renderer/styles/fonts, images/tables/OMML, persistent position, outline, font/line/paragraph controls, quote-validated highlights, bookmarks |
 | Snapshots | Subject/chapter/heading navigation, original Consumer CSS and safe HTML renderer, font controls, drawing and paginated PDF sharing |
-| Flashcards | Existing local decks, answer reveal, rating, local schedule and persistence |
+| Flashcards | Consumer subject/topic fields and tick pickers, due/document-order sessions, full-height review card, answer reveal, canonical per-card ratings and persistence |
 | Qbank | Existing local sets, explanations, unscored missing-answer states, saved attempts and completed-quiz history |
 | AI | Direct Gemini API with a user-entered Keychain key, editable model, structured/validated Notes/Snapshots/Flashcards/Qbank, cancellation and quota/network errors, local persistence |
-| Paper | PDF import, blank/ruled notebooks, pages, PencilKit tools, mark persistence, PDF export and note-to-PDF writing copies |
+| Paper | PDF import, blank/ruled notebooks, coalesced uniform-width pen input, vector annotations and exports, multiplied wash, original controls, drawing persistence and note-to-PDF copies |
 | Audio | Native iPad speech, paragraph position, speed and interruptions; different from Android cloud TTS |
 | Navigation | Main-screen study/paper/Create routes, original home artwork/header/cards/drawer/pill, Snapshot hierarchy, settings/help/storage/performance and recents |
 | Optional Firebase | Registered standard/sideload clients, strict configuration validation, Google account flow and authenticated online downloads; no production rule changes |
@@ -45,3 +45,8 @@ The user confirmed manual installation of `Cortex-iPad-Offline-Updated.ipa` thro
 
 
 The study-selection update at `fe2e4cc` adds subject → chapter → heading cards and multiple selection for Flashcards/Qbank, canonical flashcard review identities across combined decks, and a one-question Qbank flow with a saved position. Notes and Snapshots now change font size in 1 pt increments. The device and simulator builds and integration-test step passed in [run 40493241405](https://github.com/nayanby/Cortex-IOS/actions/runs/40493241405). The private `Cortex-iPad-Offline-Study.ipa` was verified against all 142 source Word packages and 1,207 original study files, with AppIcon present and a longest internal path of 128 characters. Installation and physical visual acceptance of this update remain pending.
+
+
+The Consumer UI/ink update at `e2f61d5` passed simulator and device compilation, the integration-test step, and rendered-screen export in [run 40719789320](https://github.com/nayanby/Cortex-IOS/actions/runs/40719789320). Home, study panels, subject/topic tick pickers, review cards, Create and paper libraries use the Consumer layout measurements and original artwork. Phone (390 pt) and iPad (744 pt) render captures were inspected. Snapshot washes use an SVG multiply layer; PDF/notebook annotations and exports use vector paths with a once-composited multiply wash. Pen samples are coalesced and uniform-width, and underliners stay horizontal. Tests verify black text under repeated wash strokes, preservation of erased ranges, horizontal geometry and clear/undo/redo. Existing drawing storage stays in PKDrawing format. Physical Apple Pencil feel and complete screen-by-screen parity remain subject to iPad acceptance.
+
+The private replacement is `Cortex-iPad-Consumer-UI.ipa` (SHA-256 `33197347f8746605ffb4cf392740f92e97a4e55719068d9b9357a496ddc5dc42`). All 142 Word packages and 1,207 original study files were checked byte-for-byte; the original icon and sideload identifier are retained, and the longest internal path is 128 characters. Packaging skips Word temporary lock files (`~$...docx`), with a regression fixture. No installation of this update has been claimed.

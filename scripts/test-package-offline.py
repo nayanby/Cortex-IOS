@@ -23,6 +23,7 @@ class OfflinePackagingTests(unittest.TestCase):
             xml='<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Example heading</w:t></w:r></w:p></w:body></w:document>'
             for name in ["IX. Nine.docx","V. Five.docx","Template.dotx"]:
                 with zipfile.ZipFile(source/"files/Cardiology"/name,"w") as archive:archive.writestr("word/document.xml",xml)
+            (source/"files/Cardiology/~$Five.docx").write_bytes(b"Word temporary lock file")
             (source/"flashcards/empty.json").write_text("")
             question={"folder":"Cardiology","document":"V. Five","headingText":"Topic","questions":[{"question":"Q","options":["A","B"],"correctIndex":0,"explanation":"E"}]}
             for name in ["first.json","duplicate.json"]:(source/"Qbank"/name).write_text(json.dumps(question))

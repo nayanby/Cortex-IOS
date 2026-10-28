@@ -1,0 +1,47 @@
+{
+  "reference": "Cortex Consumer 2/app/src/main/res",
+  "layouts": {
+    "screen_home.xml": "e30e1b7de3f08152cc4a66f1c31fb71f49c9a8460c8ef02da2cbe08010df565b",
+    "panel_flashcards.xml": "853289755853bb32a3259f0f3937802d45eebe0064ec794a42a1d234f3daff7e",
+    "screen_flash_review.xml": "9f0badfe1d414585c598d31814516d600008564019332addefcff07fb190c40e",
+    "screen_quiz.xml": "70ff6bdaa5243b94b96b6a9e8a9169fa754d733fcf81a2f9c8e7bebc60d61b17",
+    "screen_create_ai.xml": "1de103c5d0d24ae59c5de3d7c1f1839e8e134245062339196db27d728544e496",
+    "field_pick.xml": "ddadc38698c80c8a2c7ef220511dd69b04111849eaa8a90c2a305f76e05f793a",
+    "item_pick_row.xml": "3657dfd31fae00f40932ec8f7a08bb9234f672a2bfaadc92ab247f932962097a",
+    "row_type_step.xml": "082f8bb233295e130697b62633d4dc1a77f6c7a4eb764ca940b6ae2128c8cea8",
+    "sheet_pen.xml": "0e4dc09470b2b3fb7d6670ead8a4b98ef035d91d25b29593e841f2234b0f9cd8"
+  },
+  "sizes": {
+    "header": 56,
+    "menuLabel": 16,
+    "menuSecondary": 12,
+    "fieldHeight": 46,
+    "fieldRadius": 9,
+    "panelRadius": 16,
+    "panelInset": 12,
+    "bottomNavigationWidth": 256,
+    "bottomNavigationHeight": 56
+  },
+  "ink": {
+    "penWidths": [
+      1,
+      1.5,
+      2,
+      3,
+      4
+    ],
+    "washWidths": [
+      8,
+      11,
+      14,
+      18,
+      22
+    ],
+    "webPointsToPixels": 1.3333333333333333,
+    "washComposite": "multiply layer",
+    "underliner": "horizontal",
+    "penGeometry": "uniform width, interpolated coalesced samples",
+    "storage": "PKDrawing retained"
+  },
+  "visualAcceptance": "Pending physical iPad comparison"
+}
