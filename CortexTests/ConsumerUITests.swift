@@ -10,7 +10,8 @@ final class ConsumerUITests:XCTestCase {
             PKStrokePoint(location:p,timeOffset:Double(i),size:CGSize(width:14,height:14),opacity:1,force:1,azimuth:0,altitude:.pi/2)
         }
         let ink = PKInk(.marker,color:UIColor(red:1,green:249.0/255,blue:189.0/255,alpha:1))
-        let drawing = PKDrawing(strokes:[PKStroke(ink:ink,path:PKStrokePath(controlPoints:points,creationDate:Date()))])
+        let stroke = PKStroke(ink:ink,path:PKStrokePath(controlPoints:points,creationDate:Date()))
+        let drawing = PKDrawing(strokes:[stroke,stroke])
         let format = UIGraphicsImageRendererFormat();format.scale = 1
         let image = UIGraphicsImageRenderer(size:CGSize(width:100,height:40),format:format).image {renderer in
             UIColor.white.setFill();renderer.fill(CGRect(x:0,y:0,width:100,height:40))

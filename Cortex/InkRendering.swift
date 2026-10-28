@@ -43,12 +43,24 @@ enum ConsumerInkRenderer {
     }
     static func draw(_ drawing:PKDrawing,in context:CGContext) {
         context.saveGState();context.setShouldAntialias(true);context.setAllowsAntialiasing(true)
-        for stroke in strokes(drawing) {
-            context.setBlendMode(stroke.wash ? .multiply : .normal)
+        let marks = strokes(drawing)
+        func paint(_ stroke:Stroke) {
             context.setStrokeColor(stroke.color.cgColor);context.setLineWidth(stroke.width)
             context.setLineCap(stroke.underliner ? .butt : .round);context.setLineJoin(.round)
             context.addPath(stroke.path);context.strokePath()
         }
+        let wash = marks.filter(\.wash)
+        if !wash.isEmpty {
+            // Consumer multiplies the completed wash layer once, so crossing
+            // the same pastel twice does not make a dark, opaque stripe.
+            context.setBlendMode(.multiply)
+            context.beginTransparencyLayer(auxiliaryInfo:nil)
+            context.setBlendMode(.normal)
+            wash.forEach(paint)
+            context.endTransparencyLayer()
+        }
+        context.setBlendMode(.normal)
+        marks.filter {!$0.wash}.forEach(paint)
         context.restoreGState()
     }
     static func webPayload(_ drawing:PKDrawing) -> [[String:Any]] {
