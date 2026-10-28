@@ -30,6 +30,13 @@ final class ConsumerUITests:XCTestCase {
         XCTAssertEqual(payload.first?["wash"] as? Bool,true)
         XCTAssertGreaterThan((payload.first?["points"] as? [[Double]])?.count ?? 0,50)
     }
+    func testErasedStrokeRangesStayErasedInVectorRendering() throws {
+        let points = [CGPoint(x:10,y:20),CGPoint(x:100,y:20)].enumerated().map {i,p in PKStrokePoint(location:p,timeOffset:Double(i),size:CGSize(width:2,height:2),opacity:1,force:1,azimuth:0,altitude:.pi/2)}
+        let stroke = PKStroke(ink:PKInk(.monoline,color:.red),path:PKStrokePath(controlPoints:points,creationDate:Date()),mask:UIBezierPath(rect:CGRect(x:0,y:0,width:45,height:40)))
+        let visible = ConsumerInkRenderer.strokes(PKDrawing(strokes:[stroke])).flatMap(\.points)
+        XCTAssertFalse(visible.isEmpty)
+        XCTAssertLessThan(try XCTUnwrap(visible.map(\.x).max()),46)
+    }
     func testUnderlinerLocksToStartBaseline() throws {
         let points = [CGPoint(x:10,y:10),CGPoint(x:100,y:40)].enumerated().map {i,p in PKStrokePoint(location:p,timeOffset:Double(i),size:CGSize(width:2,height:2),opacity:1,force:1,azimuth:0,altitude:.pi/2)}
         let original = PKDrawing(strokes:[PKStroke(ink:PKInk(.monoline,color:.red),path:PKStrokePath(controlPoints:points,creationDate:Date()))])

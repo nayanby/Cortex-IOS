@@ -30,7 +30,7 @@ final class CortexInkSettings: ObservableObject {
     var colors: [UIColor] { hexColors.map { value in UIColor(red: CGFloat((value >> 16)&255)/255, green: CGFloat((value >> 8)&255)/255, blue: CGFloat(value&255)/255, alpha: 1) } }
     var sizes: [CGFloat] { family == .highlighter ? [8,11,14,18,22] : [1,1.5,2,3,4] }
     var tool: PKTool {
-        if mode == .eraser { return PKEraserTool(.bitmap) }
+        if mode == .eraser { return PKEraserTool(.vector) }
         return PKInkingTool(mode == .highlighter ? .marker : .monoline, color: colors[colorIndex], width: sizes[sizeIndex])
     }
     func select(_ value: CortexInkMode) {

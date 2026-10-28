@@ -14,8 +14,10 @@ enum ConsumerInkRenderer {
         let underliner:Bool
     }
     static func strokes(_ drawing:PKDrawing) -> [Stroke] {
-        drawing.strokes.compactMap { stroke in
-            let samples = Array(stroke.path.interpolatedPoints(by:.distance(0.8)))
+        drawing.strokes.flatMap { stroke -> [Stroke] in
+            let ranges = stroke.mask == nil ? [CGFloat(0)...CGFloat(max(0,stroke.path.count-1))] : stroke.maskedPathRanges
+            return ranges.compactMap { range in
+            let samples = Array(stroke.path.interpolatedPoints(in:range,by:.distance(0.8)))
             guard let first = samples.first else {return nil}
             let transform = stroke.transform
             let points = samples.map {$0.location.applying(transform)}
@@ -30,6 +32,7 @@ enum ConsumerInkRenderer {
             for point in points.dropFirst() {path.addLine(to:point)}
             if points.count == 1 {path.addLine(to:CGPoint(x:points[0].x+0.01,y:points[0].y))}
             return Stroke(path:path,points:points,width:width,color:color,wash:wash,underliner:underline)
+            }
         }
     }
     static func straightenLastStroke(_ drawing:PKDrawing) -> PKDrawing {
