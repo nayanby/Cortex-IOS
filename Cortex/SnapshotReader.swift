@@ -6,7 +6,7 @@ import PDFKit
 @MainActor
 final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate, PKCanvasViewDelegate {
     let webView = WKWebView(frame:.zero,configuration:WKWebViewConfiguration())
-    let canvas = PKCanvasView()
+    let canvas = ConsumerInputCanvas(frame:.zero)
     let ink = CortexInkSettings()
     @Published private(set) var isLoading = true
     @Published var error: String?
@@ -28,6 +28,8 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
         canvas.overrideUserInterfaceStyle = .light
         if let data = try? Data(contentsOf:drawingURL), let drawing = try? PKDrawing(data:data) { canvas.drawing = drawing }
         canvas.delegate = self
+        canvas.widthScale = 4.0/3.0
+        canvas.onInkChange = {[weak self] in self?.canvasViewDrawingDidChange($0)}
         webView.scrollView.addSubview(canvas)
         ink.onChange = { [weak self] in self?.updateTools() }
         observation = webView.scrollView.observe(\.contentSize,options:[.new]) { [weak self] _, _ in
@@ -71,6 +73,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
         webView.scrollView.bringSubviewToFront(canvas)
     }
     private func updateTools() {
+        canvas.markingMode = ink.mode;canvas.configureInput()
         canvas.tool = ink.tool; canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
         canvas.isUserInteractionEnabled = ink.drawing; canvas.alpha = 0.02
         renderInk()
@@ -101,9 +104,9 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
         do { try canvas.drawing.dataRepresentation().write(to:drawingURL,options:[.atomic,.completeFileProtection]) }
         catch { self.error = "The Snapshot ink could not be saved." }
     }
-    func undo() { canvas.undoManager?.undo() }
-    func redo() { canvas.undoManager?.redo() }
-    func clearInk() { canvas.drawing = PKDrawing() }
+    func undo() { canvas.history.undo() }
+    func redo() { canvas.history.redo() }
+    func clearInk() { canvas.clearMarks() }
     func exportPDF() async throws -> URL {
         await renderTask?.value
         let geometry = try await webView.callAsyncJavaScript("const p=document.getElementById('paper'); return {x:p.offsetLeft,width:p.offsetWidth,height:document.documentElement.scrollHeight};",arguments:[:],in:nil,contentWorld:.page) as? [String:Double]
@@ -140,7 +143,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
     func webView(_ view: WKWebView,didFailProvisionalNavigation navigation: WKNavigation!,withError error:Error) { self.error = error.localizedDescription; isLoading = false }
     func stop() {
         task?.cancel(); renderTask?.cancel(); saveTask?.cancel(); saveInk(); observation?.invalidate(); observation = nil
-        webView.stopLoading(); webView.navigationDelegate = nil; canvas.delegate = nil; ink.onChange = nil
+        webView.stopLoading(); webView.navigationDelegate = nil; canvas.delegate = nil;canvas.onInkChange = nil; ink.onChange = nil
     }
 }
 private struct SnapshotWebView: UIViewRepresentable {

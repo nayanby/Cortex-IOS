@@ -45,6 +45,14 @@ final class ConsumerUITests:XCTestCase {
         XCTAssertEqual(line.path.first?.location.y,line.path.last?.location.y)
         XCTAssertEqual(line.path.last?.location.x,100)
     }
+    func testInkClearUndoRedoKeepsOriginalDrawing() throws {
+        let points = [CGPoint(x:10,y:10),CGPoint(x:100,y:40)].enumerated().map {i,p in PKStrokePoint(location:p,timeOffset:Double(i),size:CGSize(width:2,height:2),opacity:1,force:1,azimuth:0,altitude:.pi/2)}
+        let canvas = ConsumerInputCanvas(frame:CGRect(x:0,y:0,width:200,height:200))
+        canvas.drawing = PKDrawing(strokes:[PKStroke(ink:PKInk(.monoline,color:.red),path:PKStrokePath(controlPoints:points,creationDate:Date()))])
+        canvas.clearMarks();XCTAssertTrue(canvas.drawing.strokes.isEmpty)
+        canvas.history.undo();XCTAssertEqual(canvas.drawing.strokes.count,1)
+        canvas.history.redo();XCTAssertTrue(canvas.drawing.strokes.isEmpty)
+    }
     func testConsumerScreensRenderAtPhoneAndIPadSizes() async throws {
         let content = try JSONDecoder().decode(StudyContent.self,from:Data(#"{"cards":[{"front":"A sample question","back":"A sample answer"}]}"#.utf8))
         let card = StudyEntry(id:"ui-synthetic-card",kind:"Flashcards",document:"Example chapter",folder:"Example subject",title:"Example heading",content:content)

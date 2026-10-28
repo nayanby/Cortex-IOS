@@ -2,8 +2,7 @@ import UIKit
 import PencilKit
 import PDFKit
 
-// Render the stored strokes as vectors. The input canvas remains PencilKit so
-// coalesced/predicted Apple Pencil samples and the existing drawing files survive.
+// Render stored strokes as vectors while keeping existing PencilKit drawing files.
 enum ConsumerInkRenderer {
     struct Stroke {
         let path:CGPath
@@ -15,6 +14,7 @@ enum ConsumerInkRenderer {
     }
     static func strokes(_ drawing:PKDrawing) -> [Stroke] {
         drawing.strokes.flatMap { stroke -> [Stroke] in
+            guard stroke.path.count > 0 else {return []}
             let ranges = stroke.mask == nil ? [CGFloat(0)...CGFloat(max(0,stroke.path.count-1))] : stroke.maskedPathRanges
             return ranges.compactMap { range in
             let samples = Array(stroke.path.interpolatedPoints(in:range,by:.distance(0.8)))

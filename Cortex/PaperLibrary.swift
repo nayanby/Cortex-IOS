@@ -161,7 +161,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     let file: PaperFile
     private let store: PaperLibrary
     let ink = CortexInkSettings()
-    private var canvases: [Int: PKCanvasView] = [:]
+    private var canvases: [Int: ConsumerInputCanvas] = [:]
     private var inkAnnotations:[Int:ConsumerInkAnnotation] = [:]
     private var pendingSaves: [Int: Task<Void, Never>] = [:]
     @Published var error: String?
@@ -187,13 +187,14 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         guard let document = view.document else { return nil }
         let index = document.index(for: page)
         if let canvas = canvases[index] { return canvas }
-        let canvas = PKCanvasView(frame: page.bounds(for: .mediaBox))
+        let canvas = ConsumerInputCanvas(frame: page.bounds(for: .mediaBox))
         canvas.backgroundColor = .clear; canvas.isOpaque = false
         canvas.isScrollEnabled = false; canvas.drawingPolicy = .anyInput
         canvas.tool = ink.tool
         canvas.overrideUserInterfaceStyle = .light
         if let data = try? Data(contentsOf: store.drawingURL(file, page: index)), let drawing = try? PKDrawing(data: data) { canvas.drawing = drawing }
         canvas.delegate = self
+        canvas.onInkChange = {[weak self] in self?.canvasViewDrawingDidChange($0)}
         canvas.isUserInteractionEnabled = ink.drawing
         canvases[index] = canvas
         renderInk(index)
@@ -230,6 +231,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     private func updateTools() {
         view.isInMarkupMode = ink.drawing
         for canvas in canvases.values {
+            canvas.markingMode = ink.mode;canvas.configureInput()
             canvas.isUserInteractionEnabled = ink.drawing
             canvas.tool = ink.tool
             canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
@@ -239,10 +241,10 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         if ink.drawing, let current = view.currentPage, let index = view.document?.index(for: current), let canvas = canvases[index] { canvas.becomeFirstResponder() }
         else { canvases.values.forEach { $0.resignFirstResponder() } }
     }
-    func clearInk() { activeCanvas?.drawing = PKDrawing() }
-    func undo() { activeCanvas?.undoManager?.undo() }
-    func redo() { activeCanvas?.undoManager?.redo() }
-    private var activeCanvas: PKCanvasView? {
+    func clearInk() { activeCanvas?.clearMarks() }
+    func undo() { activeCanvas?.history.undo() }
+    func redo() { activeCanvas?.history.redo() }
+    private var activeCanvas: ConsumerInputCanvas? {
         guard let page = view.currentPage, let index = view.document?.index(for: page) else { return nil }
         return canvases[index]
     }
@@ -273,7 +275,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         pendingSaves.values.forEach { $0.cancel() }
         pendingSaves = [:]
         canvases.keys.forEach { saveCanvas($0) }
-        ink.drawing = false; canvases.values.forEach { $0.delegate = nil }; view.pageOverlayViewProvider = nil }
+        ink.drawing = false; canvases.values.forEach { $0.delegate = nil;$0.onInkChange = nil }; view.pageOverlayViewProvider = nil }
 }
 private struct PaperPDFView: UIViewRepresentable {
     @ObservedObject var controller: PaperController
