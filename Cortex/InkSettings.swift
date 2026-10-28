@@ -95,3 +95,36 @@ struct CortexInkToolbar: View {
         switch mode { case .pen:return "pencil.tip";case .highlighter:return "highlighter";case .underliner:return "underline";case .eraser:return "eraser" }
     }
 }
+struct ConsumerInkOptions:View {
+    @ObservedObject var settings:CortexInkSettings
+    let clear:()->Void
+    @Environment(\.dismiss) private var dismiss
+    var body:some View {
+        VStack(alignment:.leading,spacing:12) {
+            HStack {Text("Pen settings").font(CortexStyle.title(18));Spacer();Button("Done") {dismiss()}.font(CortexStyle.title(16)).frame(minHeight:44)}
+            toolRow("Pens",mode:.pen,hex:[0x28467C,0x6F3D5D,0xAF3E3E],sizes:[1,1.5,2,3,4])
+            toolRow("Highlighters",mode:.highlighter,hex:[0xFFEAEA,0xFFF9BD,0xCCFBFA],sizes:[8,11,14,18,22])
+            toolRow("Underliners",mode:.underliner,hex:[0xE89090,0xD4C04A,0xB1E5E6],sizes:[1,1.5,2,3,4])
+            Toggle("Stylus only",isOn:$settings.stylusOnly)
+            Toggle("Show ink",isOn:$settings.visible)
+            Button("Delete ink",role:.destructive) {dismiss();clear()}.font(CortexStyle.title(14)).padding(.vertical,8)
+        }.font(.system(size:13)).tint(CortexStyle.ink).foregroundStyle(CortexStyle.ink).padding(.horizontal,16).padding(.vertical,12).presentationDetents([.medium,.large]).presentationDragIndicator(.visible)
+    }
+    private func toolRow(_ title:String,mode:CortexInkMode,hex:[UInt],sizes:[CGFloat]) -> some View {
+        VStack(alignment:.leading,spacing:6) {
+            Text(title).font(CortexStyle.title(14))
+            HStack(spacing:12) {
+                ForEach(hex.indices,id:\.self) {index in
+                    Button {settings.select(mode);settings.color(index)} label: {
+                        Circle().fill(Color(hex:hex[index])).frame(width:30,height:30)
+                            .overlay(Circle().stroke(settings.family == mode && settings.colorIndex == index ? CortexStyle.ink : CortexStyle.line,lineWidth:settings.family == mode && settings.colorIndex == index ? 2 : 1))
+                    }.accessibilityLabel(title + String(format:" #%06X",hex[index]))
+                }
+                Spacer(minLength:4)
+                Button {settings.select(mode);settings.size(max(0,settings.sizeIndex-1))} label: {Text("−").frame(width:32,height:36)}.accessibilityLabel("Decrease " + title + " width")
+                Text(settings.family == mode ? sizes[settings.sizeIndex].formatted() : "—").font(.custom("AveriaSerifLibre-Regular",size:13)).frame(width:28)
+                Button {settings.select(mode);settings.size(min(4,settings.sizeIndex+1))} label: {Text("+").frame(width:32,height:36)}.accessibilityLabel("Increase " + title + " width")
+            }.buttonStyle(.plain)
+        }
+    }
+}
