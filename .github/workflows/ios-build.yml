@@ -87,6 +87,19 @@ jobs:
         timeout-minutes: 20
         run: |
           npx --yes firebase-tools@15.34.1 emulators:exec --project demo-cortex-ios --config test-backend/firebase.json --only auth,firestore,storage 'bash scripts/run-ios-emulator-tests.sh'
+      - name: Export rendered Consumer screens
+        if: always()
+        run: |
+          if [ -d build/ReaderTests.xcresult ]; then
+            xcrun xcresulttool export attachments --path build/ReaderTests.xcresult --output-path build/ui-screenshots
+          fi
+      - name: Save rendered Consumer screens
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cortex-UI-Screenshots
+          path: build/ui-screenshots
+          if-no-files-found: ignore
       - name: Save emulator diagnostics
         if: failure()
         uses: actions/upload-artifact@v4

@@ -1,0 +1,50 @@
+{
+  "home": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_home.xml",
+    "sha256": "a5f0b7fb1bcbcf39593baf40b9052c4700a93929252964976909c0803a4281fe"
+  },
+  "book": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_book.xml",
+    "sha256": "971b7d63a863992163e49e819ef156eb1899b75866a814ab844c659e51ac03e9"
+  },
+  "snapshots": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_snapshots.xml",
+    "sha256": "1fa6d36cce75e7b13615b2288df6ae6bca929cfcfa26ce72809f42cbf5914508"
+  },
+  "notebooks": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_notebooks.xml",
+    "sha256": "3bc828eb25629abae18ee83be3e94890915467d3e71d6a23e7dd2cdffec38d2c"
+  },
+  "pdf": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_pdf.xml",
+    "sha256": "d2c284eb9bae1e18d6d40b823ede04d2a33ac06ef1decb4fa481cfeb965ef072"
+  },
+  "performance": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_performance.xml",
+    "sha256": "a3279c679919bc8419e1f842afbc10d75a096d4eae20c3db50ee4f74686310ba"
+  },
+  "storage": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_storage.xml",
+    "sha256": "4be9b085a18d6d83ee3efb26d224242fc466193b74e7e768e891fa3fac7fd32d"
+  },
+  "account": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_account.xml",
+    "sha256": "c4b689e626ab04a7e5808309e9b39fd83feeab5a9616cce810f06022af9b238a"
+  },
+  "help": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_help.xml",
+    "sha256": "41d209b9e8d8e284999475407b51682b87ed871ad72ed13e8771e6be85674a2a"
+  },
+  "feedback": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_feedback.xml",
+    "sha256": "2d1e1ab1a010a1a7ee43f19b252fd052c768132a4e1ead4fc7ea30af791ad08b"
+  },
+  "close": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_sidebar_close.xml",
+    "sha256": "9ac3702291da42f17535458ae72f631bb1c44cff53cc98d103a03ad7794b90a0"
+  },
+  "expand": {
+    "source": "..\\Cortex Consumer 2\\app\\src\\main\\res\\drawable\\ic_expand.xml",
+    "sha256": "01173329e4af74698d0bead5c84c289bbcf9a0d8c8f45c578af0b6bed347bc74"
+  }
+}

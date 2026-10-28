@@ -105,7 +105,7 @@ struct PerformanceView: View {
                     }
                 }
             }
-        }.navigationTitle("Performance").toolbar(.visible, for: .navigationBar)
+        }.listStyle(.plain).scrollContentBackground(.hidden).cortexPage("Performance")
     }
 }
 

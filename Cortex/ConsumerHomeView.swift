@@ -39,7 +39,7 @@ struct CortexBottomNavigation: View {
                         .background(selected == item ? Color(hex: 0xE4EBFA) : .clear, in: Capsule())
                 }.accessibilityLabel(item == "quiz" ? "Qbank" : item.capitalized)
             }
-        }.padding(.horizontal, 16).frame(height: 56)
+        }.padding(.horizontal, 16).frame(width:256,height:56)
             .background(.white, in: Capsule()).overlay(Capsule().stroke(CortexStyle.line, lineWidth: 1))
             .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
             .padding(.bottom, 10).frame(maxWidth: .infinity)
@@ -52,17 +52,15 @@ struct ConsumerHomeView: View {
     @ObservedObject private var history = ReadingHistory.shared
     @ObservedObject private var studies = StudyLibrary.shared
     @ObservedObject private var studyProgress = StudyProgress.shared
+    @State private var path:[String] = []
     @State private var drawer = false
     @State private var showAccount = false
     @State private var searching = false
     @State private var query = ""
-    @State private var pendingFeature: String?
-    @State private var studyKind: String?
     @State private var showingAISettings = false
-    @State private var showingCreate = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path:$path) {
             ZStack(alignment: .leading) {
                 VStack(spacing: 0) {
                     CortexHeader(title: "Cortex", isHome: true, leading: { drawer = true }, search: { searching.toggle() })
@@ -79,69 +77,62 @@ struct ConsumerHomeView: View {
                 .background(CortexStyle.background)
                 .overlay(alignment: .bottom) {
                     CortexBottomNavigation { item in
-                        if item == "create" { showingCreate = true }
-                        else if item != "home" { studyKind = item == "quiz" ? "Qbank" : "Flashcards" }
+                        path = item == "home" ? [] : [item]
                     }
                 }
                 if drawer { drawerContents }
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingAISettings) { AISettingsView() }
-            .navigationDestination(isPresented: $showingCreate) { CreateStudyView() }
-            .navigationDestination(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
-                StudyBrowser(kind: studyKind ?? "Snapshots")
+            .navigationDestination(for:String.self) { route in
+                switch route {
+                case "create": CreateStudyView()
+                case "flashcards": StudyBrowser(kind:"Flashcards")
+                case "quiz": StudyBrowser(kind:"Qbank")
+                case "Deep dive": LibraryView(accountID:OfflineLibrary.available ? nil : session.profile?.uid)
+                case "Snapshots", "Slides": StudyBrowser(kind:route)
+                default: UtilityView(name:route)
+                }
             }
             .sheet(isPresented: $showAccount) { ConsumerAccountView() }
-            .navigationDestination(isPresented: Binding(get: { pendingFeature != nil }, set: { if !$0 { pendingFeature = nil } })) {
-                UtilityView(name: pendingFeature ?? "How-to")
-            }
-        }.tint(CortexStyle.ink)
+        }.tint(CortexStyle.ink).environment(\.consumerTabAction,{item in path = item == "home" ? [] : [item]})
     }
 
     private var homeContents: some View {
         Group {
-            Text("Continue reading").font(CortexStyle.title(18)).padding(.bottom, -4)
-            if let record = history.recent.first, let note = library.catalog?.notes.first(where: { $0.path == record.path }) {
-                NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
-                    LibraryCard(title: note.displayName, subtitle: "Continue reading · " + note.subject, symbol: "doc.text")
-                }.buttonStyle(.plain)
-            } else {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("No notes opened yet").font(CortexStyle.title(16))
-                Text("Notes you open will appear here.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
-            }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
-                .background(.white, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(CortexStyle.line, lineWidth: 1))
-            }
-            NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: {
-                Text("Find your first topic").font(.system(size: 14, weight: .medium)).foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 48).background(CortexStyle.ink, in: RoundedRectangle(cornerRadius: 14))
-            }.buttonStyle(.plain)
-            Button { studyKind = "Flashcards" } label: {
-                HStack(spacing: 10) {
-                    CortexArtwork(name: "star", size: 32)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Flashcards due today").font(CortexStyle.title(16))
-                        Text("Browse saved flashcard decks.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
-                    }
-                    Spacer(minLength: 0)
-                    CortexArtwork(name: "right", size: 22)
-                }.padding(10).frame(minHeight: 56).background(gradient(0xF0E8EB, 0xE1D0DC), in: RoundedRectangle(cornerRadius: 12))
-            }.buttonStyle(.plain)
-            NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: {
+            NavigationLink(value:"Deep dive") {
                 homeCard("DEEP DIVE", "Long form notes, flashcards and Qbank", "book", 0xEAF3FC, 0xCFE1F5)
             }.buttonStyle(.plain)
-            Button { studyKind = "Snapshots" } label: { homeCard("SNAPSHOTS", "Concise notes", "snapshot", 0xF0E8EB, 0xE1D0DC) }.buttonStyle(.plain)
-            Button { pendingFeature = "PDFs" } label: { homeCard("PDFS", "Import a PDF and mark it with the pen", "pdf", 0xE8F2EA, 0xCFE4D4) }.buttonStyle(.plain)
-            Button { pendingFeature = "Notebooks" } label: { homeCard("NOTEBOOKS", "Same paper width as notes, blank or 8 mm ruling", "notebook", 0xF6EFE4, 0xE8D9C4) }.buttonStyle(.plain)
-            Text("Previously Reviewed").font(CortexStyle.title(16)).padding(.top, 8)
-            let recent = studyProgress.recentStudy.compactMap { id in studies.entries.first { $0.id == id && $0.kind == "Snapshots" } }
+            Button { path = ["Snapshots"] } label: { homeCard("SNAPSHOTS", "Concise notes", "snapshot", 0xF0E8EB, 0xE1D0DC) }.buttonStyle(.plain)
+            Button { path = ["PDFs"] } label: { homeCard("PDFS", "Import a PDF and mark it with the pen", "pdf", 0xE8F2EA, 0xCFE4D4) }.buttonStyle(.plain)
+            Button { path = ["Notebooks"] } label: { homeCard("NOTEBOOKS", "Same paper width as notes, blank or 8 mm ruling", "notebook", 0xF6EFE4, 0xE8D9C4) }.buttonStyle(.plain)
+            Text("Continue reading").font(CortexStyle.title(18)).padding(.top,6)
+            let recent = history.recent.compactMap { record in library.catalog?.notes.first { $0.path == record.path } }
             if recent.isEmpty {
-                Text("No snapshots opened yet").font(CortexStyle.title(16))
-                Text("Snapshots you open will appear here.").font(.system(size: 12)).foregroundStyle(CortexStyle.muted)
+                VStack(alignment:.leading,spacing:2) {
+                    Text("No notes opened yet").font(CortexStyle.title(16))
+                    Text("Notes you open will appear here.").font(.system(size:12)).foregroundStyle(CortexStyle.muted)
+                }.frame(maxWidth:.infinity,alignment:.leading).padding(10)
+                    .background(.white,in:RoundedRectangle(cornerRadius:12))
+                    .overlay(RoundedRectangle(cornerRadius:12).stroke(CortexStyle.line,lineWidth:1))
+                NavigationLink(value:"Deep dive") {
+                    Text("Find your first topic")
+                }.buttonStyle(ConsumerButtonStyle())
             } else {
-                ForEach(Array(recent.prefix(5))) { entry in
-                    NavigationLink { StudyDetail(entry: entry) } label: { LibraryCard(title: entry.title, subtitle: entry.document, symbol: "doc.text") }.buttonStyle(.plain)
+                ForEach(Array(recent.prefix(3))) { note in
+                    NavigationLink { SharedNoteView(note:note) } label: {
+                        LibraryCard(title:note.displayName,subtitle:note.subject,symbol:"doc.text")
+                    }.buttonStyle(.plain)
+                }
+            }
+            Text("Previously Reviewed").font(CortexStyle.title(16)).padding(.top,8)
+            let snapshots = studyProgress.recentStudy.compactMap { id in studies.entries.first {$0.id == id && $0.kind == "Snapshots"} }
+            if snapshots.isEmpty {
+                Text("No snapshots opened yet").font(CortexStyle.title(16))
+                Text("Snapshots you open will appear here.").font(.system(size:12)).foregroundStyle(CortexStyle.muted)
+            } else {
+                ForEach(Array(snapshots.prefix(5))) { entry in
+                    NavigationLink { StudyDetail(entry:entry) } label: { LibraryCard(title:entry.title,subtitle:entry.document,symbol:"doc.text") }.buttonStyle(.plain)
                 }
             }
         }.foregroundStyle(CortexStyle.ink)
@@ -149,7 +140,7 @@ struct ConsumerHomeView: View {
 
     private var searchResults: some View {
         ForEach((library.catalog?.notes ?? []).filter { $0.matches(query) }) { note in
-            NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
+            NavigationLink { SharedNoteView(note: note) } label: {
                 LibraryCard(title: note.displayName, subtitle: note.subject, symbol: "doc.text")
             }.buttonStyle(.plain)
         }
@@ -177,23 +168,24 @@ struct ConsumerHomeView: View {
                     Text("Cortex").font(CortexStyle.title(18))
                 }
                 Divider()
-                Button { drawer = false } label: { drawerRow("Home", "home") }
-                NavigationLink { LibraryView(accountID: OfflineLibrary.available ? nil : session.profile?.uid) } label: { drawerRow("Deep dive", "book") }
+                Button { drawer = false;path = [] } label: { drawerRow("Home", "home") }
+                NavigationLink(value:"Deep dive") { drawerRow("Deep dive", "book") }
                     .simultaneousGesture(TapGesture().onEnded { drawer = false })
-                ForEach([("Snapshots", "snapshot"), ("Slides", "book"), ("Notebooks", "notebook"), ("PDFs", "pdf"), ("Performance", "quiz"), ("Storage", "storage")], id: \.0) { item in
-                    Button { drawer = false; if ["Snapshots", "Slides"].contains(item.0) { studyKind = item.0 } else { pendingFeature = item.0 } } label: { drawerRow(item.0, item.1) }
+                ForEach([("Snapshots", "snapshot"), ("Notebooks", "notebook"), ("PDFs", "pdf"), ("Performance", "quiz"), ("Storage", "storage")], id: \.0) { item in
+                    Button { drawer = false; path = [item.0] } label: { drawerRow(item.0, item.1) }
                 }
+                Divider().padding(.vertical,8)
                 Button { drawer = false; showingAISettings = true } label: { drawerRow("AI settings", "settings") }
-                Button { drawer = false; showingCreate = true } label: { drawerRow("Create with AI", "create") }
-                Button { drawer = false; if session.profile != nil { showAccount = true } else { pendingFeature = "Account sign-in" } } label: { drawerRow("Account", "settings") }
-                Button { drawer = false; pendingFeature = "How-to" } label: { drawerRow("How-to", "help") }
+                Button { drawer = false; path = ["create"] } label: { drawerRow("Create with AI", "create") }
+                Button { drawer = false; if session.profile != nil { showAccount = true } else { path = ["Account sign-in"] } } label: { drawerRow("Account", "settings") }
+                Button { drawer = false; path = ["How-to"] } label: { drawerRow("How-to", "help") }
                 Spacer()
             }.padding(12).frame(width: 260).background(.white)
         }.buttonStyle(.plain).foregroundStyle(CortexStyle.ink)
     }
 
     private func drawerRow(_ label: String, _ icon: String) -> some View {
-        HStack(spacing: 12) { CortexArtwork(name: icon, size: 22); Text(label).font(CortexStyle.title(16)); Spacer() }
+        HStack(spacing: 12) { Image("consumer_" + (["snapshot":"snapshots","notebook":"notebooks","quiz":"performance","settings":"account","create":"book"][icon] ?? icon)).resizable().scaledToFit().frame(width:22,height:22); Text(label).font(CortexStyle.title(16)); Spacer() }
             .padding(.horizontal, 4).frame(height: 44).contentShape(Rectangle())
     }
     private func gradient(_ start: UInt, _ end: UInt) -> LinearGradient {

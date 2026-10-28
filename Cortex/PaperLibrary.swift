@@ -113,28 +113,43 @@ struct PaperBrowser: View {
     @State private var ruled = true
     @State private var error: String?
     var body: some View {
-        List {
-            if store.files.filter({ $0.kind == kind }).isEmpty {
-                ContentUnavailableView(kind == "PDFs" ? "Import your first PDF" : "Create your first notebook", systemImage: "doc")
+        ScrollView {
+            LazyVStack(spacing:8) {
+                if store.files.filter({$0.kind == kind}).isEmpty {
+                    Text(kind == "PDFs" ? "No PDFs yet. Import a PDF to read and write on it." : "No notebooks yet. Create a notebook to start writing.")
+                        .font(.system(size:15)).foregroundStyle(CortexStyle.muted).multilineTextAlignment(.center).padding(32)
+                }
+                ForEach(store.files.filter {$0.kind == kind}) {file in
+                    NavigationLink {PaperReader(file:file)} label: {
+                        HStack(spacing:12) {
+                            CortexArtwork(name:kind == "PDFs" ? "pdf" : "notebook",size:40)
+                            Text(file.title).font(CortexStyle.title(16));Spacer();CortexArtwork(name:"right",size:22)
+                        }.padding(16).frame(maxWidth:.infinity,minHeight:76,alignment:.leading)
+                            .background(LinearGradient(colors:kind == "PDFs" ? [Color(hex:0xE8F2EA),Color(hex:0xCFE4D4)] : [Color(hex:0xF6EFE4),Color(hex:0xE8D9C4)],startPoint:.leading,endPoint:.trailing),in:RoundedRectangle(cornerRadius:16))
+                    }.buttonStyle(.plain).contextMenu {
+                        Button("Delete",role:.destructive) {do {try store.remove(file)} catch {self.error = error.localizedDescription}}
+                    }
+                }
+            }.padding(12)
+        }.foregroundStyle(CortexStyle.ink).background(CortexStyle.background)
+            .cortexToolbar(kind) {
+                Button {if kind == "PDFs" {importing = true} else {creating = true}} label: {Image(systemName:"plus").frame(width:40,height:48)}.accessibilityLabel(kind == "PDFs" ? "Import PDF" : "New notebook")
             }
-            ForEach(store.files.filter { $0.kind == kind }) { file in
-                NavigationLink { PaperReader(file: file) } label: { Text(file.title).font(CortexStyle.title(18)) }
-                    .swipeActions { Button("Delete", role: .destructive) { do { try store.remove(file) } catch { self.error = error.localizedDescription } } }
-            }
-        }.navigationTitle(kind).toolbar(.visible, for: .navigationBar)
-            .toolbar { Button { if kind == "PDFs" { importing = true } else { creating = true } } label: { Label(kind == "PDFs" ? "Import PDF" : "New notebook", systemImage: "plus") } }
+            .consumerTabs("home")
             .fileImporter(isPresented: $importing, allowedContentTypes: [.pdf]) { result in
                 do { try store.importPDF(result.get()) } catch { self.error = error.localizedDescription }
             }
             .sheet(isPresented: $creating) {
-                NavigationStack {
-                    Form { TextField("Notebook title", text: $title); Toggle("8 mm ruled paper", isOn: $ruled) }
-                        .navigationTitle("New notebook")
-                        .toolbar {
-                            Button("Cancel") { creating = false }
-                            Button("Create") { do { try store.create(title: title, ruled: ruled); title = ""; creating = false } catch { self.error = error.localizedDescription } }
-                        }
-                }.presentationDetents([.medium])
+                VStack(alignment:.leading,spacing:16) {
+                    Text("New notebook").font(CortexStyle.title(18))
+                    TextField("Notebook title",text:$title).font(.custom("AveriaSerifLibre-Regular",size:16)).padding(12)
+                        .background(CortexStyle.background,in:RoundedRectangle(cornerRadius:9)).overlay(RoundedRectangle(cornerRadius:9).stroke(CortexStyle.line,lineWidth:1))
+                    Toggle("8 mm ruled paper",isOn:$ruled).font(CortexStyle.title(16)).tint(CortexStyle.ink)
+                    HStack(spacing:10) {
+                        Button("Cancel") {creating = false}.buttonStyle(ConsumerButtonStyle(outlined:true))
+                        Button("Create") {do {try store.create(title:title,ruled:ruled);title = "";creating = false} catch {self.error = error.localizedDescription}}.buttonStyle(ConsumerButtonStyle())
+                    }
+                }.foregroundStyle(CortexStyle.ink).padding(22).presentationDetents([.medium])
             }
             .alert("Paper library", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") { error = nil } } message: { Text(error ?? "") }
     }
@@ -147,6 +162,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     private let store: PaperLibrary
     let ink = CortexInkSettings()
     private var canvases: [Int: PKCanvasView] = [:]
+    private var inkAnnotations:[Int:ConsumerInkAnnotation] = [:]
     private var pendingSaves: [Int: Task<Void, Never>] = [:]
     @Published var error: String?
     init(file: PaperFile, store: PaperLibrary? = nil) {
@@ -162,6 +178,8 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     }
     func reload() {
         let oldIndex = view.currentPage.flatMap { view.document?.index(for: $0) } ?? 0
+        canvases.keys.forEach {saveCanvas($0)}
+        canvases.removeAll();inkAnnotations.removeAll()
         view.document = PDFDocument(url: store.url(file))
         if let page = view.document?.page(at: min(oldIndex, max(0, (view.document?.pageCount ?? 1) - 1))) { view.go(to: page) }
     }
@@ -178,18 +196,31 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         canvas.delegate = self
         canvas.isUserInteractionEnabled = ink.drawing
         canvases[index] = canvas
+        renderInk(index)
         return canvas
     }
     func pdfView(_ pdfView: PDFView, willDisplayOverlayView overlayView: UIView, for page: PDFPage) {
         DispatchQueue.main.async { [weak self] in self?.updateTools() }
     }
+    func canvasViewDidEndUsingTool(_ canvasView:PKCanvasView) {
+        if ink.mode == .underliner {canvasView.drawing = ConsumerInkRenderer.straightenLastStroke(canvasView.drawing)}
+    }
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
         guard let index = canvases.first(where: { $0.value === canvasView })?.key else { return }
+        renderInk(index)
         pendingSaves[index]?.cancel()
         pendingSaves[index] = Task { [weak self] in
             do { try await Task.sleep(nanoseconds: 250_000_000) } catch { return }
             self?.saveCanvas(index)
         }
+    }
+    private func renderInk(_ index:Int) {
+        guard let page = view.document?.page(at:index),let canvas = canvases[index] else {return}
+        if let old = inkAnnotations[index] {page.removeAnnotation(old)}
+        let annotation = ConsumerInkAnnotation(bounds:page.bounds(for:.mediaBox),forType:.ink,withProperties:nil)
+        annotation.drawing = canvas.drawing;annotation.marksVisible = ink.visible
+        annotation.shouldDisplay = true;annotation.shouldPrint = true
+        inkAnnotations[index] = annotation;page.addAnnotation(annotation)
     }
     private func saveCanvas(_ index: Int) {
         guard let canvas = canvases[index] else { return }
@@ -202,8 +233,9 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
             canvas.isUserInteractionEnabled = ink.drawing
             canvas.tool = ink.tool
             canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
-            canvas.alpha = ink.visible ? 1 : 0
+            canvas.alpha = 0.02
         }
+        canvases.keys.forEach {renderInk($0)}
         if ink.drawing, let current = view.currentPage, let index = view.document?.index(for: current), let canvas = canvases[index] { canvas.becomeFirstResponder() }
         else { canvases.values.forEach { $0.resignFirstResponder() } }
     }
@@ -217,6 +249,8 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
     func export() throws -> URL {
         guard let document = view.document else { throw StudyAIError.message("The document could not be opened.") }
         let output = FileManager.default.temporaryDirectory.appendingPathComponent(file.id.uuidString + "-annotated.pdf")
+        inkAnnotations.values.forEach {$0.marksVisible = false}
+        defer {inkAnnotations.values.forEach {$0.marksVisible = ink.visible}}
         let firstBounds = document.page(at: 0)?.bounds(for: .mediaBox) ?? CGRect(x: 0, y: 0, width: 595, height: 842)
         let data = UIGraphicsPDFRenderer(bounds: firstBounds).pdfData { context in
             for index in 0..<document.pageCount {
@@ -229,7 +263,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
                 page.draw(with: .mediaBox, to: context.cgContext)
                 context.cgContext.restoreGState()
                 let drawing = canvases[index]?.drawing ?? (try? Data(contentsOf: store.drawingURL(file, page: index))).flatMap { try? PKDrawing(data: $0) }
-                drawing?.image(from: bounds, scale: 2).draw(in: bounds)
+                if let drawing {ConsumerInkRenderer.draw(drawing,in:context.cgContext)}
             }
         }
         try data.write(to: output, options: [.atomic, .completeFileProtection])
@@ -254,9 +288,8 @@ struct PaperReader: View {
     @State private var importingImage = false
     init(file: PaperFile) { self.file = file; _controller = StateObject(wrappedValue: PaperController(file: file)) }
     var body: some View {
-        PaperPDFView(controller: controller).navigationTitle(file.title).navigationBarTitleDisplayMode(.inline)
-            .toolbar(.visible, for: .navigationBar)
-            .toolbar {
+        PaperPDFView(controller: controller)
+            .cortexToolbar(file.title) {
                 if file.kind == "Notebooks" {
                     Button { importingImage = true } label: { Label("Add image page", systemImage: "photo.badge.plus") }
                     Button { do { try PaperLibrary.shared.appendPage(file); controller.reload() } catch { controller.error = error.localizedDescription } } label: { Label("Add page", systemImage: "doc.badge.plus") }

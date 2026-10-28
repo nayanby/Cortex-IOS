@@ -30,7 +30,7 @@ struct StorageView: View {
                 LabeledContent("PDFs and notebooks", value: String(paper.files.count))
                 LabeledContent("Saved app data", value: ByteCountFormatter.string(fromByteCount: personalBytes, countStyle: .file))
             }
-        }.navigationTitle("Storage").toolbar(.visible, for: .navigationBar)
+        }.listStyle(.plain).scrollContentBackground(.hidden).cortexPage("Storage")
             .task {
                 let root = OfflineLibrary.root
                 let personal = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -65,6 +65,6 @@ struct HelpView: View {
             Section("Study") {
                 Text("Reveal a flashcard answer and rate it Again, Hard, Good or Easy to schedule its next review. Qbank shows explanations after each answer and saves completed quiz scores in Performance.")
             }
-        }.navigationTitle("How-to").toolbar(.visible, for: .navigationBar)
+        }.listStyle(.plain).scrollContentBackground(.hidden).cortexPage("How-to")
     }
 }

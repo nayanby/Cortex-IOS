@@ -42,6 +42,9 @@ final class SnapshotTests: XCTestCase {
             if let previous { XCTAssertEqual(size-previous,4.0/3.0,accuracy:0.05,"Each Snapshot step must add exactly one point") }
             previous = size
         }
+        _ = try await controller.webView.evaluateJavaScript("window.cortexRenderInk([{points:[[20,20],[200,20]],width:14,color:'#FFF9BD',wash:true}]);")
+        let blend = try await controller.webView.evaluateJavaScript("getComputedStyle(document.getElementById('cortex-ink-wash')).mixBlendMode") as? String
+        XCTAssertEqual(blend,"multiply","Snapshot wash must blend with the page, rather than cover its text")
         let output = try await controller.exportPDF()
         defer { try? FileManager.default.removeItem(at:output) }
         XCTAssertGreaterThan((try Data(contentsOf:output)).count,1000)

@@ -34,8 +34,7 @@ struct SnapshotLibraryView: View {
                     }
                 }
             }.padding(14)
-        }.background(CortexStyle.background).navigationTitle(document ?? folder ?? "Snapshots")
-            .navigationBarTitleDisplayMode(.inline).toolbar(.visible,for:.navigationBar).searchable(text:$query,prompt:"Search Snapshots")
+        }.cortexPage(document ?? folder ?? "Snapshots",search:$query).consumerTabs("home",visible:note == nil && folder == nil && document == nil)
     }
     private var documents: [String] {
         Array(Set(entries.map(\.document))).sorted { left,right in
@@ -55,7 +54,7 @@ private struct SnapshotLibraryCard: View {
                 Text(title).font(CortexStyle.title(16)).multilineTextAlignment(.leading)
                 Text(subtitle).font(.system(size:12)).foregroundStyle(CortexStyle.muted)
             }
-            Spacer(minLength:4); Image(systemName:"chevron.right").font(.system(size:14,weight:.semibold))
+            Spacer(minLength:4); CortexArtwork(name:"right",size:22)
         }.foregroundStyle(CortexStyle.ink).padding(12).frame(maxWidth:.infinity,minHeight:70,alignment:.leading)
             .background(LinearGradient(colors:[Color(hex:0xFCF6F8),Color(hex:0xF3E5EB)],startPoint:.topLeading,endPoint:.bottomTrailing),in:RoundedRectangle(cornerRadius:16))
             .overlay(RoundedRectangle(cornerRadius:16).stroke(Color(hex:0xE9D5DE),lineWidth:1))

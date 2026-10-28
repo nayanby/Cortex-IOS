@@ -218,9 +218,7 @@ struct DocumentReader: View {
                     .background(.white)
             }
         }
-        .navigationTitle(document.title).navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+        .cortexToolbar(document.title) {
                 Menu {
                     Button("Highlight selected text · rose") { controller.highlight(color: "rose") }
                     Button("Highlight selected text · lemon") { controller.highlight(color: "lemon") }
@@ -254,7 +252,6 @@ struct DocumentReader: View {
                 }
                 Button { showingOutline = true } label: { Label("Outline", systemImage: "list.bullet") }
                     .disabled(controller.headings.isEmpty)
-            }
         }
         .onAppear { fontDelta = min(12,max(-1,fontDelta.rounded())) }
         .onChange(of: fontDelta) { _, _ in controller.applyTypography() }
@@ -278,19 +275,9 @@ struct DocumentReader: View {
         .sheet(isPresented: $showingAudio) { AudiobookView(controller: audio) }
         .navigationDestination(isPresented: $showingCreate) { CreateStudyView(note: note, initialSource: sourceText) }
         .sheet(isPresented: $showingFonts) {
-            NavigationStack {
-                Form {
-                    Stepper("Font size: \(12.25 + fontDelta, specifier: "%.2f") pt", value: $fontDelta, in: -1...12, step: 1)
-                    Stepper("Line spacing: \(line, specifier: "%.2f")", value: $line, in: 1...2, step: 0.0625)
-                    Picker("Paragraph spacing", selection: $paragraph) {
-                        ForEach([0.08, 0.11313708498984761, 0.16, 0.22627416997969524, 0.32], id: \.self) { value in
-                            Text(value.formatted(.number.precision(.fractionLength(2)))).tag(value)
-                        }
-                    }
-                    Button("Reset to default") { fontDelta = 0; line = 1.4375; paragraph = 0.16 }
-                }.navigationTitle("Font settings").toolbar { Button("Done") { showingFonts = false } }
-            }.presentationDetents([.medium])
+            ConsumerTypeSettings(delta:$fontDelta,line:$line,paragraph:$paragraph)
         }
+
         .navigationDestination(isPresented: Binding(get: { studyKind != nil }, set: { if !$0 { studyKind = nil } })) {
             StudyBrowser(kind: studyKind ?? "Snapshots", note: note)
         }

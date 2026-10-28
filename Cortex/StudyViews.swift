@@ -52,7 +52,8 @@ struct StudyDetail: View {
     @AppStorage("snapshot.fontSize") private var fontSize = 16.0
     @AppStorage("snapshot.lineSpacing") private var lineSpacing = 6.0
     var body: some View {
-        if entry.kind == "Qbank" { QuizPlayer(entry:entry) }
+        if entry.kind == "Flashcards" { FlashcardPlayer(entry:entry) }
+        else if entry.kind == "Qbank" { QuizPlayer(entry:entry) }
         else if entry.kind == "Snapshots" { SnapshotReader(entry:entry) }
         else if entry.kind == "Slides" { SlideDeckView(entry: entry) }
         else { contentBody }

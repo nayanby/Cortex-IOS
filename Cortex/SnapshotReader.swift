@@ -14,6 +14,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
     private var observation: NSKeyValueObservation?
     private var task: Task<Void,Never>?
     private var saveTask: Task<Void,Never>?
+    private var renderTask:Task<Void,Never>?
     private let drawingURL: URL
     init(entry: StudyEntry) {
         self.entry = entry
@@ -44,7 +45,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
             do {
                 let data = try JSONSerialization.jsonObject(with:JSONEncoder().encode(entry.content))
                 _ = try await view.callAsyncJavaScript("return await window.cortexLoadSnapshot(data, type);",arguments:["data":data,"type":typeArguments()],in:nil,contentWorld:.page)
-                try Task.checkCancellation(); resizeCanvas(); isLoading = false
+                try Task.checkCancellation(); resizeCanvas(); isLoading = false; renderInk()
             } catch is CancellationError { }
             catch { self.error = error.localizedDescription; isLoading = false }
         }
@@ -61,16 +62,35 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
         }
     }
     private func resizeCanvas() {
-        canvas.frame = CGRect(origin:.zero,size:webView.scrollView.contentSize)
+        let zoom = max(0.01,webView.scrollView.zoomScale)
+        canvas.transform = .identity
+        canvas.bounds = CGRect(origin:.zero,size:CGSize(width:webView.scrollView.contentSize.width/zoom,height:webView.scrollView.contentSize.height/zoom))
+        canvas.center = CGPoint(x:webView.scrollView.contentSize.width/2,y:webView.scrollView.contentSize.height/2)
+        canvas.transform = CGAffineTransform(scaleX:zoom,y:zoom)
+        canvas.contentScaleFactor = (webView.window?.screen.scale ?? UIScreen.main.scale)*zoom
         webView.scrollView.bringSubviewToFront(canvas)
     }
     private func updateTools() {
         canvas.tool = ink.tool; canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
-        canvas.isUserInteractionEnabled = ink.drawing; canvas.alpha = ink.visible ? 1 : 0
+        canvas.isUserInteractionEnabled = ink.drawing; canvas.alpha = 0.02
+        renderInk()
         webView.scrollView.panGestureRecognizer.isEnabled = !ink.drawing || ink.stylusOnly
         if ink.drawing { canvas.becomeFirstResponder() } else { canvas.resignFirstResponder() }
     }
+    private func renderInk() {
+        guard !isLoading else {return}
+        renderTask?.cancel()
+        let payload = ConsumerInkRenderer.webPayload(ink.visible ? canvas.drawing : PKDrawing())
+        renderTask = Task { [weak self] in
+            guard let self,!Task.isCancelled else {return}
+            _ = try? await webView.callAsyncJavaScript("window.cortexRenderInk(strokes);",arguments:["strokes":payload],in:nil,contentWorld:.page)
+        }
+    }
+    func canvasViewDidEndUsingTool(_ canvasView:PKCanvasView) {
+        if ink.mode == .underliner {canvasView.drawing = ConsumerInkRenderer.straightenLastStroke(canvasView.drawing)}
+    }
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
+        renderInk()
         saveTask?.cancel()
         saveTask = Task { [weak self] in
             do { try await Task.sleep(nanoseconds:250_000_000) } catch { return }
@@ -85,6 +105,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
     func redo() { canvas.undoManager?.redo() }
     func clearInk() { canvas.drawing = PKDrawing() }
     func exportPDF() async throws -> URL {
+        await renderTask?.value
         let geometry = try await webView.callAsyncJavaScript("const p=document.getElementById('paper'); return {x:p.offsetLeft,width:p.offsetWidth,height:document.documentElement.scrollHeight};",arguments:[:],in:nil,contentWorld:.page) as? [String:Double]
         guard let geometry else { throw StudyAIError.message("The Snapshot could not be prepared for export.") }
         let x = CGFloat(geometry["x"] ?? 0), width = CGFloat(geometry["width"] ?? 680), height = CGFloat(geometry["height"] ?? 1)
@@ -94,7 +115,6 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
         guard let page = PDFDocument(data:data)?.page(at:0) else { throw StudyAIError.message("The Snapshot PDF could not be created.") }
         let bounds = CGRect(x:0,y:0,width:595.28,height:841.89), margin: CGFloat = 28
         let scale = (bounds.width - 2 * margin) / width, tileHeight = (bounds.height - 2 * margin) / scale
-        let drawing = canvas.drawing
         let result = UIGraphicsPDFRenderer(bounds:bounds).pdfData { context in
             var top: CGFloat = 0
             while top < height {
@@ -106,7 +126,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
                 context.cgContext.translateBy(x:0,y:-top + page.bounds(for:.mediaBox).height)
                 context.cgContext.scaleBy(x:1,y:-1); page.draw(with:.mediaBox,to:context.cgContext)
                 context.cgContext.restoreGState()
-                if !drawing.strokes.isEmpty { drawing.image(from:CGRect(x:x,y:top,width:width,height:length),scale:2).draw(in:CGRect(x:margin,y:margin,width:width*scale,height:length*scale)) }
+                // The WebKit PDF already includes the SVG ink at vector resolution.
                 top += tileHeight
             }
         }
@@ -119,7 +139,7 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
     }
     func webView(_ view: WKWebView,didFailProvisionalNavigation navigation: WKNavigation!,withError error:Error) { self.error = error.localizedDescription; isLoading = false }
     func stop() {
-        task?.cancel(); saveTask?.cancel(); saveInk(); observation?.invalidate(); observation = nil
+        task?.cancel(); renderTask?.cancel(); saveTask?.cancel(); saveInk(); observation?.invalidate(); observation = nil
         webView.stopLoading(); webView.navigationDelegate = nil; canvas.delegate = nil; ink.onChange = nil
     }
 }
@@ -146,9 +166,9 @@ struct SnapshotReader: View {
         ZStack {
             SnapshotWebView(controller:controller)
             if controller.isLoading || exporting { ProgressView(exporting ? "Preparing PDF…" : "Opening Snapshot…").padding(24).background(.regularMaterial,in:RoundedRectangle(cornerRadius:14)) }
-        }.navigationTitle("Snapshots").navigationBarTitleDisplayMode(.inline).toolbar(.visible,for:.navigationBar)
+        }
             .safeAreaInset(edge:.bottom,spacing:0) { CortexInkToolbar(settings:controller.ink,undo:controller.undo,redo:controller.redo,clear:controller.clearInk) }
-            .toolbar {
+            .cortexToolbar("Snapshots") {
                 Button("Aa") { fonts = true }.accessibilityLabel("Font settings")
                 if let note { NavigationLink { SharedNoteView(note:note) } label: { Image(systemName:"book") }.accessibilityLabel("Deep dive") }
                 Menu {
@@ -159,18 +179,9 @@ struct SnapshotReader: View {
                     }.disabled(controller.isLoading || exporting)
                 } label: { Image(systemName:"ellipsis") }.accessibilityLabel("Snapshot menu")
             }
-            .navigationDestination(isPresented:$makeNew) { CreateStudyView(note:note,initialSource:(entry.content.sections ?? []).map(SlideExport.body).joined(separator:"\n\n")) }
+            .navigationDestination(isPresented:$makeNew) { CreateStudyView(note:note,initialSource:(entry.content.sections ?? []).map(SlideExport.body).joined(separator:"\n\n"),initialKind:"Snapshots") }
             .sheet(isPresented:$fonts) {
-                NavigationStack {
-                    Form {
-                        Stepper("Font size: \(12.25 + delta,specifier:"%.2f") pt",value:$delta,in:-1...12,step:1)
-                        Stepper("Line spacing: \(line,specifier:"%.2f")",value:$line,in:1...2,step:0.0625)
-                        Picker("Paragraph spacing",selection:$paragraph) {
-                            ForEach([0.08,0.11313708498984761,0.16,0.22627416997969524,0.32],id:\.self) { Text($0.formatted(.number.precision(.fractionLength(2)))).tag($0) }
-                        }
-                        Button("Reset to default") { delta = 0; line = 1.375; paragraph = 0.16 }
-                    }.navigationTitle("Font settings").toolbar { Button("Done") { fonts = false } }
-                }.presentationDetents([.medium])
+                ConsumerTypeSettings(delta:$delta,line:$line,paragraph:$paragraph,defaultLine:1.375)
             }
             .onChange(of:delta) { _,_ in controller.applyType() }
             .onChange(of:line) { _,_ in controller.applyType() }

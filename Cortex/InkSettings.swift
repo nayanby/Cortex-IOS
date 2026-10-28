@@ -31,7 +31,7 @@ final class CortexInkSettings: ObservableObject {
     var sizes: [CGFloat] { family == .highlighter ? [8,11,14,18,22] : [1,1.5,2,3,4] }
     var tool: PKTool {
         if mode == .eraser { return PKEraserTool(.bitmap) }
-        return PKInkingTool(mode == .highlighter ? .marker : .pen, color: colors[colorIndex], width: sizes[sizeIndex])
+        return PKInkingTool(mode == .highlighter ? .marker : .monoline, color: colors[colorIndex], width: sizes[sizeIndex])
     }
     func select(_ value: CortexInkMode) {
         mode = value

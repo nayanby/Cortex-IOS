@@ -27,8 +27,7 @@ struct SlideDeckView: View {
                 }.padding()
             }
         }.background(CortexStyle.background).foregroundStyle(CortexStyle.ink)
-            .navigationTitle("Slides").navigationBarTitleDisplayMode(.inline).toolbar(.visible, for: .navigationBar)
-            .toolbar { Button { do { exportURL = try SlideExport.pdf(entry) } catch { self.error = error.localizedDescription } } label: { Label("Export slides as PDF", systemImage: "square.and.arrow.up") } }
+            .cortexToolbar("Slides") { Button { do { exportURL = try SlideExport.pdf(entry) } catch { self.error = error.localizedDescription } } label: { Label("Export slides as PDF", systemImage: "square.and.arrow.up") } }
             .sheet(isPresented: Binding(get: { exportURL != nil }, set: { if !$0 { exportURL = nil } })) { if let exportURL { ShareSheet(items: [exportURL]) } }
             .alert("Slides", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") { error = nil } } message: { Text(error ?? "") }
     }

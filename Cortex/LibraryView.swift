@@ -49,7 +49,7 @@ struct LibraryView: View {
                                 }
                                 ForEach(localDocuments.documents.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { document in
                                     NavigationLink {
-                                        DocumentReader(document: document, fileURL: localDocuments.fileURL(for: document)).toolbar(.visible, for: .navigationBar)
+                                        DocumentReader(document: document, fileURL: localDocuments.fileURL(for: document))
                                     } label: {
                                         LibraryCard(title: document.title, subtitle: "Imported Word document", symbol: "doc.text")
                                     }
@@ -79,7 +79,7 @@ struct LibraryView: View {
                                     ContentUnavailableView.search(text: query)
                                 }
                                 ForEach(matches) { note in
-                                    NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
+                                    NavigationLink { SharedNoteView(note: note) } label: {
                                         LibraryCard(title: note.displayName, subtitle: note.subject,
                                                     symbol: "doc.text")
                                     }.buttonStyle(.plain)
@@ -146,7 +146,7 @@ struct LibraryView: View {
                 set: { if !$0 { localDocuments.errorMessage = nil } })) {
                     Button("OK") { localDocuments.errorMessage = nil }
                 } message: { Text(localDocuments.errorMessage ?? "") }
-        }.tint(CortexStyle.ink)
+        }.tint(CortexStyle.ink).consumerTabs("home")
     }
 }
 
@@ -201,7 +201,7 @@ struct ChapterList: View {
                 let notes = catalog.notes(in: subject, matching: query)
                 if notes.isEmpty { ContentUnavailableView.search(text: query) }
                 ForEach(notes) { note in
-                    NavigationLink { SharedNoteView(note: note).toolbar(.visible, for: .navigationBar) } label: {
+                    NavigationLink { SharedNoteView(note: note) } label: {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("CHAPTER \((catalog.notes(in: subject).firstIndex(where: { $0.id == note.id }) ?? 0) + 1)")
                                 .font(.system(size: 11, weight: .semibold)).tracking(1).foregroundStyle(CortexStyle.muted)

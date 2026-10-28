@@ -31,120 +31,113 @@ enum StudySelection {
 }
 
 struct StudySelectionView: View {
-    let kind: String
-    var note: LibraryNote? = nil
-    var subject: String? = nil
-    var chapter: String? = nil
-    @EnvironmentObject private var catalog: LibraryStore
+    let kind:String
+    var note:LibraryNote? = nil
+    @EnvironmentObject private var catalog:LibraryStore
     @ObservedObject private var library = StudyLibrary.shared
     @ObservedObject private var progress = StudyProgress.shared
-    @State private var selected: Set<String> = []
+    @State private var subjects:Set<String> = ["all"]
+    @State private var topics:Set<String> = []
+    @State private var counts:Set<String> = ["30"]
+    @State private var picker:String?
+    @State private var settings = false
+    @State private var solving = false
+    @State private var creating = false
+    @State private var combined:StudyEntry?
+    @State private var documentOrder = false
     @State private var query = ""
-    @State private var reviewSettings = false
-    @State private var combined: StudyEntry?
-    private var currentSubject: String? { note?.subject ?? subject }
-    private var currentChapter: String? { note?.displayName ?? chapter }
-    private var entries: [StudyEntry] { StudySelection.scope(library.entries,kind:kind,subject:currentSubject,chapter:currentChapter) }
-    private var isSubjects: Bool { currentSubject == nil }
-    private var isChapters: Bool { currentSubject != nil && currentChapter == nil }
-    private var visibleEntries: [StudyEntry] {
-        entries.filter { query.isEmpty || $0.folder.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) || $0.title.localizedCaseInsensitiveContains(query) }
-    }
-    private var chosen: [StudyEntry] {
-        guard !selected.isEmpty else { return visibleEntries }
-        return entries.filter { selected.contains("subject:" + $0.folder) || selected.contains("chapter:" + $0.document) || selected.contains("entry:" + $0.id) }
-    }
+    private var entries:[StudyEntry] { StudySelection.scope(library.entries,kind:kind,subject:note?.subject,chapter:note?.displayName) }
+    private var subject:String? { subjects.first == "all" ? nil : subjects.first }
+    private var scoped:[StudyEntry] { entries.filter { subject == nil || $0.folder == subject } }
+    private var chosen:[StudyEntry] { topics.isEmpty ? scoped : scoped.filter { topics.contains($0.id) } }
+    private var cardLimit:Int { Int(counts.first ?? "30") ?? Int.max }
+    private var count:Int { chosen.reduce(0) { $0 + (kind == "Flashcards" ? ($1.content.cards?.count ?? 0) : ($1.content.questions?.count ?? 0)) } }
     var body: some View {
         ScrollView {
-            LazyVStack(alignment:.leading,spacing:10) {
-                Text(isSubjects ? "Choose subjects" : isChapters ? "Choose chapters" : "Choose headings").font(CortexStyle.title(22))
-                Text("Select one or more, or open a card to narrow your selection.").font(.system(size:13)).foregroundStyle(CortexStyle.muted)
-                NavigationLink { CreateStudyView(note:note,initialKind:kind) } label: {
-                    Label(kind == "Qbank" ? "Create questions with AI" : "Create flashcards with AI",systemImage:"sparkles").font(.system(size:14,weight:.semibold))
-                }.padding(.bottom,4)
-                if let error = library.loadError { Text(error).foregroundStyle(.red) }
-                if entries.isEmpty { ContentUnavailableView("No saved \(kind.lowercased())",systemImage:"books.vertical",description:Text("Create a set with AI to study this topic.")) }
-                if !query.isEmpty {
-                    ForEach(visibleEntries) { entry in
-                        entryRow(entry)
-                    }
-                } else if isSubjects {
-                    ForEach(Array(Set(entries.map(\.folder))).sorted { $0.localizedStandardCompare($1) == .orderedAscending },id:\.self) { name in
-                        HStack(spacing:6) {
-                            check("subject:" + name,title:name)
-                            NavigationLink { StudySelectionView(kind:kind,subject:name) } label: {
-                                LibraryCard(title:name,subtitle:summary(entries.filter { $0.folder == name }),symbol:"books.vertical")
-                            }.buttonStyle(.plain)
-                        }
-                    }
-                } else if isChapters {
-                    ForEach(chapters,id:\.self) { name in
-                        HStack(spacing:6) {
-                            check("chapter:" + name,title:name)
-                            NavigationLink { StudySelectionView(kind:kind,subject:currentSubject,chapter:name) } label: {
-                                LibraryCard(title:name,subtitle:summary(entries.filter { $0.document == name }),symbol:"doc.text")
-                            }.buttonStyle(.plain)
-                        }
-                    }
+            VStack(alignment:.leading,spacing:14) {
+                if kind == "Qbank" && !solving {
+                    ConsumerCallout(text:"Solve a Qbank already written, or create a new one.")
+                    Button { solving = true } label: { actionCard("Solve Qbank",blue:true) }.buttonStyle(.plain)
+                    Button { creating = true } label: { actionCard("Create Qbank",blue:false) }.buttonStyle(.plain)
                 } else {
-                    ForEach(orderedEntries) { entry in entryRow(entry) }
+                    ConsumerCallout(text:kind == "Flashcards" ? "Tick all topics or the headings of them, then solve what is due or make more cards." : "Choose the subject and topics you want to solve.")
+                    if note == nil { ConsumerField(title:"Subject",value:subject ?? "All subjects") { picker = "Subject" } }
+                    if subject != nil || note != nil {
+                        ConsumerField(title:note == nil ? "Topics" : "Study material",value:topics.isEmpty ? "All topics" : "\(topics.count) headings") { picker = "Topics" }
+                    }
+                    if let error = library.loadError { Text(error).font(.system(size:13)).foregroundStyle(.red) }
+                    if kind == "Flashcards" {
+                        HStack(spacing:8) {
+                            ConsumerCallout(text:"\(count) flashcards · \(chosen.reduce(0) { $0 + progress.dueQueue($1).count }) ready to review")
+                            Button { settings = true } label: { CortexArtwork(name:"settings",size:20).frame(width:46,height:46).overlay(RoundedRectangle(cornerRadius:10).stroke(CortexStyle.line,lineWidth:1)) }.buttonStyle(.plain).accessibilityLabel("Flashcard settings")
+                        }
+                        ConsumerField(title:"Number of flashcards",value:cardLimit == Int.max ? "All flashcards" : "\(cardLimit) flashcards") { picker = "Number of flashcards" }
+                        HStack(spacing:8) {
+                            Button("Solve Due Today") { start(ordered:false) }.buttonStyle(ConsumerButtonStyle())
+                            Button("Solve In Document Order") { start(ordered:true) }.buttonStyle(ConsumerButtonStyle(outlined:true))
+                        }.disabled(count == 0)
+                        Button("Add More Flashcards") { creating = true }.buttonStyle(ConsumerButtonStyle())
+                    } else {
+                        Text("Ready-made Qbanks").font(CortexStyle.title(15))
+                        Button("Solve selected topics · \(count) questions") { start(ordered:true) }.buttonStyle(ConsumerButtonStyle()).disabled(count == 0)
+                        ForEach(chosen.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) }) { entry in
+                            NavigationLink { QuizPlayer(entry:entry) } label: {
+                                VStack(alignment:.leading,spacing:4) {
+                                    Text(entry.title).font(CortexStyle.title(16))
+                                    Text(entry.document + " · \(entry.content.questions?.count ?? 0) questions").font(.system(size:12)).foregroundStyle(CortexStyle.muted)
+                                }.frame(maxWidth:.infinity,alignment:.leading).padding(12)
+                                    .background(CortexStyle.background,in:RoundedRectangle(cornerRadius:9))
+                                    .overlay(RoundedRectangle(cornerRadius:9).stroke(CortexStyle.line,lineWidth:1))
+                            }.buttonStyle(.plain)
+                        }
+                    }
                 }
-            }.padding(14)
-        }.background(CortexStyle.background).navigationTitle(currentChapter ?? currentSubject ?? kind)
-            .navigationBarTitleDisplayMode(.inline).toolbar(.visible,for:.navigationBar)
-            .searchable(text:$query,prompt:"Search subjects, chapters and headings")
-            .toolbar {
-                if kind == "Flashcards" { Button { reviewSettings = true } label: { Label("Review settings",systemImage:"gearshape") } }
-                if !selected.isEmpty { Button("Clear selection") { selected.removeAll() } }
-            }
-            .safeAreaInset(edge:.bottom,spacing:0) {
-                if !entries.isEmpty {
-                    Button { combined = StudySelection.aggregate(chosen,kind:kind,title:currentChapter ?? currentSubject ?? (selected.isEmpty ? (query.isEmpty ? "All subjects" : "Search results") : "Selected subjects"),catalog:catalog.catalog) } label: {
-                        VStack(spacing:3) {
-                            Text(kind == "Flashcards" ? "Review \(selected.isEmpty ? "all" : "selection")" : "Solve \(selected.isEmpty ? "all" : "selection")").font(CortexStyle.title(17))
-                            Text(summary(chosen)).font(.system(size:12))
-                        }.frame(maxWidth:.infinity).padding(12)
-                    }.buttonStyle(.borderedProminent).disabled(chosen.isEmpty).padding(12).background(.white)
+            }.consumerPanel().padding(.horizontal,12).padding(.top,kind == "Flashcards" ? 12 : 6).padding(.bottom,12)
+        }.foregroundStyle(CortexStyle.ink).cortexPage(kind,search:kind == "Qbank" && solving ? $query : nil)
+            .consumerTabs(kind == "Qbank" ? "quiz" : "flashcards",visible:note == nil)
+            .onChange(of:subjects) { _,_ in topics.removeAll() }
+            .sheet(isPresented:Binding(get:{picker != nil},set:{if !$0 {picker = nil}})) {
+                if picker == "Subject" {
+                    ConsumerPicker(title:"Subject",choices:subjectChoices,selected:$subjects)
+                } else if picker == "Topics" {
+                    ConsumerPicker(title:"Topics",choices:topicChoices,selected:$topics,multiple:true)
+                } else {
+                    ConsumerPicker(title:"Number of flashcards",choices:[10,20,30,50,100].map { ConsumerChoice(id:String($0),title:"\($0) flashcards") } + [ConsumerChoice(id:"all",title:"All flashcards")],selected:$counts)
                 }
             }
-            .navigationDestination(isPresented:Binding(get:{combined != nil},set:{if !$0 { combined = nil }})) { if let combined { StudyDetail(entry:combined) } }
-            .sheet(isPresented:$reviewSettings) { ReviewSettingsView() }
+            .sheet(isPresented:$settings) { ReviewSettingsView() }
+            .navigationDestination(isPresented:$creating) { CreateStudyView(note:note,initialKind:kind) }
+            .navigationDestination(isPresented:Binding(get:{combined != nil},set:{if !$0 {combined = nil}})) {
+                if let combined {
+                    if kind == "Flashcards" { FlashcardPlayer(entry:combined,documentOrder:documentOrder,limit:cardLimit) }
+                    else { QuizPlayer(entry:combined) }
+                }
+            }
     }
-    private func check(_ id:String,title:String) -> some View {
-        Button { if selected.contains(id) { selected.remove(id) } else { selected.insert(id) } } label: {
-            Image(systemName:selected.contains(id) ? "checkmark.square.fill" : "square").font(.system(size:22)).frame(width:36,height:48)
-        }.buttonStyle(.plain).accessibilityLabel((selected.contains(id) ? "Deselect " : "Select ") + title)
-    }
-    private func entryRow(_ entry:StudyEntry) -> some View {
-        HStack(spacing:6) {
-            check("entry:" + entry.id,title:entry.title)
-            NavigationLink { StudyDetail(entry:entry) } label: {
-                LibraryCard(title:entry.title,subtitle:summary([entry]),symbol:"doc.text")
-            }.buttonStyle(.plain)
+    private var subjectChoices:[ConsumerChoice] {
+        [ConsumerChoice(id:"all",title:"All subjects",detail:"\(entries.count) saved sets")] + Array(Set(entries.map(\.folder))).sorted().map { name in
+            ConsumerChoice(id:name,title:name,detail:"\(entries.filter {$0.folder == name}.count) saved sets")
         }
     }
-    private func summary(_ rows:[StudyEntry]) -> String {
-        if kind == "Flashcards" {
-            let cards = rows.reduce(0) { $0 + ($1.content.cards?.count ?? 0) }
-            return "\(cards) cards · \(rows.count) sets"
-        }
-        let questions = rows.reduce(0) { $0 + ($1.content.questions?.count ?? 0) }
-        return "\(questions) questions · \(rows.count) sets"
+    private var topicChoices:[ConsumerChoice] {
+        // Keep document and heading order, independently of a deck's card order.
+        let notes = catalog.catalog?.notes ?? []
+        return scoped.sorted { a,b in
+            if a.document != b.document {
+                let ai = notes.first {$0.subject == a.folder && $0.displayName == a.document}?.sortOrder ?? Int.max
+                let bi = notes.first {$0.subject == b.folder && $0.displayName == b.document}?.sortOrder ?? Int.max
+                return ai == bi ? a.document.localizedStandardCompare(b.document) == .orderedAscending : ai < bi
+            }
+            return a.title.localizedStandardCompare(b.title) == .orderedAscending
+        }.map { ConsumerChoice(id:$0.id,title:$0.title,detail:$0.document) }
     }
-    private var chapters: [String] {
-        Array(Set(entries.map(\.document))).sorted { left,right in
-            let notes = catalog.catalog?.notes ?? []
-            let a = notes.first { $0.subject == currentSubject && $0.displayName == left }?.sortOrder ?? Int.max
-            let b = notes.first { $0.subject == currentSubject && $0.displayName == right }?.sortOrder ?? Int.max
-            return a == b ? left.localizedStandardCompare(right) == .orderedAscending : a < b
-        }
+    private func start(ordered:Bool) {
+        documentOrder = ordered
+        combined = StudySelection.aggregate(chosen,kind:kind,title:note?.displayName ?? subject ?? "All subjects",catalog:catalog.catalog)
     }
-    private var orderedEntries: [StudyEntry] {
-        let headings = catalog.catalog?.notes.first { $0.subject == currentSubject && $0.displayName == currentChapter }?.headings ?? []
-        return entries.sorted { left,right in
-            let a = headings.firstIndex { $0.text.caseInsensitiveCompare(left.title) == .orderedSame } ?? Int.max
-            let b = headings.firstIndex { $0.text.caseInsensitiveCompare(right.title) == .orderedSame } ?? Int.max
-            return a == b ? left.title.localizedStandardCompare(right.title) == .orderedAscending : a < b
-        }
+    private func actionCard(_ title:String,blue:Bool) -> some View {
+        HStack {
+            Text(title).font(CortexStyle.title(17));Spacer();CortexArtwork(name:"right",size:22)
+        }.padding(18).background(LinearGradient(colors:blue ? [Color(hex:0xEAF3FC),Color(hex:0xCFE1F5)] : [Color(hex:0xEEEEF0),Color(hex:0xD8D9DD)],startPoint:.leading,endPoint:.trailing),in:RoundedRectangle(cornerRadius:16))
     }
 }
