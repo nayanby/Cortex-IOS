@@ -52,6 +52,15 @@ struct StudySelectionView: View {
     @State private var combined:StudyEntry?
     @State private var documentOrder = false
     @State private var query = ""
+    private var selectionKey:String {"study.selection."+kind+"."+(note?.id ?? "library")}
+    init(kind:String,note:LibraryNote? = nil) {
+        self.kind = kind;self.note = note
+        let key = "study.selection."+kind+"."+(note?.id ?? "library")
+        let defaults = UserDefaults.standard
+        _subjects = State(initialValue:Set(defaults.stringArray(forKey:key+".subjects") ?? ["all"]))
+        _topics = State(initialValue:Set(defaults.stringArray(forKey:key+".topics") ?? []))
+        _questionCounts = State(initialValue:Set(defaults.stringArray(forKey:key+".questionCounts") ?? ["all"]))
+    }
     private var entries:[StudyEntry] { StudySelection.scope(library.entries,kind:kind,subject:note?.subject,chapter:note?.displayName) }
     private var subject:String? { subjects.first == "all" ? nil : subjects.first }
     private var scoped:[StudyEntry] { entries.filter { subject == nil || $0.folder == subject } }
@@ -103,7 +112,11 @@ struct StudySelectionView: View {
             }.consumerPanel().padding(.horizontal,12).padding(.top,kind == "Flashcards" ? 12 : 6).padding(.bottom,12)
         }.foregroundStyle(CortexStyle.ink).cortexPage(kind,search:kind == "Qbank" && solving ? $query : nil)
             .consumerTabs(kind == "Qbank" ? "quiz" : "flashcards",visible:note == nil)
-            .onChange(of:subjects) { _,_ in topics.removeAll() }
+            .onChange(of:subjects) {_,_ in
+                topics.removeAll();UserDefaults.standard.set(Array(subjects),forKey:selectionKey+".subjects")
+            }
+            .onChange(of:topics) {_,_ in UserDefaults.standard.set(Array(topics),forKey:selectionKey+".topics")}
+            .onChange(of:questionCounts) {_,_ in UserDefaults.standard.set(Array(questionCounts),forKey:selectionKey+".questionCounts")}
             .overlay {
                 if picker == "Subject" || picker == "Topics" {
                     StudyScopePopup(subjects:subjectChoices,topics:topicChoices,selectedSubject:$subjects,selectedTopics:$topics,startsWithTopics:picker == "Topics",questionCount:kind == "Qbank" ? $questionCounts : nil,close:{picker = nil})
