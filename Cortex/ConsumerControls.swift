@@ -91,6 +91,7 @@ struct ConsumerPicker: View {
 private struct ConsumerPageModifier: ViewModifier {
     let title:String
     var query:Binding<String>?
+    var onBack:(()->Void)? = nil
     @State private var searching = false
     @Environment(\.dismiss) private var dismiss
     func body(content:Content) -> some View {
@@ -98,7 +99,7 @@ private struct ConsumerPageModifier: ViewModifier {
             .safeAreaInset(edge:.top,spacing:0) {
                 VStack(spacing:0) {
                     HStack(spacing:12) {
-                        Button { dismiss() } label: { CortexArtwork(name:"back",size:28).frame(width:40,height:48) }.accessibilityLabel("Back")
+                        Button {if let onBack {onBack()} else {dismiss()}} label: { CortexArtwork(name:"back",size:28).frame(width:40,height:48) }.accessibilityLabel("Back")
                         Text(title).font(CortexStyle.title(20)).lineLimit(1);Spacer(minLength:4)
                         if query != nil {
                             Button { searching.toggle() } label: { CortexArtwork(name:"search",size:28).frame(width:44,height:48) }.accessibilityLabel("Search")
@@ -114,7 +115,7 @@ private struct ConsumerPageModifier: ViewModifier {
     }
 }
 extension View {
-    func cortexPage(_ title:String,search:Binding<String>? = nil) -> some View { modifier(ConsumerPageModifier(title:title,query:search)) }
+    func cortexPage(_ title:String,search:Binding<String>? = nil,onBack:(()->Void)? = nil) -> some View {modifier(ConsumerPageModifier(title:title,query:search,onBack:onBack))}
     func consumerPanel() -> some View {
         self.padding(.horizontal,18).padding(.top,16).padding(.bottom,20).frame(maxWidth:.infinity,alignment:.topLeading)
             .background(.white,in:RoundedRectangle(cornerRadius:16))

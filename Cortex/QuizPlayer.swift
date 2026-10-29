@@ -2,6 +2,8 @@ import SwiftUI
 
 struct QuizPlayer: View {
     let entry: StudyEntry
+    @Environment(\.dismiss) private var dismiss
+    @State private var askingExit = false
     @ObservedObject private var progress = StudyProgress.shared
     @State private var index = 0
     @State private var selected: Int?
@@ -26,14 +28,21 @@ struct QuizPlayer: View {
                 questionScreen
             }
         }.background(CortexStyle.background).foregroundStyle(CortexStyle.ink)
-            .cortexPage("Qbank")
+            .cortexPage("Qbank",onBack:{if finished || questions.isEmpty {dismiss()} else {askingExit = true}})
+            .background(QuizBackSwipeGuard(blocked:!finished && !questions.isEmpty).allowsHitTesting(false))
+            .interactiveDismissDisabled(!finished && !questions.isEmpty)
+            .alert("Leave this Qbank?",isPresented:$askingExit) {
+                Button("Pause") {save();dismiss()}
+                Button("Exit without saving",role:.destructive) {progress.discardAttempt(entry:entry.id);dismiss()}
+                Button("Continue solving",role:.cancel) {}
+            } message: {Text("Pause saves your answers and current question. Exit without saving discards this attempt.")}
             .onAppear {
                 guard !initialized else { return }; initialized = true;progress.opened(entry)
                 if let attempt = progress.attempts[entry.id] {
                     answers = attempt.answers.filter { questions.indices.contains($0.key) && questions[$0.key].options.indices.contains($0.value) }
                     finished = attempt.completed; recorded = attempt.completed
                     index = min(max(0,attempt.currentIndex ?? questions.indices.first(where:{answers[$0] == nil}) ?? 0),max(0,questions.count-1))
-                    selected = answers[index]
+                    selected = answers[index] ?? attempt.selectedChoice.flatMap {choice in questions.indices.contains(index) && questions[index].options.indices.contains(choice) ? choice : nil}
                 }
             }
     }
@@ -92,5 +101,5 @@ struct QuizPlayer: View {
         return selected == option ? Color(hex:0xDFEAFB) : .white
     }
     private func move(_ offset:Int) { index = min(max(0,index+offset),max(0,questions.count-1)); selected = answers[index]; save() }
-    private func save() { progress.saveAttempt(entry:entry.id,answers:answers,completed:finished,currentIndex:index) }
+    private func save() { progress.saveAttempt(entry:entry.id,answers:answers,completed:finished,currentIndex:index,selectedChoice:selected) }
 }

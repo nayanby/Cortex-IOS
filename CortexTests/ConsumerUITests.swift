@@ -62,7 +62,7 @@ final class ConsumerUITests:XCTestCase {
             try await capture(StudySelectionView(kind:"Qbank"),name:"Qbank",size:size)
             try await capture(CreateStudyView(),name:"Create",size:size)
             try await capture(FlashcardPlayer(entry:card,documentOrder:true),name:"Review",size:size)
-            try await capture(StudyScopePopup(subjects:[ConsumerChoice(id:"Cardiology",title:"Cardiology",detail:"2 saved topics")],topics:[ConsumerChoice(id:"a",title:"Arrhythmia",detail:"III. Arrhythmia")],selectedSubject:.constant(["Cardiology"]),selectedTopics:.constant([]),startsWithTopics:true,close:{}),name:"TopicsPopup",size:size)
+            try await capture(StudyScopePopup(subjects:[ConsumerChoice(id:"Cardiology",title:"Cardiology",detail:"2 saved topics")],topics:[ConsumerChoice(id:"a",title:"Arrhythmia",detail:"III. Arrhythmia")],selectedSubject:.constant(["Cardiology"]),selectedTopics:.constant([]),startsWithTopics:true,questionCount:.constant(["20"]),close:{}),name:"TopicsPopup",size:size)
             let fixture = try XCTUnwrap(Bundle(for:ConsumerUITests.self).url(forResource:"reader-check",withExtension:"docx",subdirectory:"Fixtures"))
             try await capture(DocumentReader(document:LocalDocument(id:UUID(),title:"Reader check",importedAt:Date()),fileURL:fixture),name:"NoteControls",size:size)
             let snapshotContent = try JSONDecoder().decode(StudyContent.self,from:Data(#"{"title":"Example Snapshot","sections":[{"heading":"Example","points":["Readable text"]}]}"#.utf8))

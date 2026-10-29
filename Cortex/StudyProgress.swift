@@ -6,7 +6,7 @@ struct CardReview: Codable {
     let interval: Double
     let reviews: Int
 }
-struct QuizAttempt: Codable { let answers: [Int: Int]; let completed: Bool; var currentIndex: Int? = nil }
+struct QuizAttempt: Codable { let answers: [Int: Int]; let completed: Bool; var currentIndex: Int? = nil; var selectedChoice:Int? = nil }
 struct QuizResult: Codable, Identifiable {
     let id: UUID
     let title: String
@@ -73,9 +73,13 @@ final class StudyProgress: ObservableObject {
         let new = deck.indices.filter { cards[Self.cardKey(entry,index:$0)] == nil }.prefix(max(0, newLimit))
         return Array(reviewed.prefix(9999)) + new
     }
-    func saveAttempt(entry: String, answers: [Int: Int], completed: Bool, currentIndex: Int? = nil) {
-        attempts[entry] = QuizAttempt(answers: answers, completed: completed, currentIndex:currentIndex)
+    func saveAttempt(entry: String, answers: [Int: Int], completed: Bool, currentIndex: Int? = nil,selectedChoice:Int? = nil) {
+        attempts[entry] = QuizAttempt(answers: answers, completed: completed, currentIndex:currentIndex,selectedChoice:selectedChoice)
         if let data = try? JSONEncoder().encode(attempts) { defaults.set(data, forKey: "study.attempts") }
+    }
+    func discardAttempt(entry:String) {
+        attempts.removeValue(forKey:entry)
+        if let data = try? JSONEncoder().encode(attempts) {defaults.set(data,forKey:"study.attempts")}
     }
     func recordQuiz(title: String, correct: Int, total: Int) {
         quizzes.insert(QuizResult(id: UUID(), title: title, date: Date(), correct: correct, total: total), at: 0)

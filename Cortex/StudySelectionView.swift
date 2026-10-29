@@ -25,6 +25,11 @@ enum StudySelection {
         return StudyEntry(id:id,kind:kind,document:title,folder:"Selected subjects",title:title,
             content:StudyContent(title:title,sections:nil,cards:cards,questions:questions))
     }
+    static func quizSession(_ entry:StudyEntry,limit:Int?) -> StudyEntry {
+        guard entry.kind == "Qbank",let limit,let questions = entry.content.questions,limit>0,limit<questions.count else {return entry}
+        return StudyEntry(id:entry.id+"-questions-"+String(limit),kind:entry.kind,document:entry.document,folder:entry.folder,title:entry.title,
+            content:StudyContent(title:entry.content.title,sections:nil,cards:nil,questions:Array(questions.prefix(limit))))
+    }
     static func scope(_ entries:[StudyEntry],kind:String,subject:String?,chapter:String?) -> [StudyEntry] {
         entries.filter { $0.kind == kind && (subject == nil || $0.folder.caseInsensitiveCompare(subject!) == .orderedSame) && (chapter == nil || $0.document.caseInsensitiveCompare(chapter!) == .orderedSame) }
     }
@@ -39,6 +44,7 @@ struct StudySelectionView: View {
     @State private var subjects:Set<String> = ["all"]
     @State private var topics:Set<String> = []
     @State private var counts:Set<String> = ["30"]
+    @State private var questionCounts:Set<String> = ["all"]
     @State private var picker:String?
     @State private var settings = false
     @State private var solving = false
@@ -51,6 +57,7 @@ struct StudySelectionView: View {
     private var scoped:[StudyEntry] { entries.filter { subject == nil || $0.folder == subject } }
     private var chosen:[StudyEntry] { topics.isEmpty ? scoped : scoped.filter { topics.contains($0.id) } }
     private var cardLimit:Int { Int(counts.first ?? "30") ?? Int.max }
+    private var questionLimit:Int? {Int(questionCounts.first ?? "all")}
     private var count:Int { chosen.reduce(0) { $0 + (kind == "Flashcards" ? ($1.content.cards?.count ?? 0) : ($1.content.questions?.count ?? 0)) } }
     var body: some View {
         ScrollView {
@@ -78,10 +85,11 @@ struct StudySelectionView: View {
                         }.disabled(count == 0)
                         Button("Add More Flashcards") { creating = true }.buttonStyle(ConsumerButtonStyle())
                     } else {
+                        ConsumerField(title:"Number of questions",value:questionLimit.map {"\($0) questions"} ?? "All questions") {picker = "Number of questions"}
                         Text("Ready-made Qbanks").font(CortexStyle.title(15))
-                        Button("Solve selected topics · \(count) questions") { start(ordered:true) }.buttonStyle(ConsumerButtonStyle()).disabled(count == 0)
+                        Button("Solve selected topics · \(min(questionLimit ?? count,count)) questions") { start(ordered:true) }.buttonStyle(ConsumerButtonStyle()).disabled(count == 0)
                         ForEach(chosen.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) || $0.document.localizedCaseInsensitiveContains(query) }) { entry in
-                            NavigationLink { QuizPlayer(entry:entry) } label: {
+                            NavigationLink { QuizPlayer(entry:StudySelection.quizSession(entry,limit:questionLimit)) } label: {
                                 VStack(alignment:.leading,spacing:4) {
                                     Text(entry.title).font(CortexStyle.title(16))
                                     Text(entry.document + " · \(entry.content.questions?.count ?? 0) questions").font(.system(size:12)).foregroundStyle(CortexStyle.muted)
@@ -98,11 +106,14 @@ struct StudySelectionView: View {
             .onChange(of:subjects) { _,_ in topics.removeAll() }
             .overlay {
                 if picker == "Subject" || picker == "Topics" {
-                    StudyScopePopup(subjects:subjectChoices,topics:topicChoices,selectedSubject:$subjects,selectedTopics:$topics,startsWithTopics:picker == "Topics",close:{picker = nil})
+                    StudyScopePopup(subjects:subjectChoices,topics:topicChoices,selectedSubject:$subjects,selectedTopics:$topics,startsWithTopics:picker == "Topics",questionCount:kind == "Qbank" ? $questionCounts : nil,close:{picker = nil})
                 }
             }
             .sheet(isPresented:Binding(get:{picker == "Number of flashcards"},set:{if !$0 {picker = nil}})) {
                 ConsumerPicker(title:"Number of flashcards",choices:[10,20,30,50,100].map {ConsumerChoice(id:String($0),title:"\($0) flashcards")} + [ConsumerChoice(id:"all",title:"All flashcards")],selected:$counts)
+            }
+            .sheet(isPresented:Binding(get:{picker == "Number of questions"},set:{if !$0 {picker = nil}})) {
+                ConsumerPicker(title:"Number of questions",choices:[10,20,30,50].map {ConsumerChoice(id:String($0),title:"\($0) questions")} + [ConsumerChoice(id:"all",title:"All questions")],selected:$questionCounts)
             }
             .sheet(isPresented:$settings) { ReviewSettingsView() }
             .navigationDestination(isPresented:$creating) { CreateStudyView(note:note,initialKind:kind) }
@@ -132,7 +143,8 @@ struct StudySelectionView: View {
     }
     private func start(ordered:Bool) {
         documentOrder = ordered
-        combined = StudySelection.aggregate(chosen,kind:kind,title:note?.displayName ?? subject ?? "All subjects",catalog:catalog.catalog)
+        let entry = StudySelection.aggregate(chosen,kind:kind,title:note?.displayName ?? subject ?? "All subjects",catalog:catalog.catalog)
+        combined = kind == "Qbank" ? StudySelection.quizSession(entry,limit:questionLimit) : entry
     }
     private func actionCard(_ title:String,blue:Bool) -> some View {
         HStack {

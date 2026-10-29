@@ -2,6 +2,32 @@ import XCTest
 @testable import Cortex
 
 final class StudyTests: XCTestCase {
+    func testQuestionLimitsRespectAvailableQuestionsAndKeepResumeSeparate() throws {
+        let questions = (0..<60).map {["question":"Question \($0)","options":["A","B"],"correctIndex":0,"explanation":"Answer"] as [String:Any]}
+        let content = try JSONDecoder().decode(StudyContent.self,from:JSONSerialization.data(withJSONObject:["questions":questions]))
+        let entry = StudyEntry(id:"quiz-count",kind:"Qbank",document:"Chapter",folder:"Subject",title:"Quiz",content:content)
+        for limit in [10,20,30,50] {
+            let session = StudySelection.quizSession(entry,limit:limit)
+            XCTAssertEqual(session.content.questions?.count,limit)
+            XCTAssertEqual(session.content.questions?.last?.question,"Question \(limit-1)")
+            XCTAssertNotEqual(session.id,entry.id,"A shorter session must not overwrite the full quiz's saved attempt")
+        }
+        XCTAssertEqual(StudySelection.quizSession(entry,limit:nil).content.questions?.count,60)
+        XCTAssertEqual(StudySelection.quizSession(entry,limit:100).id,entry.id)
+    }
+    @MainActor
+    func testPauseSavesPendingSelectionAndDiscardKeepsCompletedHistory() throws {
+        let suite = "quiz-pause-"+UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName:suite));defer {defaults.removePersistentDomain(forName:suite)}
+        let progress = StudyProgress(defaults:defaults)
+        progress.recordQuiz(title:"Earlier quiz",correct:4,total:5)
+        progress.saveAttempt(entry:"active",answers:[0:1],completed:false,currentIndex:2,selectedChoice:3)
+        let paused = StudyProgress(defaults:defaults)
+        XCTAssertEqual(paused.attempts["active"]?.answers,[0:1]);XCTAssertEqual(paused.attempts["active"]?.currentIndex,2);XCTAssertEqual(paused.attempts["active"]?.selectedChoice,3)
+        paused.discardAttempt(entry:"active")
+        let discarded = StudyProgress(defaults:defaults)
+        XCTAssertNil(discarded.attempts["active"]);XCTAssertEqual(discarded.quizzes.count,1)
+    }
     func testSubjectAndChapterSelectionExcludesOtherStudySets() throws {
         func entry(_ id:String,_ kind:String,_ folder:String,_ document:String) throws -> StudyEntry {
             let source = kind == "Qbank" ? #"{"questions":[{"question":"Q","options":["A","B"],"correctIndex":0,"explanation":"E"}]}"# : #"{"cards":[{"front":"Q","back":"A"}]}"#

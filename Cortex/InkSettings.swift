@@ -1,7 +1,10 @@
 import SwiftUI
 import PencilKit
 
-enum CortexInkMode: String, CaseIterable, Hashable { case pen, highlighter, underliner, eraser }
+enum CortexInkMode:String,CaseIterable,Hashable {
+    case pen,highlighter,underliner,eraser
+    static let toolbarOrder:[CortexInkMode] = [.pen,.highlighter,.eraser,.underliner]
+}
 @MainActor
 final class CortexInkSettings: ObservableObject {
     @Published private(set) var mode: CortexInkMode = .pen
@@ -62,7 +65,7 @@ struct CortexInkToolbar: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 14) {
-                ForEach([CortexInkMode.pen,.highlighter,.underliner,.eraser], id: \.self) { mode in
+                ForEach(CortexInkMode.toolbarOrder, id: \.self) { mode in
                     Button { if settings.drawing && settings.mode == mode {options = true} else {settings.select(mode)} } label: {
                         Image("consumer_tool_" + mode.rawValue).resizable().scaledToFit().frame(width:20,height:20)
                             .foregroundStyle(CortexStyle.ink).frame(width: 36,height: 38)
@@ -148,11 +151,11 @@ struct ConsumerInlineInkTools:View {
     @State private var confirmClear = false
     var body:some View {
         HStack(spacing:2) {
-            ForEach([CortexInkMode.pen,.highlighter,.underliner],id:\.self) {mode in
+            ForEach(CortexInkMode.toolbarOrder,id:\.self) {mode in
                 Button {
                     if settings.drawing && settings.mode == mode {options = true} else {settings.select(mode)}
                 } label: {
-                    Image("consumer_tool_"+mode.rawValue).resizable().renderingMode(.template).scaledToFit().frame(width:20,height:20)
+                    Image("consumer_tool_"+mode.rawValue).resizable().renderingMode(mode == .eraser ? .original : .template).scaledToFit().frame(width:20,height:20)
                         .foregroundStyle(settings.drawing && settings.mode == mode ? Color(uiColor:settings.colors[settings.colorIndex]) : CortexStyle.ink)
                         .frame(width:30,height:38).background(settings.drawing && settings.mode == mode ? Color(hex:0xE4EBFA) : .clear,in:RoundedRectangle(cornerRadius:8))
                 }.accessibilityLabel(mode.rawValue.capitalized)

@@ -6,6 +6,7 @@ struct StudyScopePopup:View {
     @Binding var selectedSubject:Set<String>
     @Binding var selectedTopics:Set<String>
     var startsWithTopics = false
+    var questionCount:Binding<Set<String>>? = nil
     let close:()->Void
     @State private var showingTopics = false
     @State private var query = ""
@@ -52,6 +53,22 @@ struct StudyScopePopup:View {
                         }
                     }.scrollDismissesKeyboard(.interactively)
                     if showingTopics {
+                        if let questionCount {
+                            VStack(alignment:.leading,spacing:8) {
+                                Text("Questions to solve").font(CortexStyle.title(15))
+                                HStack(spacing:6) {
+                                    ForEach(["10","20","30","50","all"],id:\.self) {value in
+                                        Button {questionCount.wrappedValue = [value]} label: {
+                                            Text(value == "all" ? "All" : value).font(CortexStyle.title(16)).frame(maxWidth:.infinity,minHeight:44)
+                                                .foregroundStyle(questionCount.wrappedValue.contains(value) ? .white : CortexStyle.ink)
+                                                .background(questionCount.wrappedValue.contains(value) ? CortexStyle.ink : CortexStyle.background,in:RoundedRectangle(cornerRadius:9))
+                                                .overlay(RoundedRectangle(cornerRadius:9).stroke(CortexStyle.line,lineWidth:1))
+                                        }.buttonStyle(.plain).accessibilityLabel(value == "all" ? "All questions" : value+" questions")
+                                            .accessibilityAddTraits(questionCount.wrappedValue.contains(value) ? .isSelected : [])
+                                    }
+                                }
+                            }.padding(.horizontal,16).padding(.vertical,12)
+                        }
                         CortexStyle.line.frame(height:1)
                         HStack {Text(selectedTopics.isEmpty ? "All topics selected" : "\(selectedTopics.count) headings selected").font(.system(size:13));Spacer();Button("Use selection",action:close).buttonStyle(ConsumerButtonStyle()).frame(width:160)}.padding(16)
                     }

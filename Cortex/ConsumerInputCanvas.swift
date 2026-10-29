@@ -12,6 +12,7 @@ final class ConsumerInputCanvas:PKCanvasView {
     let history = UndoManager()
     private var base = PKDrawing()
     private var points:[PKStrokePoint] = []
+    private var smoother = ConsumerStrokeSmoother()
     private var started:TimeInterval = 0
     private var timestamp = Date()
     private var activeTool:PKInkingTool?
@@ -24,10 +25,10 @@ final class ConsumerInputCanvas:PKCanvasView {
     required init?(coder:NSCoder) {fatalError("init(coder:) has not been implemented")}
     func configureInput() {drawingGestureRecognizer.isEnabled = false}
     fileprivate func begin(_ touch:UITouch,event:UIEvent) {
-        base = drawing;points = [];started = touch.timestamp;timestamp = Date();activeTool = tool as? PKInkingTool
+        base = drawing;points = [];smoother.reset();started = touch.timestamp;timestamp = Date();activeTool = tool as? PKInkingTool
         append(touch,event:event)
     }
-    fileprivate func append(_ touch:UITouch,event:UIEvent) {
+    fileprivate func append(_ touch:UITouch,event:UIEvent,final:Bool = false) {
         if markingMode == .eraser {
             let locations = (event.coalescedTouches(for:touch) ?? [touch]).map {$0.location(in:self)}
             let remaining = drawing.strokes.filter {stroke in
@@ -42,10 +43,16 @@ final class ConsumerInputCanvas:PKCanvasView {
         guard let activeTool else {return}
         for sample in event.coalescedTouches(for:touch) ?? [touch] {
             let location = sample.location(in:self)
-            let point = markingMode == .underliner && !points.isEmpty ? CGPoint(x:location.x,y:points[0].location.y) : location
+            let point = markingMode == .underliner ? CGPoint(x:location.x,y:points.first?.location.y ?? location.y) : smoother.sample(location,time:sample.timestamp)
             if let previous = points.last,markingMode != .underliner,hypot(point.x-previous.location.x,point.y-previous.location.y)<0.35 {continue}
             let value = PKStrokePoint(location:point,timeOffset:max(0,sample.timestamp-started),size:CGSize(width:activeTool.width*widthScale,height:activeTool.width*widthScale),opacity:1,force:1,azimuth:0,altitude:.pi/2)
             if markingMode == .underliner && points.count>1 {points[1] = value} else {points.append(value)}
+        }
+        if final,markingMode != .underliner {
+            let endpoint = smoother.finish(touch.location(in:self),time:touch.timestamp)
+            if let previous = points.last,hypot(endpoint.x-previous.location.x,endpoint.y-previous.location.y)>0.01 {
+                points.append(PKStrokePoint(location:endpoint,timeOffset:max(previous.timeOffset+0.001,touch.timestamp-started),size:previous.size,opacity:1,force:1,azimuth:0,altitude:.pi/2))
+            }
         }
         guard !points.isEmpty else {return}
         let stroke = PKStroke(ink:activeTool.ink,path:PKStrokePath(controlPoints:points,creationDate:timestamp))
@@ -81,7 +88,7 @@ private final class ConsumerStrokeGesture:UIGestureRecognizer {
     }
     override func touchesEnded(_ touches:Set<UITouch>,with event:UIEvent) {
         guard let touch = tracked,touches.contains(touch) else {return}
-        canvas?.append(touch,event:event);canvas?.end(cancelled:false);state = .ended
+        canvas?.append(touch,event:event,final:true);canvas?.end(cancelled:false);state = .ended
     }
     override func touchesCancelled(_ touches:Set<UITouch>,with event:UIEvent) {canvas?.end(cancelled:true);state = .cancelled}
     override func reset() {tracked = nil;super.reset()}
