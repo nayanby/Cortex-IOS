@@ -21,6 +21,7 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
     @Published var bookmarks: [ReaderBookmark] = []
     @Published var annotationMessage: String?
     let webView: WKWebView
+    let pen:ReaderInkController
     private let fileURL: URL
     private let progressKey: String
     private var loadTask: Task<Void, Never>?
@@ -30,8 +31,11 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
         progressKey = "reading.\(documentID.uuidString)"
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .nonPersistent()
-        webView = WKWebView(frame: .zero, configuration: configuration)
+        let reader = WKWebView(frame:.zero,configuration:configuration)
+        webView = reader
+        pen = ReaderInkController(webView:reader,documentID:documentID)
         super.init()
+        pen.onError = {[weak self] message in self?.annotationMessage = message}
         if let data = UserDefaults.standard.data(forKey: progressKey + ".bookmarks"), let saved = try? JSONDecoder().decode([ReaderBookmark].self, from: data) { bookmarks = saved }
         webView.navigationDelegate = self
         // WKWebView copies its configuration. Register on the actual controller,
@@ -73,6 +77,7 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
                     _ = try? await webView.callAsyncJavaScript("return window.cortexApplyHighlights(records);", arguments: ["records": records], in: nil, contentWorld: .page)
                 }
                 isLoading = false
+                pen.documentReady()
             } catch is CancellationError { }
             catch { fail("Could not open this Word document. \(error.localizedDescription)") }
         }
@@ -120,6 +125,7 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
         Task {
             _ = try? await webView.callAsyncJavaScript("return window.cortexSetTypography(delta, line, paragraph);",
                 arguments: arguments, in: nil, contentWorld: .page)
+            pen.render()
         }
     }
 
@@ -158,6 +164,7 @@ final class ReaderController: NSObject, ObservableObject, WKNavigationDelegate, 
     }
     func stop() {
         loadTask?.cancel()
+        pen.stop()
         webView.stopLoading()
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "readingProgress")
         webView.navigationDelegate = nil
@@ -186,6 +193,7 @@ struct DocumentReader: View {
     let note: LibraryNote?
     @StateObject private var controller: ReaderController
     @StateObject private var audio: AudiobookController
+    @AppStorage("reader.stylusControls") private var stylusControls = true
     @State private var showingOutline = false
     @State private var showingFonts = false
     @State private var studyKind: String?
@@ -218,41 +226,47 @@ struct DocumentReader: View {
                     .background(.white)
             }
         }
-        .cortexToolbar(document.title) {
-                Menu {
-                    Button("Highlight selected text · rose") { controller.highlight(color: "rose") }
-                    Button("Highlight selected text · lemon") { controller.highlight(color: "lemon") }
-                    Button("Highlight selected text · aqua") { controller.highlight(color: "aqua") }
-                    Button("Clear highlights", role: .destructive) { controller.clearHighlights() }
-                    Button("Write on a PDF copy") { openPaperCopy() }
-                        .disabled(controller.isLoading || controller.errorMessage != nil)
-                    Button("Add bookmark") { controller.addBookmark() }
-                    Button("Bookmarks") { showingBookmarks = true }
-                } label: { Label("Annotations", systemImage: "highlighter") }
-                Button { showingFonts = true } label: { Label("Font settings", systemImage: "textformat.size") }
-                Menu {
-                    ForEach(["Snapshots", "Flashcards", "Qbank", "Slides"], id: \.self) { kind in
-                        Button(kind) { studyKind = kind }
-                    }
-                    Button("Read aloud") {
-                        Task {
-                            let text = (try? await controller.webView.evaluateJavaScript("document.getElementById('paper').innerText")) as? String ?? ""
-                            audio.prepare(text); showingAudio = true
-                        }
-                    }.disabled(controller.isLoading || controller.errorMessage != nil)
-                    Button("Create with AI") {
-                        Task {
-                            sourceText = (try? await controller.webView.evaluateJavaScript("getSelection()?.toString().trim() || document.getElementById('paper').innerText")) as? String ?? ""
-                            showingCreate = true
-                        }
-                    }.disabled(controller.isLoading || controller.errorMessage != nil)
-                } label: { Label("Study tools", systemImage: "rectangle.stack") }
-                if allowsSharing {
-                    ShareLink(item: fileURL) { Label("Share Word document", systemImage: "square.and.arrow.up") }
-                }
-                Button { showingOutline = true } label: { Label("Outline", systemImage: "list.bullet") }
-                    .disabled(controller.headings.isEmpty)
+        .overlay(alignment:.bottom) {
+            HStack {
+                Button {studyKind = "Snapshots"} label: {CortexArtwork(name:"snapshot",size:26)}.buttonStyle(ConsumerFloatingToolStyle()).accessibilityLabel("Snapshots")
+                Spacer()
+                Button {showingOutline = true} label: {Image("consumer_tool_outline").resizable().scaledToFit().frame(width:22,height:22)}.buttonStyle(ConsumerFloatingToolStyle()).accessibilityLabel("Outline").disabled(controller.headings.isEmpty)
+            }.padding(.horizontal,12).padding(.bottom,10)
         }
+        .cortexToolbar(document.title) {
+            Button("Aa") {showingFonts = true}.frame(width:30,height:38).accessibilityLabel("Font settings")
+            if stylusControls {ConsumerInlineInkTools(settings:controller.pen.settings,undo:controller.pen.undo,redo:controller.pen.redo,clear:controller.pen.clear)}
+            Menu {
+                Toggle("Stylus",isOn:$stylusControls)
+                Button("Flashcards") {studyKind = "Flashcards"}
+                Button("Qbank") {studyKind = "Qbank"}
+                Button("Snapshots") {studyKind = "Snapshots"}
+                Button("Outline") {showingOutline = true}
+                Divider()
+                Button("Highlight selected text · rose") {controller.highlight(color:"rose")}
+                Button("Highlight selected text · lemon") {controller.highlight(color:"lemon")}
+                Button("Highlight selected text · aqua") {controller.highlight(color:"aqua")}
+                Button("Clear text highlights",role:.destructive) {controller.clearHighlights()}
+                Button("Write on a PDF copy") {openPaperCopy()}.disabled(controller.isLoading || controller.errorMessage != nil)
+                Button("Add bookmark") {controller.addBookmark()}
+                Button("Bookmarks") {showingBookmarks = true}
+                Button("Slides") {studyKind = "Slides"}
+                Button("Read aloud") {
+                    Task {
+                        let text = (try? await controller.webView.evaluateJavaScript("document.getElementById('paper').innerText")) as? String ?? ""
+                        audio.prepare(text);showingAudio = true
+                    }
+                }.disabled(controller.isLoading || controller.errorMessage != nil)
+                Button("Create with AI") {
+                    Task {
+                        sourceText = (try? await controller.webView.evaluateJavaScript("getSelection()?.toString().trim() || document.getElementById('paper').innerText")) as? String ?? ""
+                        showingCreate = true
+                    }
+                }.disabled(controller.isLoading || controller.errorMessage != nil)
+                if allowsSharing {ShareLink(item:fileURL) {Text("Share Word document")}}
+            } label: {Image("consumer_tool_more").resizable().scaledToFit().frame(width:22,height:22).frame(width:30,height:38)}.accessibilityLabel("Note menu")
+        }
+        .onChange(of:stylusControls) {_,value in if !value {controller.pen.settings.drawing = false}}
         .onAppear { fontDelta = min(12,max(-1,fontDelta.rounded())) }
         .onChange(of: fontDelta) { _, _ in controller.applyTypography() }
         .onChange(of: line) { _, _ in controller.applyTypography() }

@@ -195,7 +195,7 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         if let data = try? Data(contentsOf: store.drawingURL(file, page: index)), let drawing = try? PKDrawing(data: data) { canvas.drawing = drawing }
         canvas.delegate = self
         canvas.onInkChange = {[weak self] in self?.canvasViewDrawingDidChange($0)}
-        canvas.isUserInteractionEnabled = ink.drawing
+        canvas.isUserInteractionEnabled = ink.drawing && ink.visible
         canvases[index] = canvas
         renderInk(index)
         return canvas
@@ -229,13 +229,13 @@ final class PaperController: NSObject, ObservableObject, @preconcurrency PDFPage
         catch { self.error = "The pen marks could not be saved. Keep this page open and try again." }
     }
     private func updateTools() {
-        view.isInMarkupMode = ink.drawing
+        view.isInMarkupMode = ink.drawing && ink.visible
         for canvas in canvases.values {
             canvas.markingMode = ink.mode;canvas.configureInput()
-            canvas.isUserInteractionEnabled = ink.drawing
+            canvas.isUserInteractionEnabled = ink.drawing && ink.visible
             canvas.tool = ink.tool
             canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
-            canvas.alpha = 0.02
+            canvas.alpha = ink.visible ? 0.02 : 0
         }
         canvases.keys.forEach {renderInk($0)}
         if ink.drawing, let current = view.currentPage, let index = view.document?.index(for: current), let canvas = canvases[index] { canvas.becomeFirstResponder() }

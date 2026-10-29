@@ -62,7 +62,7 @@ struct StudySelectionView: View {
                 } else {
                     ConsumerCallout(text:kind == "Flashcards" ? "Tick all topics or the headings of them, then solve what is due or make more cards." : "Choose the subject and topics you want to solve.")
                     if note == nil { ConsumerField(title:"Subject",value:subject ?? "All subjects") { picker = "Subject" } }
-                    if subject != nil || note != nil {
+                    if !scoped.isEmpty {
                         ConsumerField(title:note == nil ? "Topics" : "Study material",value:topics.isEmpty ? "All topics" : "\(topics.count) headings") { picker = "Topics" }
                     }
                     if let error = library.loadError { Text(error).font(.system(size:13)).foregroundStyle(.red) }
@@ -96,14 +96,13 @@ struct StudySelectionView: View {
         }.foregroundStyle(CortexStyle.ink).cortexPage(kind,search:kind == "Qbank" && solving ? $query : nil)
             .consumerTabs(kind == "Qbank" ? "quiz" : "flashcards",visible:note == nil)
             .onChange(of:subjects) { _,_ in topics.removeAll() }
-            .sheet(isPresented:Binding(get:{picker != nil},set:{if !$0 {picker = nil}})) {
-                if picker == "Subject" {
-                    ConsumerPicker(title:"Subject",choices:subjectChoices,selected:$subjects)
-                } else if picker == "Topics" {
-                    ConsumerPicker(title:"Topics",choices:topicChoices,selected:$topics,multiple:true)
-                } else {
-                    ConsumerPicker(title:"Number of flashcards",choices:[10,20,30,50,100].map { ConsumerChoice(id:String($0),title:"\($0) flashcards") } + [ConsumerChoice(id:"all",title:"All flashcards")],selected:$counts)
+            .overlay {
+                if picker == "Subject" || picker == "Topics" {
+                    StudyScopePopup(subjects:subjectChoices,topics:topicChoices,selectedSubject:$subjects,selectedTopics:$topics,startsWithTopics:picker == "Topics",close:{picker = nil})
                 }
+            }
+            .sheet(isPresented:Binding(get:{picker == "Number of flashcards"},set:{if !$0 {picker = nil}})) {
+                ConsumerPicker(title:"Number of flashcards",choices:[10,20,30,50,100].map {ConsumerChoice(id:String($0),title:"\($0) flashcards")} + [ConsumerChoice(id:"all",title:"All flashcards")],selected:$counts)
             }
             .sheet(isPresented:$settings) { ReviewSettingsView() }
             .navigationDestination(isPresented:$creating) { CreateStudyView(note:note,initialKind:kind) }

@@ -101,6 +101,8 @@ struct CortexInkToolbar: View {
 struct ConsumerInkOptions:View {
     @ObservedObject var settings:CortexInkSettings
     let clear:()->Void
+    var undo:(()->Void)? = nil
+    var redo:(()->Void)? = nil
     @Environment(\.dismiss) private var dismiss
     var body:some View {
         VStack(alignment:.leading,spacing:12) {
@@ -108,6 +110,12 @@ struct ConsumerInkOptions:View {
             toolRow("Pens",mode:.pen,hex:[0x28467C,0x6F3D5D,0xAF3E3E],sizes:[1,1.5,2,3,4])
             toolRow("Highlighters",mode:.highlighter,hex:[0xFFEAEA,0xFFF9BD,0xCCFBFA],sizes:[8,11,14,18,22])
             toolRow("Underliners",mode:.underliner,hex:[0xE89090,0xD4C04A,0xB1E5E6],sizes:[1,1.5,2,3,4])
+            HStack(spacing:16) {
+                Button("Eraser") {settings.select(.eraser)}.font(CortexStyle.title(14))
+                if let undo {Button("Undo",action:undo)}
+                if let redo {Button("Redo",action:redo)}
+                Spacer()
+            }.frame(minHeight:38)
             Toggle("Stylus only",isOn:$settings.stylusOnly)
             Toggle("Show ink",isOn:$settings.visible)
             Button("Delete ink",role:.destructive) {dismiss();clear()}.font(CortexStyle.title(14)).padding(.vertical,8)
@@ -129,5 +137,37 @@ struct ConsumerInkOptions:View {
                 Button {settings.select(mode);settings.size(min(4,settings.sizeIndex+1))} label: {Text("+").frame(width:32,height:36)}.accessibilityLabel("Increase " + title + " width")
             }.buttonStyle(.plain)
         }
+    }
+}
+struct ConsumerInlineInkTools:View {
+    @ObservedObject var settings:CortexInkSettings
+    let undo:()->Void
+    let redo:()->Void
+    let clear:()->Void
+    @State private var options = false
+    @State private var confirmClear = false
+    var body:some View {
+        HStack(spacing:2) {
+            ForEach([CortexInkMode.pen,.highlighter,.underliner],id:\.self) {mode in
+                Button {
+                    if settings.drawing && settings.mode == mode {options = true} else {settings.select(mode)}
+                } label: {
+                    Image("consumer_tool_"+mode.rawValue).resizable().renderingMode(.template).scaledToFit().frame(width:20,height:20)
+                        .foregroundStyle(settings.drawing && settings.mode == mode ? Color(uiColor:settings.colors[settings.colorIndex]) : CortexStyle.ink)
+                        .frame(width:30,height:38).background(settings.drawing && settings.mode == mode ? Color(hex:0xE4EBFA) : .clear,in:RoundedRectangle(cornerRadius:8))
+                }.accessibilityLabel(mode.rawValue.capitalized)
+            }
+            Button {settings.drawing = false} label: {
+                Image("consumer_tool_cursor").resizable().scaledToFit().frame(width:20,height:20).frame(width:30,height:38)
+            }.accessibilityLabel("Cursor and scroll")
+        }.buttonStyle(.plain)
+            .sheet(isPresented:$options) {ConsumerInkOptions(settings:settings,clear:{confirmClear = true},undo:undo,redo:redo)}
+            .confirmationDialog("Delete all ink on this page?",isPresented:$confirmClear,titleVisibility:.visible) {Button("Delete ink",role:.destructive,action:clear)}
+    }
+}
+struct ConsumerFloatingToolStyle:ButtonStyle {
+    func makeBody(configuration:Configuration) -> some View {
+        configuration.label.frame(width:34,height:34).background(.white.opacity(0.94),in:RoundedRectangle(cornerRadius:8))
+            .overlay(RoundedRectangle(cornerRadius:8).stroke(CortexStyle.line,lineWidth:1)).opacity(configuration.isPressed ? 0.6 : 1)
     }
 }

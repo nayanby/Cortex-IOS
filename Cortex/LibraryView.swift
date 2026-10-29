@@ -32,7 +32,6 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationStack {
             Group {
                 if let catalog = library.catalog {
                     ScrollView {
@@ -146,7 +145,7 @@ struct LibraryView: View {
                 set: { if !$0 { localDocuments.errorMessage = nil } })) {
                     Button("OK") { localDocuments.errorMessage = nil }
                 } message: { Text(localDocuments.errorMessage ?? "") }
-        }.tint(CortexStyle.ink).consumerTabs("home")
+            .tint(CortexStyle.ink).consumerTabs("home")
     }
 }
 

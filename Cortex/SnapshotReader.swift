@@ -75,9 +75,9 @@ final class SnapshotController: NSObject, ObservableObject, WKNavigationDelegate
     private func updateTools() {
         canvas.markingMode = ink.mode;canvas.configureInput()
         canvas.tool = ink.tool; canvas.drawingPolicy = ink.stylusOnly ? .pencilOnly : .anyInput
-        canvas.isUserInteractionEnabled = ink.drawing; canvas.alpha = 0.02
+        canvas.isUserInteractionEnabled = ink.drawing && ink.visible; canvas.alpha = ink.visible ? 0.02 : 0
         renderInk()
-        webView.scrollView.panGestureRecognizer.isEnabled = !ink.drawing || ink.stylusOnly
+        webView.scrollView.panGestureRecognizer.isEnabled = !ink.drawing || !ink.visible || ink.stylusOnly
         if ink.drawing { canvas.becomeFirstResponder() } else { canvas.resignFirstResponder() }
     }
     private func renderInk() {
@@ -156,6 +156,7 @@ struct SnapshotReader: View {
     let entry: StudyEntry
     @EnvironmentObject private var library: LibraryStore
     @StateObject private var controller: SnapshotController
+    @AppStorage("reader.stylusControls") private var stylusControls = true
     @State private var fonts = false
     @State private var makeNew = false
     @State private var exportURL: URL?
@@ -170,22 +171,29 @@ struct SnapshotReader: View {
             SnapshotWebView(controller:controller)
             if controller.isLoading || exporting { ProgressView(exporting ? "Preparing PDF…" : "Opening Snapshot…").padding(24).background(.regularMaterial,in:RoundedRectangle(cornerRadius:14)) }
         }
-            .safeAreaInset(edge:.bottom,spacing:0) { CortexInkToolbar(settings:controller.ink,undo:controller.undo,redo:controller.redo,clear:controller.clearInk) }
+            .overlay(alignment:.bottomTrailing) {
+                if let note {
+                    NavigationLink {SharedNoteView(note:note)} label: {CortexArtwork(name:"book",size:26)}
+                        .buttonStyle(ConsumerFloatingToolStyle()).accessibilityLabel("Deep dive").padding(.trailing,12).padding(.bottom,10)
+                }
+            }
             .cortexToolbar("Snapshots") {
-                Button("Aa") { fonts = true }.accessibilityLabel("Font settings")
-                if let note { NavigationLink { SharedNoteView(note:note) } label: { Image(systemName:"book") }.accessibilityLabel("Deep dive") }
+                Button("Aa") { fonts = true }.frame(width:30,height:38).accessibilityLabel("Font settings")
+                if stylusControls {ConsumerInlineInkTools(settings:controller.ink,undo:controller.undo,redo:controller.redo,clear:controller.clearInk)}
                 Menu {
+                    Toggle("Stylus",isOn:$stylusControls)
                     Button("Make New") { makeNew = true }
                     Button("Share as PDF") {
                         exporting = true
                         Task { do { exportURL = try await controller.exportPDF() } catch { controller.error = error.localizedDescription }; exporting = false }
                     }.disabled(controller.isLoading || exporting)
-                } label: { Image(systemName:"ellipsis") }.accessibilityLabel("Snapshot menu")
+                } label: {Image("consumer_tool_more").resizable().scaledToFit().frame(width:22,height:22).frame(width:30,height:38)}.accessibilityLabel("Snapshot menu")
             }
             .navigationDestination(isPresented:$makeNew) { CreateStudyView(note:note,initialSource:(entry.content.sections ?? []).map(SlideExport.body).joined(separator:"\n\n"),initialKind:"Snapshots") }
             .sheet(isPresented:$fonts) {
                 ConsumerTypeSettings(delta:$delta,line:$line,paragraph:$paragraph,defaultLine:1.375)
             }
+            .onChange(of:stylusControls) {_,value in if !value {controller.ink.drawing = false}}
             .onChange(of:delta) { _,_ in controller.applyType() }
             .onChange(of:line) { _,_ in controller.applyType() }
             .onChange(of:paragraph) { _,_ in controller.applyType() }

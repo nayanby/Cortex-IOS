@@ -1,5 +1,6 @@
 import XCTest
 import WebKit
+import PencilKit
 @testable import Cortex
 
 @MainActor
@@ -93,4 +94,27 @@ final class ReaderTests: XCTestCase {
         XCTAssertTrue(LocalDocuments(directory: dir).documents.isEmpty)
         XCTAssertFalse(FileManager.default.fileExists(atPath: store.fileURL(for: document).path))
     }
+    func testNoteInkRestoresAsBlendedVectorsAfterReopening() async throws {
+        let fixture = try XCTUnwrap(Bundle(for:ReaderTests.self).url(forResource:"reader-check",withExtension:"docx",subdirectory:"Fixtures"))
+        let id = UUID()
+        let path = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("ReaderInk").appendingPathComponent(id.uuidString+".drawing")
+        defer {try? FileManager.default.removeItem(at:path)}
+        let first = ReaderController(fileURL:fixture,documentID:id)
+        let points = [CGPoint(x:30,y:60),CGPoint(x:180,y:60)].enumerated().map {i,p in PKStrokePoint(location:p,timeOffset:Double(i),size:CGSize(width:14,height:14),opacity:1,force:1,azimuth:0,altitude:.pi/2)}
+        first.pen.canvas.drawing = PKDrawing(strokes:[PKStroke(ink:PKInk(.marker,color:.yellow),path:PKStrokePath(controlPoints:points,creationDate:Date()))])
+        first.stop()
+        let reopened = ReaderController(fileURL:fixture,documentID:id)
+        XCTAssertEqual(reopened.pen.canvas.drawing.strokes.count,1)
+        let host = UIViewController(),window = UIWindow(frame:CGRect(x:0,y:0,width:390,height:844))
+        window.rootViewController = host;window.makeKeyAndVisible();host.view.addSubview(reopened.webView);reopened.webView.frame = host.view.bounds
+        defer {reopened.stop();window.isHidden = true}
+        reopened.load()
+        let deadline = Date().addingTimeInterval(30)
+        while reopened.isLoading && Date()<deadline {try await Task.sleep(nanoseconds:100_000_000)}
+        XCTAssertFalse(reopened.isLoading);XCTAssertNil(reopened.errorMessage)
+        try await Task.sleep(nanoseconds:200_000_000)
+        let result = try await reopened.webView.evaluateJavaScript("({count:document.querySelectorAll('#cortex-ink-wash path').length,blend:getComputedStyle(document.getElementById('cortex-ink-wash')).mixBlendMode})") as? [String:Any]
+        XCTAssertEqual(result?["count"] as? Int,1);XCTAssertEqual(result?["blend"] as? String,"multiply")
+    }
+
 }
