@@ -22,7 +22,7 @@ Run this after downloading the latest device artifact. Injecting resources must 
 
 - Original CORTEX app icon for iPhone and iPad.
 - Local catalog, subject/chapter navigation, heading search, Word imports and original Android DOCX rendering with tables, formulas and embedded images.
-- Notes and Snapshot font controls change by exactly 1 pt per step. Reader line spacing, paragraph spacing, outline, bookmarks, text highlights, and saved reading position.
+- Notes/Snapshots use Consumer’s top Aa and marking tools, with floating Snapshot/Outline/Deep Dive buttons. Direct note pen strokes persist locally. Font controls change by exactly 1 pt per step. Reader line spacing, paragraph spacing, outline, bookmarks, text highlights, and saved reading position.
 - Primary sections open in the main navigation stack with the Consumer header and floating navigation pill. Home category order, subject/topic tick pickers, study panels, flashcard review card, Create form and paper libraries follow the original Consumer layouts. Snapshots retain the Consumer HTML/CSS and bundled fonts.
 - Snapshot/PDF/notebook drawing uses coalesced stylus samples, uniform widths, a horizontal underliner, original pen artwork, and compact colour/width controls. Snapshot SVG ink and PDF vector annotations multiply the wash layer into the page; black text stays dark and overlapping strokes keep the same pastel. Existing PencilKit drawing files remain readable, including erased ranges.
 - Flashcards and Qbank browse by subject, chapter and heading, with multiple selections and combined study sessions. Flashcard ratings retain each original card's review history. Qbank shows one question at a time with answer checks, explanations, saved position, scoring and performance history.

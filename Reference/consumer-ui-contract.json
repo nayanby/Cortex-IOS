@@ -43,5 +43,25 @@
     "penGeometry": "uniform width, interpolated coalesced samples",
     "storage": "PKDrawing retained"
   },
-  "visualAcceptance": "Pending physical iPad comparison"
+  "visualAcceptance": "Pending physical iPad comparison",
+  "viewerControls": {
+    "top": [
+      "Aa",
+      "pen",
+      "highlighter",
+      "underliner",
+      "cursor",
+      "overflow"
+    ],
+    "noteBottomLeft": "Snapshots",
+    "noteBottomRight": "Outline",
+    "snapshotBottomRight": "Deep dive"
+  },
+  "studyPicker": {
+    "size": "large centered popup, up to 860 pt wide",
+    "subjectSelection": "opens topics immediately in the same popup",
+    "back": "returns to subjects without dismissing",
+    "topics": "multiple headings or all topics"
+  },
+  "navigation": "one main NavigationStack; Deep Dive inherits its parent"
 }
