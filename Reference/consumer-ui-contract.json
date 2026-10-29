@@ -41,7 +41,15 @@
     "washComposite": "multiply layer",
     "underliner": "horizontal",
     "penGeometry": "uniform width, interpolated coalesced samples",
-    "storage": "PKDrawing retained"
+    "storage": "PKDrawing retained",
+    "toolbarOrder": [
+      "pen",
+      "highlighter",
+      "eraser",
+      "underliner",
+      "cursor"
+    ],
+    "smoothing": "adaptive speed-sensitive input filter with bounded lag and exact final tip position"
   },
   "visualAcceptance": "Pending physical iPad comparison",
   "viewerControls": {
@@ -61,7 +69,19 @@
     "size": "large centered popup, up to 860 pt wide",
     "subjectSelection": "opens topics immediately in the same popup",
     "back": "returns to subjects without dismissing",
-    "topics": "multiple headings or all topics"
+    "topics": "multiple headings or all topics",
+    "questionCounts": [
+      10,
+      20,
+      30,
+      50,
+      "all"
+    ]
   },
-  "navigation": "one main NavigationStack; Deep Dive inherits its parent"
+  "navigation": "one main NavigationStack; Deep Dive inherits its parent",
+  "quizExit": [
+    "Pause",
+    "Exit without saving",
+    "Continue solving"
+  ]
 }
