@@ -59,7 +59,7 @@ struct StudyScopePopup:View {
                     .frame(width:min(860,max(280,geometry.size.width-24)),height:max(320,geometry.size.height-24))
                     .shadow(color:.black.opacity(0.2),radius:20,y:8).accessibilityAddTraits(.isModal)
             }.frame(maxWidth:.infinity,maxHeight:.infinity)
-        }.onAppear {showingTopics = startsWithTopics}.onExitCommand(perform:close)
+        }.onAppear {showingTopics = startsWithTopics}
     }
     private func row(_ title:String,detail:String,selected:Bool,opens:Bool = false) -> some View {
         HStack(spacing:14) {
