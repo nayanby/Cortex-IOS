@@ -14,7 +14,11 @@ final class StrokeSmoothingTests:XCTestCase {
     }
     func testFastWritingAndCornersKeepTipCloseAndFinishExactly() {
         var smoother = ConsumerStrokeSmoother()
-        let samples = (0..<100).map {i in i<50 ? CGPoint(x:CGFloat(i*8),y:0) : CGPoint(x:392,y:CGFloat((i-49)*8))}
+        var samples:[CGPoint] = []
+        for i in 0..<100 {
+            if i<50 {samples.append(CGPoint(x:CGFloat(i*8),y:0))}
+            else {samples.append(CGPoint(x:392,y:CGFloat((i-49)*8)))}
+        }
         for (i,point) in samples.enumerated() {
             let output = smoother.sample(point,time:Double(i)/120)
             XCTAssertLessThanOrEqual(hypot(output.x-point.x,output.y-point.y),1.601,"A smoother must not pull the pen far behind fast handwriting")
